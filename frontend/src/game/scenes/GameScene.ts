@@ -97,6 +97,14 @@ export class GameScene extends Phaser.Scene {
     const sp = this.pickSpawn(Math.floor(this.island.spawnPoints.length * 0.45));
     this.player = new Player(this, sp.x, sp.y);
 
+    // Show our own name above our character so other players (and we) can
+    // identify who is who.
+    const myUid = this.game.registry.get('uid') as string | null;
+    const myName = (this.game.registry.get('username') as string | null)
+      ?? myUid?.slice(0, 6)
+      ?? 'You';
+    this.player.setLabel(this, myName + ' (you)');
+
     this.minZoom = Math.min(
       this.scale.width / WORLD_WIDTH,
       this.scale.height / WORLD_HEIGHT,
@@ -177,6 +185,7 @@ export class GameScene extends Phaser.Scene {
     this.socket.onmessage = (event) => {
       try {
         const msg = JSON.parse(event.data);
+<<<<<<< Updated upstream
         if (msg.type === 'move') this.updateRemotePlayer(msg.uid, msg.x, msg.y, msg.username);
         if (msg.type === 'leave') this.removeRemotePlayer(msg.uid);
         if (msg.type === 'room_state') {
@@ -186,6 +195,17 @@ export class GameScene extends Phaser.Scene {
         }
         if (msg.type === 'player_joined' && msg.uid !== this.myUid) {
           this.updateRemotePlayer(msg.uid, msg.x, msg.y, msg.username);
+=======
+        if (msg.type === 'move') {
+          this.updateRemotePlayer(msg.uid, msg.x, msg.y, msg.username);
+        } else if (msg.type === 'presence' && Array.isArray(msg.players)) {
+          // Snapshot of players already in the room when we joined.
+          for (const p of msg.players) {
+            this.updateRemotePlayer(p.uid, p.x, p.y, p.username);
+          }
+        } else if (msg.type === 'leave') {
+          this.removeRemotePlayer(msg.uid);
+>>>>>>> Stashed changes
         }
       } catch (e) {
         console.warn('Bad WS message', event.data);

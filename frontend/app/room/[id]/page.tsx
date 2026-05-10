@@ -1,81 +1,116 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../../lib/firebase";
-import dynamic from "next/dynamic";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
-const PhaserGame = dynamic(() => import("../../../src/game/PhaserGame"), {
-  ssr: false,
-  loading: () => (
-    <div style={{
-      width: "100vw", height: "100vh", background: "#1a6b8a",
-      display: "flex", alignItems: "center", justifyContent: "center",
-      color: "#fff", fontFamily: "monospace", fontSize: "16px",
-    }}>
-      Loading island...
-    </div>
-  ),
-});
-
 export default function RoomPage() {
-  const params = useParams();
-  const router = useRouter();
-  const roomId = params.id as string;
+    const router = useRouter();
+    const { id: room_id } = useParams();
+    const [uid, setUid] = useState<string | null>(null);
+    const [username, setUsername] = useState<string | null>(null);
+    const [room, setRoom] = useState<any>(null);
+    const [error, setError] = useState<string | null>(null);
 
-  const [ready, setReady] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+    useEffect(() => {
+        if (!room_id) return;  // 👈 add this guard
 
-  useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (user) => {
-      if (!user) { router.push("/auth"); return; }
+        const unsub = onAuthStateChanged(auth, (user) => {
+            if (!user) { router.push("/auth"); return; }
+            setUid(user.uid);
+            const stored = localStorage.getItem(`username:${user.uid}`);
+            setUsername(stored || "Player");
 
-      const username = localStorage.getItem(`username:${user.uid}`);
-      if (!username) { router.push("/onboarding"); return; }
+            // Fetch room data
+            fetch(`${BACKEND_URL}/rooms/${room_id}`)
+                .then((r) => r.ok ? r.json() : null)
+                .then((data) => {
+                    if (!data) setError("Room not found.");
+                    else setRoom(data);
+                })
+                .catch(() => setError("Could not load room."));
+        });
+        return () => unsub();
+    }, [room_id, router]);
 
-      // Verify the room exists
-      try {
-        const res = await fetch(`${BACKEND_URL}/rooms/${roomId}`);
-        if (!res.ok) { setError("Room not found."); return; }
-      } catch {
-        setError("Could not reach server.");
-        return;
-      }
+    function handleLeave() {
+        fetch(`${BACKEND_URL}/rooms/${room_id}/leave?user_id=${uid}`, {
+            method: "DELETE",
+        }).finally(() => router.push("/lobby"));
+    }
 
-      setReady(true);
-    });
-    return () => unsub();
-  }, [roomId, router]);
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0a0e1a] gap-4">
-        <p className="text-red-400 text-sm">{error}</p>
-        <button onClick={() => router.push("/lobby")} className="text-slate-400 hover:text-white text-sm transition-colors">
-          ← Back to lobby
-        </button>
-      </div>
+    if (error) return (
+        <div className="min-h-screen flex items-center justify-center bg-[#0a0e1a]">
+            <div className="text-red-400">{error}</div>
+        </div>
     );
-  }
 
-  if (!ready) {
-    return (
-      <div style={{
-        width: "100vw", height: "100vh", background: "#1a6b8a",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        color: "#fff", fontFamily: "monospace", fontSize: "16px",
-      }}>
-        Loading island...
-      </div>
+    if (!room) return (
+        <div className="min-h-screen flex items-center justify-center bg-[#0a0e1a]">
+            <div className="text-slate-400 text-sm">Loading room...</div>
+        </div>
     );
-  }
 
-  return (
-    <div className="w-screen h-screen overflow-hidden">
-      <PhaserGame roomId={roomId} />
-    </div>
-  );
+    return (
+        <div className="min-h-screen bg-[#0a0e1a] flex flex-col">
+            {/* Header */}
+            <header className="border-b border-slate-800 px-6 py-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <span className="text-2xl">🏝️</span>
+                    <span className="text-white font-bold text-lg">{room.name}</span>
+                </div>
+                <div className="flex items-center gap-4">
+                    <span className="text-slate-400 text-sm font-mono tracking-widest">{room.code}</span>
+                    <button
+                        onClick={handleLeave}
+                        className="text-slate-500 hover:text-red-400 text-sm transition-colors"
+                    >
+                        Leave room
+                    </button>
+                </div>
+            </header>
+
+            <main className="flex-1 flex items-center justify-center px-6 py-12">
+                <div className="w-full max-w-2xl flex flex-col gap-6">
+
+                    {/* Room code to share */}
+                    <div className="bg-[#111827] border border-slate-700 rounded-2xl p-6 text-center">
+                        <p className="text-slate-400 text-sm mb-2">Share this code to invite friends</p>
+                        <div className="text-4xl font-mono font-bold text-white tracking-widest">{room.code}</div>
+                    </div>
+
+                    {/* Members */}
+                    <div className="bg-[#111827] border border-slate-700 rounded-2xl p-6">
+                        <h2 className="text-white font-semibold mb-4">
+                            Players ({room.members?.length || 0})
+                        </h2>
+                        <div className="flex flex-col gap-2">
+                            {room.members?.map((memberId: string) => (
+                                <div key={memberId} className="flex items-center gap-3 bg-[#0a0e1a] rounded-xl px-4 py-3">
+                                    <div className="w-2 h-2 rounded-full bg-emerald-400" />
+                                    <span className="text-white text-sm font-mono">
+                                        {memberId === uid ? `${username} (you)` : memberId}
+                                    </span>
+                                    {memberId === room.host_id && (
+                                        <span className="ml-auto text-xs text-yellow-400">host</span>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={() => router.push(`/game?room_id=${room_id}`)}
+                        className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-4 rounded-xl transition-colors text-base"
+                    >
+                        Enter island →
+                    </button>
+
+                </div>
+            </main>
+        </div>
+    );
 }
