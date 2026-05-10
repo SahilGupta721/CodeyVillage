@@ -26,6 +26,12 @@ export function createGameConfig(
       antialiasGL: false,
       pixelArt: true,
     },
+    // Disable Phaser's sound manager entirely. This game has no sounds, and
+    // leaving WebAudio enabled produced noisy
+    //   "InvalidStateError: Cannot suspend/resume a closed AudioContext"
+    // unhandled rejections every time Fast Refresh / StrictMode tore the
+    // game down and reran the effect.
+    audio: { noAudio: true },
     callbacks: {
       preBoot: (game) => {
         game.registry.set('roomId', roomId);
