@@ -4,6 +4,8 @@ from controllers.user_controller import (
     create_user, upsert_user, get_user, get_user_by_email,
     update_user, delete_user, connect_github, get_stats,
 )
+from database.database import users_collection
+from services.github_service import create_webhooks_for_user
 
 router = APIRouter()
 
@@ -46,3 +48,12 @@ def fetch_stats(uid: str):
 @router.post("/connect-github")
 async def link_github(data: ConnectGithubRequest):
     return await connect_github(data)
+
+
+@router.post("/{uid}/refresh-webhooks")
+async def refresh_webhooks(uid: str):
+    user = users_collection.find_one({"_id": uid}, {"github_token": 1})
+    if not user or not user.get("github_token"):
+        return {"ok": False, "error": "No GitHub token found — reconnect GitHub first"}
+    updated = await create_webhooks_for_user(user["github_token"])
+    return {"ok": True, "updated": updated}

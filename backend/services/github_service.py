@@ -38,22 +38,29 @@ async def create_webhooks_for_user(token: str) -> int:
 
 
 async def _create_webhook(client: httpx.AsyncClient, token: str, full_name: str) -> bool:
+    target_url = f"{WEBHOOK_URL}/webhook/github"
+    headers = {"Authorization": f"Bearer {token}", "User-Agent": "productivity-island", "Content-Type": "application/json"}
+
+    # Check for existing hook and update it if URL is stale
+    list_res = await client.get(f"https://api.github.com/repos/{full_name}/hooks", headers=headers)
+    if list_res.status_code == 200:
+        for hook in list_res.json():
+            hook_url = hook.get("config", {}).get("url", "")
+            if "productivity-island" in hook_url:
+                if hook_url == target_url:
+                    return True  # already correct
+                # Update stale URL
+                patch = await client.patch(
+                    f"https://api.github.com/repos/{full_name}/hooks/{hook['id']}",
+                    headers=headers,
+                    json={"active": True, "config": {"url": target_url, "content_type": "json"}},
+                )
+                return patch.status_code in (200, 201)
+
+    # No existing hook — create one
     res = await client.post(
         f"https://api.github.com/repos/{full_name}/hooks",
-        headers={
-            "Authorization": f"Bearer {token}",
-            "User-Agent": "productivity-island",
-            "Content-Type": "application/json",
-        },
-        json={
-            "name": "web",
-            "active": True,
-            "events": ["push"],
-            "config": {
-                "url": f"{WEBHOOK_URL}/webhook/github",
-                "content_type": "json",
-            },
-        },
+        headers=headers,
+        json={"name": "web", "active": True, "events": ["push"], "config": {"url": target_url, "content_type": "json"}},
     )
-    # 201 = created, 422 = already exists — both are fine
     return res.status_code in (201, 422)
