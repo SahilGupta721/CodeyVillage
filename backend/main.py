@@ -1,8 +1,16 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from routes import user_routes, coin_routes, room_routes, island_routes, shop_routes
 from database import database as db
 
 app = FastAPI(title="GDG Hacks 3 API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(user_routes.router, prefix="/users", tags=["users"])
 app.include_router(coin_routes.router, prefix="/coins", tags=["coins"])

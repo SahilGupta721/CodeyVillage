@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import { auth } from "../../lib/firebase";
+import { onAuthStateChanged, signOut, linkWithPopup, GithubAuthProvider } from "firebase/auth";
+import { auth, githubProvider } from "../../lib/firebase";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
@@ -11,6 +11,10 @@ export default function LobbyPage() {
   const router = useRouter();
   const [username, setUsername] = useState<string | null>(null);
   const [uid, setUid] = useState<string | null>(null);
+
+  const [githubLogin, setGithubLogin] = useState<string | null>(null);
+  const [githubLoading, setGithubLoading] = useState(false);
+  const [githubError, setGithubError] = useState<string | null>(null);
 
   const [roomName, setRoomName] = useState("");
   const [joinCode, setJoinCode] = useState("");
@@ -30,6 +34,12 @@ export default function LobbyPage() {
       }
       setUid(user.uid);
       setUsername(stored);
+
+      // Load GitHub status from backend
+      fetch(`${BACKEND_URL}/users/${user.uid}`)
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => { if (data?.github_login) setGithubLogin(data.github_username); })
+        .catch(() => {});
     });
     return () => unsub();
   }, [router]);
@@ -75,6 +85,35 @@ export default function LobbyPage() {
       setError("Room not found or invalid code.");
     } finally {
       setLoading(null);
+    }
+  }
+
+  async function handleConnectGithub() {
+    if (!auth.currentUser || !uid) return;
+    setGithubLoading(true);
+    setGithubError(null);
+    try {
+      const result = await linkWithPopup(auth.currentUser, githubProvider);
+      const credential = GithubAuthProvider.credentialFromResult(result);
+      const githubToken = credential?.accessToken;
+      if (!githubToken) throw new Error("No token returned");
+
+      const res = await fetch(`${BACKEND_URL}/users/connect-github`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uid, github_token: githubToken }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const data = await res.json();
+      setGithubLogin(data.github_username);
+    } catch (err: any) {
+      if (err.code === "auth/credential-already-in-use" || err.code === "auth/provider-already-linked") {
+        setGithubError("This GitHub account is already linked.");
+      } else {
+        setGithubError("Failed to connect GitHub. Try again.");
+      }
+    } finally {
+      setGithubLoading(false);
     }
   }
 
@@ -179,6 +218,38 @@ export default function LobbyPage() {
                 </button>
               </form>
             </div>
+          </div>
+
+          {/* GitHub connect */}
+          <div className="bg-[#111827] border border-slate-700 rounded-2xl p-6 flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-white font-semibold text-base">GitHub</h2>
+              <p className="text-slate-500 text-xs mt-1">
+                {githubLogin
+                  ? `Connected as @${githubLogin} — commits are being tracked`
+                  : "Connect to track commits and earn coins automatically"}
+              </p>
+              {githubError && <p className="text-red-400 text-xs mt-1">{githubError}</p>}
+            </div>
+            {githubLogin ? (
+              <div className="flex items-center gap-2 text-emerald-400 text-sm font-medium shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+                </svg>
+                @{githubLogin}
+              </div>
+            ) : (
+              <button
+                onClick={handleConnectGithub}
+                disabled={githubLoading}
+                className="shrink-0 flex items-center gap-2 bg-slate-700 hover:bg-slate-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+                </svg>
+                {githubLoading ? "Connecting..." : "Connect GitHub"}
+              </button>
+            )}
           </div>
 
           {/* Coin summary placeholder */}

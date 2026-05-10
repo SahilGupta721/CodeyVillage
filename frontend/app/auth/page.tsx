@@ -19,6 +19,14 @@ export default function AuthPage() {
       const idToken = await result.user.getIdToken();
       const hasUsername = localStorage.getItem(`username:${uid}`);
 
+      if (hasUsername) {
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000"}/users/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ uid, username: hasUsername }),
+        }).catch(() => {});
+      }
+
       window.postMessage({
         type: "productivity-island-auth",
         uid,
