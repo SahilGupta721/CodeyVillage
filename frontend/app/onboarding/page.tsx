@@ -74,7 +74,7 @@ export default function OnboardingPage() {
       });
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
-      setGithubLogin(data.github_username);
+      setGithubLogin(data.github_login);
     } catch (err: any) {
       if (err.code === "auth/credential-already-in-use" || err.code === "auth/provider-already-linked") {
         setGithubError("This GitHub account is already linked to another user.");
