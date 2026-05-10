@@ -2,19 +2,19 @@
  * GameScene — main playable scene, top-down RPG village style.
  *
  * Rendering layers (depth order):
- *   2  village RenderTexture  — all tiles drawn once (rock, grass, paths, water)
+ *   2  village RenderTexture  — all tiles drawn once
  *   3  pond TileSprite overlay — animated ripples on the water tiles
  *   5  building gBase         — floor, N/E/W walls, interior, furniture, step mat
  *  20  flowers / ground deco
  *  50  bushes
  *  60  trees
- * 100+ building gSouth        — south wall face, y-sorted; renders above chars inside
+ * 100+ building gSouth        — south wall face, y-sorted
  * 100+ NPCs + player          — y-sorted each frame (100 + y * 0.01)
  * 200  UI overlay
  */
 
 import Phaser from 'phaser';
-import { generateIsland }  from '../map/IslandGenerator';
+import { generateIsland } from '../map/IslandGenerator';
 import {
   TileType, TILE_SIZE,
   MAP_WIDTH, MAP_HEIGHT,
@@ -23,27 +23,26 @@ import {
 } from '../map/TileTypes';
 
 import { CollisionSystem } from '../systems/CollisionSystem';
-import { Player }          from '../entities/Player';
-import { NPC }             from '../entities/NPC';
+import { Player } from '../entities/Player';
+import { NPC } from '../entities/NPC';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const ZOOM        = 1.8;
+const ZOOM = 1.8;
 const CAMERA_LERP = 0.09;
-const NPC_COUNT   = 6;
+const NPC_COUNT = 6;
 const ISLAND_SEED = 42;
+const WS_BROADCAST_INTERVAL = 50; // ms between position broadcasts
 
-// Base fill colours per tile type
 const TILE_COLORS = new Map<TileType, number>([
-  [TileType.ROCK,       0x8a8462],
-  [TileType.WATER,      0x3898d8],
-  [TileType.GRASS,      0x8ec86a],
+  [TileType.ROCK, 0x8a8462],
+  [TileType.WATER, 0x3898d8],
+  [TileType.GRASS, 0x8ec86a],
   [TileType.GRASS_DARK, 0x74ae50],
-  [TileType.DIRT_PATH,  0xc09050],
-  [TileType.GRAVEL,     0xb8a882],
+  [TileType.DIRT_PATH, 0xc09050],
+  [TileType.GRAVEL, 0xb8a882],
 ]);
 
-// Building palette: exterior wall, south-face wall, interior floor, door opening, accent trim
 interface Palette { wall: number; wallDk: number; floor: number; door: number; accent: number; }
 const PALETTES: Palette[] = [
   { wall: 0xd4aa74, wallDk: 0x9a7040, floor: 0xeee0c0, door: 0x2a1808, accent: 0xd03020 },
@@ -53,19 +52,31 @@ const PALETTES: Palette[] = [
   { wall: 0xc8d0b0, wallDk: 0x8a9070, floor: 0xdcd8c0, door: 0x181008, accent: 0xb06030 },
 ];
 
+// Remote player shirt colours — one per remote player slot
+const REMOTE_COLORS = [
+  0xe05828, 0x30a840, 0x9030c0, 0xd4a020, 0xd02860, 0x1898c0,
+];
+
 // ─── Scene ────────────────────────────────────────────────────────────────────
 
 export class GameScene extends Phaser.Scene {
-  private island!    : IslandData;
-  private col!       : CollisionSystem;
-  private player!    : Player;
-  private npcs       : NPC[] = [];
-  private pondAnims  : Phaser.GameObjects.TileSprite[] = [];
-  private cursors!   : Phaser.Types.Input.Keyboard.CursorKeys;
-  private wasd!      : Record<'up' | 'down' | 'left' | 'right', Phaser.Input.Keyboard.Key>;
-  private minZoom    = 0.3;
-  private readonly maxZoom  = 4.0;
+  private island!: IslandData;
+  private col!: CollisionSystem;
+  private player!: Player;
+  private npcs: NPC[] = [];
+  private pondAnims: Phaser.GameObjects.TileSprite[] = [];
+  private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
+  private wasd!: Record<'up' | 'down' | 'left' | 'right', Phaser.Input.Keyboard.Key>;
+  private minZoom = 0.3;
+  private readonly maxZoom = 4.0;
   private readonly zoomStep = 0.35;
+
+  // ─── Multiplayer ───────────────────────────────────────────────────────────
+  private socket: WebSocket | null = null;
+  private remotePlayers: Map<string, Phaser.GameObjects.Container> = new Map();
+  private remoteColorMap: Map<string, number> = new Map();
+  private myUid: string | null = null;
+  private lastBroadcast: number = 0;
 
   constructor() { super({ key: 'GameScene' }); }
 
@@ -73,7 +84,7 @@ export class GameScene extends Phaser.Scene {
 
   create(): void {
     this.island = generateIsland(ISLAND_SEED);
-    this.col    = new CollisionSystem(this.island.tiles, this.island.buildings);
+    this.col = new CollisionSystem(this.island.tiles, this.island.buildings);
 
     this.buildTileLayer();
     this.addPondOverlay();
@@ -81,11 +92,11 @@ export class GameScene extends Phaser.Scene {
     this.island.buildings.forEach(b => this.drawBuilding(b));
     this.spawnNPCs();
 
-    const sp    = this.pickSpawn(Math.floor(this.island.spawnPoints.length * 0.45));
+    const sp = this.pickSpawn(Math.floor(this.island.spawnPoints.length * 0.45));
     this.player = new Player(this, sp.x, sp.y);
 
     this.minZoom = Math.min(
-      this.scale.width  / WORLD_WIDTH,
+      this.scale.width / WORLD_WIDTH,
       this.scale.height / WORLD_HEIGHT,
     );
 
@@ -96,10 +107,10 @@ export class GameScene extends Phaser.Scene {
       .setBackgroundColor('#3898d8');
 
     this.cursors = this.input.keyboard!.createCursorKeys();
-    this.wasd    = {
-      up:    this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.W),
-      down:  this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.S),
-      left:  this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+    this.wasd = {
+      up: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.W),
+      down: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.S),
+      left: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.A),
       right: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.D),
     };
 
@@ -111,11 +122,13 @@ export class GameScene extends Phaser.Scene {
       padding: { x: 8, y: 5 },
     }).setScrollFactor(0).setDepth(200);
 
+    // Connect multiplayer after everything is ready
+    this.connectMultiplayer();
   }
 
   // ─── update ───────────────────────────────────────────────────────────────
 
-  update(_time: number, delta: number): void {
+  update(time: number, delta: number): void {
     for (const s of this.pondAnims) {
       s.tilePositionX += 0.25;
       s.tilePositionY += 0.10;
@@ -123,12 +136,149 @@ export class GameScene extends Phaser.Scene {
 
     this.player.update(delta, this.cursors, this.wasd, this.col);
     for (const npc of this.npcs) npc.update(delta, this.col);
+
+    // Broadcast position at a throttled rate
+    if (time - this.lastBroadcast > WS_BROADCAST_INTERVAL) {
+      this.broadcastPosition();
+      this.lastBroadcast = time;
+    }
+  }
+
+  // ─── Multiplayer ──────────────────────────────────────────────────────────
+
+  private connectMultiplayer(): void {
+    const roomId = this.game.registry.get('roomId') as string | null;
+    const uid = this.game.registry.get('uid') as string | null;
+    if (!roomId || !uid) {
+      console.log('No roomId or uid — running in single-player mode');
+      return;
+    }
+
+    this.myUid = uid;
+    const wsUrl = `ws://localhost:8000/ws/${roomId}/${uid}`;
+    console.log('Connecting to', wsUrl);
+
+    this.socket = new WebSocket(wsUrl);
+
+    this.socket.onopen = () => {
+      console.log('WebSocket connected');
+    };
+
+    this.socket.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        if (msg.type === 'move') this.updateRemotePlayer(msg.uid, msg.x, msg.y, msg.username);
+        if (msg.type === 'leave') this.removeRemotePlayer(msg.uid);
+      } catch (e) {
+        console.warn('Bad WS message', event.data);
+      }
+    };
+
+    this.socket.onclose = () => {
+      console.log('WebSocket disconnected');
+    };
+
+    this.socket.onerror = (e) => {
+      console.error('WebSocket error', e);
+    };
+
+    // Clean up on scene shutdown
+    this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.socket?.close();
+      this.socket = null;
+    });
+  }
+
+  private broadcastPosition(): void {
+    if (!this.socket || this.socket.readyState !== WebSocket.OPEN) return;
+    const uid = this.myUid;
+    const username = this.game.registry.get('username') as string | null;
+    this.socket.send(JSON.stringify({
+      type: 'move',
+      x: this.player.x,
+      y: this.player.y,
+      username: username ?? uid?.slice(0, 6) ?? '???',
+    }));
+  }
+
+  private updateRemotePlayer(uid: string, x: number, y: number, username?: string): void {
+    if (uid === this.myUid) return;
+
+    if (!this.remotePlayers.has(uid)) {
+      // Assign a stable colour per uid
+      const colorIdx = this.remoteColorMap.size % REMOTE_COLORS.length;
+      this.remoteColorMap.set(uid, REMOTE_COLORS[colorIdx]);
+      const shirt = REMOTE_COLORS[colorIdx];
+
+      // Draw a player-shaped avatar matching the local player art
+      const g = this.add.graphics();
+
+      // Shadow
+      g.fillStyle(0x000000, 0.26);
+      g.fillRect(-7, 4, 14, 5);
+
+      // Legs
+      g.fillStyle(0x1e2860);
+      g.fillRect(-5, 6, 4, 5);
+      g.fillRect(2, 6, 4, 5);
+
+      // Shirt (unique colour per remote player)
+      g.fillStyle(shirt);
+      g.fillRect(-6, -2, 12, 8);
+
+      // Shirt highlight
+      g.fillStyle(0xffffff, 0.22);
+      g.fillRect(-5, -2, 3, 8);
+
+      // Head
+      g.fillStyle(0xf0c890);
+      g.fillRect(-5, -9, 10, 7);
+
+      // Eyes
+      g.fillStyle(0x080408);
+      g.fillRect(-3, -5, 2, 2);
+      g.fillRect(2, -5, 2, 2);
+
+      // Hat
+      g.fillStyle(0x1e3070);
+      g.fillRect(-6, -9, 12, 3);
+      g.fillStyle(0x4060a8);
+      g.fillRect(-6, -9, 12, 1);
+
+      // Username label above head
+      const label = this.add.text(0, -22, username ?? uid.slice(0, 6), {
+        fontSize: '9px',
+        fontFamily: 'monospace',
+        color: '#ffffff',
+        backgroundColor: '#00000088',
+        padding: { x: 3, y: 2 },
+      }).setOrigin(0.5);
+
+      const container = this.add.container(x, y, [g, label]);
+      container.setDepth(100 + y * 0.01);
+      this.remotePlayers.set(uid, container);
+    } else {
+      const container = this.remotePlayers.get(uid)!;
+      // Smooth interpolation toward received position
+      container.x = Phaser.Math.Linear(container.x, x, 0.3);
+      container.y = Phaser.Math.Linear(container.y, y, 0.3);
+      container.setDepth(100 + container.y * 0.01);
+    }
+  }
+
+  private removeRemotePlayer(uid: string): void {
+    const container = this.remotePlayers.get(uid);
+    if (container) {
+      container.destroy();
+      this.remotePlayers.delete(uid);
+      this.remoteColorMap.delete(uid);
+    }
   }
 
   // ─── Tile layer ───────────────────────────────────────────────────────────
 
   private buildTileLayer(): void {
-    const rt  = this.add.renderTexture(0, 0, WORLD_WIDTH, WORLD_HEIGHT)
+    const rt = this.add.renderTexture(0, 0, WORLD_WIDTH, WORLD_HEIGHT)
       .setOrigin(0, 0).setDepth(2);
     const gfx = this.add.graphics();
 
@@ -154,7 +304,6 @@ export class GameScene extends Phaser.Scene {
     gfx.destroy();
   }
 
-  /** Scattered darker speckles on grass for visual texture */
   private detailGrass(rt: Phaser.GameObjects.RenderTexture, gfx: Phaser.GameObjects.Graphics): void {
     const TS = TILE_SIZE;
     gfx.clear();
@@ -164,51 +313,45 @@ export class GameScene extends Phaser.Scene {
         const t = this.island.tiles[y][x];
         if (t !== TileType.GRASS && t !== TileType.GRASS_DARK) continue;
         const h = ((x * 7 + y * 13) ^ (x * 3)) % 9;
-        if (h === 0) { gfx.fillRect(x*TS+4,  y*TS+4,  2, 2); gfx.fillRect(x*TS+20, y*TS+18, 2, 2); }
-        if (h === 1) { gfx.fillRect(x*TS+14, y*TS+8,  2, 2); gfx.fillRect(x*TS+6,  y*TS+22, 2, 2); }
-        if (h === 2) { gfx.fillRect(x*TS+26, y*TS+6,  2, 2); gfx.fillRect(x*TS+10, y*TS+26, 2, 2); }
-        if (h === 5) { gfx.fillRect(x*TS+8,  y*TS+16, 2, 2); gfx.fillRect(x*TS+22, y*TS+10, 2, 2); }
+        if (h === 0) { gfx.fillRect(x * TS + 4, y * TS + 4, 2, 2); gfx.fillRect(x * TS + 20, y * TS + 18, 2, 2); }
+        if (h === 1) { gfx.fillRect(x * TS + 14, y * TS + 8, 2, 2); gfx.fillRect(x * TS + 6, y * TS + 22, 2, 2); }
+        if (h === 2) { gfx.fillRect(x * TS + 26, y * TS + 6, 2, 2); gfx.fillRect(x * TS + 10, y * TS + 26, 2, 2); }
+        if (h === 5) { gfx.fillRect(x * TS + 8, y * TS + 16, 2, 2); gfx.fillRect(x * TS + 22, y * TS + 10, 2, 2); }
       }
     }
     rt.draw(gfx);
   }
 
-  /** Cracks and pebbles on rock border tiles */
   private detailRock(rt: Phaser.GameObjects.RenderTexture, gfx: Phaser.GameObjects.Graphics): void {
     const TS = TILE_SIZE;
-
-    // Dark crevices
     gfx.clear();
     gfx.fillStyle(0x585840, 0.55);
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
         if (this.island.tiles[y][x] !== TileType.ROCK) continue;
         const h = ((x * 7 + y * 13) ^ (x * 3)) % 12;
-        if (h === 0) gfx.fillRect(x*TS+4,  y*TS+10, 10, 2);
-        if (h === 1) gfx.fillRect(x*TS+18, y*TS+6,   2, 10);
-        if (h === 2) gfx.fillRect(x*TS+8,  y*TS+20,  8,  2);
-        if (h === 3) gfx.fillRect(x*TS+22, y*TS+14,  2,  8);
-        if (h === 4) gfx.fillRect(x*TS+14, y*TS+4,   6,  2);
+        if (h === 0) gfx.fillRect(x * TS + 4, y * TS + 10, 10, 2);
+        if (h === 1) gfx.fillRect(x * TS + 18, y * TS + 6, 2, 10);
+        if (h === 2) gfx.fillRect(x * TS + 8, y * TS + 20, 8, 2);
+        if (h === 3) gfx.fillRect(x * TS + 22, y * TS + 14, 2, 8);
+        if (h === 4) gfx.fillRect(x * TS + 14, y * TS + 4, 6, 2);
       }
     }
     rt.draw(gfx);
-
-    // Light highlights
     gfx.clear();
     gfx.fillStyle(0xb0a888, 0.40);
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
         if (this.island.tiles[y][x] !== TileType.ROCK) continue;
         const h = ((x * 11 + y * 5) ^ (y * 7)) % 11;
-        if (h === 0) gfx.fillRect(x*TS+6,  y*TS+4,  6, 3);
-        if (h === 2) gfx.fillRect(x*TS+20, y*TS+16, 4, 3);
-        if (h === 5) gfx.fillRect(x*TS+10, y*TS+24, 6, 3);
+        if (h === 0) gfx.fillRect(x * TS + 6, y * TS + 4, 6, 3);
+        if (h === 2) gfx.fillRect(x * TS + 20, y * TS + 16, 4, 3);
+        if (h === 5) gfx.fillRect(x * TS + 10, y * TS + 24, 6, 3);
       }
     }
     rt.draw(gfx);
   }
 
-  /** Edge lines on dirt path tiles */
   private detailPath(rt: Phaser.GameObjects.RenderTexture, gfx: Phaser.GameObjects.Graphics): void {
     const TS = TILE_SIZE;
     gfx.clear();
@@ -216,14 +359,13 @@ export class GameScene extends Phaser.Scene {
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
         if (this.island.tiles[y][x] !== TileType.DIRT_PATH) continue;
-        gfx.fillRect(x*TS, y*TS, TS, 1);
-        gfx.fillRect(x*TS, y*TS, 1,  TS);
+        gfx.fillRect(x * TS, y * TS, TS, 1);
+        gfx.fillRect(x * TS, y * TS, 1, TS);
       }
     }
     rt.draw(gfx);
   }
 
-  /** Shadow strips around the pond edges */
   private detailWaterEdge(rt: Phaser.GameObjects.RenderTexture, gfx: Phaser.GameObjects.Graphics): void {
     const TS = TILE_SIZE;
     gfx.clear();
@@ -231,44 +373,39 @@ export class GameScene extends Phaser.Scene {
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
         if (this.island.tiles[y][x] !== TileType.WATER) continue;
-        if (this.island.tiles[y - 1]?.[x] !== TileType.WATER) gfx.fillRect(x*TS, y*TS,           TS, 3);
-        if (this.island.tiles[y]?.[x - 1] !== TileType.WATER) gfx.fillRect(x*TS, y*TS,            3, TS);
-        if (this.island.tiles[y + 1]?.[x] !== TileType.WATER) gfx.fillRect(x*TS, y*TS + TS - 3,  TS, 3);
-        if (this.island.tiles[y]?.[x + 1] !== TileType.WATER) gfx.fillRect(x*TS + TS - 3, y*TS,   3, TS);
+        if (this.island.tiles[y - 1]?.[x] !== TileType.WATER) gfx.fillRect(x * TS, y * TS, TS, 3);
+        if (this.island.tiles[y]?.[x - 1] !== TileType.WATER) gfx.fillRect(x * TS, y * TS, 3, TS);
+        if (this.island.tiles[y + 1]?.[x] !== TileType.WATER) gfx.fillRect(x * TS, y * TS + TS - 3, TS, 3);
+        if (this.island.tiles[y]?.[x + 1] !== TileType.WATER) gfx.fillRect(x * TS + TS - 3, y * TS, 3, TS);
       }
     }
     rt.draw(gfx);
   }
 
-  /** Pebble texture on gravel pond shore */
   private detailGravel(rt: Phaser.GameObjects.RenderTexture, gfx: Phaser.GameObjects.Graphics): void {
     const TS = TILE_SIZE;
-
-    // Dark pebble patches
     gfx.clear();
     gfx.fillStyle(0x8a7858, 0.55);
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
         if (this.island.tiles[y][x] !== TileType.GRAVEL) continue;
         const h = ((x * 7 + y * 13) ^ (x * 3)) % 8;
-        if (h === 0) { gfx.fillRect(x*TS+ 4, y*TS+ 6, 4, 3); gfx.fillRect(x*TS+18, y*TS+20, 3, 3); }
-        if (h === 1) { gfx.fillRect(x*TS+14, y*TS+10, 3, 3); gfx.fillRect(x*TS+ 8, y*TS+24, 4, 3); }
-        if (h === 2) { gfx.fillRect(x*TS+22, y*TS+ 8, 3, 4); gfx.fillRect(x*TS+ 6, y*TS+18, 3, 3); }
-        if (h === 3) { gfx.fillRect(x*TS+10, y*TS+ 4, 5, 3); gfx.fillRect(x*TS+20, y*TS+22, 3, 3); }
+        if (h === 0) { gfx.fillRect(x * TS + 4, y * TS + 6, 4, 3); gfx.fillRect(x * TS + 18, y * TS + 20, 3, 3); }
+        if (h === 1) { gfx.fillRect(x * TS + 14, y * TS + 10, 3, 3); gfx.fillRect(x * TS + 8, y * TS + 24, 4, 3); }
+        if (h === 2) { gfx.fillRect(x * TS + 22, y * TS + 8, 3, 4); gfx.fillRect(x * TS + 6, y * TS + 18, 3, 3); }
+        if (h === 3) { gfx.fillRect(x * TS + 10, y * TS + 4, 5, 3); gfx.fillRect(x * TS + 20, y * TS + 22, 3, 3); }
       }
     }
     rt.draw(gfx);
-
-    // Light pebble highlights
     gfx.clear();
     gfx.fillStyle(0xd8c8a8, 0.45);
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
         if (this.island.tiles[y][x] !== TileType.GRAVEL) continue;
         const h = ((x * 11 + y * 5) ^ (y * 7)) % 10;
-        if (h === 0) { gfx.fillRect(x*TS+ 6, y*TS+ 4, 3, 2); gfx.fillRect(x*TS+20, y*TS+16, 3, 2); }
-        if (h === 2) { gfx.fillRect(x*TS+12, y*TS+22, 4, 2); gfx.fillRect(x*TS+24, y*TS+ 8, 3, 2); }
-        if (h === 5) { gfx.fillRect(x*TS+ 8, y*TS+14, 4, 2); gfx.fillRect(x*TS+16, y*TS+26, 3, 2); }
+        if (h === 0) { gfx.fillRect(x * TS + 6, y * TS + 4, 3, 2); gfx.fillRect(x * TS + 20, y * TS + 16, 3, 2); }
+        if (h === 2) { gfx.fillRect(x * TS + 12, y * TS + 22, 4, 2); gfx.fillRect(x * TS + 24, y * TS + 8, 3, 2); }
+        if (h === 5) { gfx.fillRect(x * TS + 8, y * TS + 14, 4, 2); gfx.fillRect(x * TS + 16, y * TS + 26, 3, 2); }
       }
     }
     rt.draw(gfx);
@@ -292,7 +429,6 @@ export class GameScene extends Phaser.Scene {
 
   private placeDecorations(): void {
     const TS = TILE_SIZE;
-
     const blocked = new Set<string>();
     for (const b of this.island.buildings) {
       for (let dy = -2; dy < b.tileH + 3; dy++) {
@@ -301,136 +437,85 @@ export class GameScene extends Phaser.Scene {
         }
       }
     }
-
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
         const t = this.island.tiles[y][x];
-        if ((t !== TileType.GRASS && t !== TileType.GRASS_DARK)
-            || blocked.has(`${x},${y}`)) continue;
-
-        const p  = (((x * 1664525) ^ (y * 1013904223)) >>> 0) % 100;
+        if ((t !== TileType.GRASS && t !== TileType.GRASS_DARK) || blocked.has(`${x},${y}`)) continue;
+        const p = (((x * 1664525) ^ (y * 1013904223)) >>> 0) % 100;
         const wx = x * TS + 16;
         const wy = y * TS + 16;
-
-        if      (p <  6) this.add.image(wx, wy, 'bush')    .setOrigin(0.5, 0.60).setDepth(50 + wy * 0.001);
+        if (p < 6) this.add.image(wx, wy, 'bush').setOrigin(0.5, 0.60).setDepth(50 + wy * 0.001);
         else if (p < 10) this.add.image(wx, wy, 'flower_r').setOrigin(0.5, 1.00).setDepth(20);
         else if (p < 14) this.add.image(wx, wy, 'flower_y').setOrigin(0.5, 1.00).setDepth(20);
       }
     }
   }
 
-  // ─── Building rendering ────────────────────────────────────────────────────
-  //
-  // Two Graphics objects per building:
-  //   gBase  (depth 5)   — floor, N/E/W walls, interior, furniture, step mat
-  //   gSouth (y-sorted)  — south wall face with open entrance gap; renders above
-  //                        characters who are inside the building, below those outside.
-  //
-  // This produces the classic RPG "roofless interior on the same map layer" look.
+  // ─── Building rendering ───────────────────────────────────────────────────
 
   private drawBuilding(b: BuildingData): void {
-    const TS   = TILE_SIZE;
-    const px   = b.tileX * TS;
-    const py   = b.tileY * TS;
-    const pw   = b.tileW * TS;
-    const ph   = b.tileH * TS;
+    const TS = TILE_SIZE;
+    const px = b.tileX * TS;
+    const py = b.tileY * TS;
+    const pw = b.tileW * TS;
+    const ph = b.tileH * TS;
     const WALL = 6;
-    const FACE = 8; // south wall face extends this many px below the footprint
-    const pal  = PALETTES[b.style];
-
-    // Entrance: 2 tiles wide, positioned at doorOffset tiles from building left
+    const FACE = 8;
+    const pal = PALETTES[b.style];
     const doorW = TS * 2;
     const doorX = px + b.doorOffset * TS;
 
-    // ── gBase: floor, walls, interior — always below characters ────────────
     const gBase = this.add.graphics();
-
-    // Drop shadow
     gBase.fillStyle(0x000000, 0.20);
     gBase.fillRect(px + 5, py + 6, pw, ph + FACE);
-
-    // Exterior wall mass (full building rect)
     gBase.fillStyle(pal.wall);
     gBase.fillRect(px, py, pw, ph);
-
-    // Accent trim along top wall edge
     gBase.fillStyle(pal.accent);
     gBase.fillRect(px + WALL, py, pw - WALL * 2, 3);
-
-    // North wall top highlight
     gBase.fillStyle(0xffffff, 0.10);
     gBase.fillRect(px + WALL, py, pw - WALL * 2, WALL);
-
-    // Interior floor — warm wood/tile
     gBase.fillStyle(pal.floor);
     gBase.fillRect(px + WALL, py + WALL, pw - WALL * 2, ph - WALL * 2);
-
-    // Wood plank lines (horizontal)
     gBase.fillStyle(0x000000, 0.07);
     const floorH = ph - WALL * 2;
     for (let row = 0; row * 8 < floorH; row++) {
       gBase.fillRect(px + WALL, py + WALL + row * 8 + 7, pw - WALL * 2, 1);
     }
-
-    // Furniture
     this.drawFurniture(gBase, b, px, py, pw, ph, WALL, pal);
-
-    // Pixel-art border
     gBase.lineStyle(1, 0x000000, 0.50);
     gBase.strokeRect(px, py, pw, ph);
     gBase.lineStyle(1, 0x000000, 0.08);
     gBase.strokeRect(px + WALL, py + WALL, pw - WALL * 2, ph - WALL * 2);
-
-    // Step mat outside entrance
     gBase.fillStyle(pal.accent, 0.55);
     gBase.fillRect(doorX + 4, py + ph + FACE, doorW - 8, 5);
     gBase.fillStyle(0x000000, 0.18);
     gBase.fillRect(doorX + 4, py + ph + FACE + 4, doorW - 8, 1);
-
     gBase.setDepth(5);
 
-    // ── gSouth: south wall face, y-sorted with characters ──────────────────
     const gSouth = this.add.graphics();
-
-    // Left wall segment
     const leftW = doorX - px;
     if (leftW > 0) {
       gSouth.fillStyle(pal.wallDk);
       gSouth.fillRect(px, py + ph - WALL, leftW, WALL + FACE);
     }
-
-    // Right wall segment
     const rightX = doorX + doorW;
     const rightW = (px + pw) - rightX;
     if (rightW > 0) {
       gSouth.fillStyle(pal.wallDk);
       gSouth.fillRect(rightX, py + ph - WALL, rightW, WALL + FACE);
     }
-
-    // Entrance opening — floor colour visible through gap (seamless interior)
     gSouth.fillStyle(pal.floor);
     gSouth.fillRect(doorX, py + ph - WALL, doorW, WALL + FACE);
-
-    // Dark top shadow across full south face
     gSouth.fillStyle(0x000000, 0.28);
     gSouth.fillRect(px, py + ph - WALL, pw, 2);
-
-    // Door posts (accent pillars either side of entrance)
     gSouth.fillStyle(pal.accent);
     gSouth.fillRect(doorX - 3, py + ph - WALL - 3, 4, WALL + FACE + 3);
     gSouth.fillRect(doorX + doorW - 1, py + ph - WALL - 3, 4, WALL + FACE + 3);
-
-    // Corner caps — darker at building bottom corners
     gSouth.fillStyle(pal.wallDk, 0.9);
     gSouth.fillRect(px, py + ph - WALL, 5, WALL + FACE);
     gSouth.fillRect(px + pw - 5, py + ph - WALL, 5, WALL + FACE);
-
-    // Bottom edge line
     gSouth.lineStyle(1, 0x000000, 0.35);
     gSouth.strokeRect(px, py + ph - WALL, pw, WALL + FACE);
-
-    // Y-sorted depth: characters inside (Y < py+ph+FACE) render below this,
-    // characters outside render above — same formula as Player/NPC (100 + y*0.01)
     gSouth.setDepth(100 + (py + ph + FACE) * 0.01);
   }
 
@@ -447,7 +532,7 @@ export class GameScene extends Phaser.Scene {
     const ih = ph - WALL * 2 - 8;
 
     switch (b.style % 5) {
-      case 0: { // medium house — rug + table + chairs
+      case 0: {
         g.fillStyle(pal.accent, 0.30);
         g.fillRect(ix + Math.floor(iw * 0.20), iy + Math.floor(ih * 0.20), Math.floor(iw * 0.60), Math.floor(ih * 0.55));
         g.fillStyle(0x8a5c2a);
@@ -457,7 +542,7 @@ export class GameScene extends Phaser.Scene {
         g.fillRect(ix + Math.floor(iw * 0.78), iy + Math.floor(ih * 0.35), 5, 5);
         break;
       }
-      case 1: { // small cottage — bed + desk
+      case 1: {
         g.fillStyle(0x8090c0);
         g.fillRect(ix, iy, Math.floor(iw * 0.50), Math.floor(ih * 0.55));
         g.fillStyle(0xf0e8d8);
@@ -466,7 +551,7 @@ export class GameScene extends Phaser.Scene {
         g.fillRect(ix + Math.floor(iw * 0.60), iy, Math.floor(iw * 0.38), Math.floor(ih * 0.35));
         break;
       }
-      case 2: { // wide shop — counter + items
+      case 2: {
         g.fillStyle(0x9a7040);
         g.fillRect(ix, iy, iw, Math.floor(ih * 0.28));
         g.fillStyle(0xc0a060);
@@ -478,7 +563,7 @@ export class GameScene extends Phaser.Scene {
         }
         break;
       }
-      case 3: { // square house — bookshelf + armchair
+      case 3: {
         g.fillStyle(0x6a4a20);
         g.fillRect(ix, iy, Math.floor(iw * 0.22), ih);
         const bookColors = [0xc03020, 0x2060a0, 0x208040, 0xa08020, 0x8020a0, 0xc06020];
@@ -490,7 +575,7 @@ export class GameScene extends Phaser.Scene {
         g.fillRect(ix + Math.floor(iw * 0.50), iy + Math.floor(ih * 0.40), Math.floor(iw * 0.40), Math.floor(ih * 0.40));
         break;
       }
-      case 4: { // long hall — central table + chairs
+      case 4: {
         g.fillStyle(0x8a5c2a);
         g.fillRect(ix + Math.floor(iw * 0.15), iy + Math.floor(ih * 0.28), Math.floor(iw * 0.70), Math.floor(ih * 0.44));
         g.fillStyle(0x6a4a20);
@@ -507,9 +592,8 @@ export class GameScene extends Phaser.Scene {
   // ─── NPC spawning ─────────────────────────────────────────────────────────
 
   private spawnNPCs(): void {
-    const pts  = this.island.spawnPoints;
+    const pts = this.island.spawnPoints;
     if (pts.length === 0) return;
-
     const step = Math.max(1, Math.floor(pts.length / NPC_COUNT));
     for (let i = 0; i < NPC_COUNT; i++) {
       const pt = pts[(i * step + Math.floor(step * 0.3)) % pts.length];
@@ -523,16 +607,16 @@ export class GameScene extends Phaser.Scene {
     return pts[Math.max(0, Math.min(idx, pts.length - 1))];
   }
 
-  // ─── Public zoom API (called from React overlay buttons) ──────────────────
+  // ─── Public zoom API ──────────────────────────────────────────────────────
 
   zoomIn(): void {
-    const cam     = this.cameras.main;
+    const cam = this.cameras.main;
     const newZoom = Math.min(cam.zoom + this.zoomStep, this.maxZoom);
     this.tweens.add({ targets: cam, zoom: newZoom, duration: 180, ease: 'Quad.Out' });
   }
 
   zoomOut(): void {
-    const cam     = this.cameras.main;
+    const cam = this.cameras.main;
     const newZoom = Math.max(cam.zoom - this.zoomStep, this.minZoom);
     this.tweens.add({ targets: cam, zoom: newZoom, duration: 180, ease: 'Quad.Out' });
   }

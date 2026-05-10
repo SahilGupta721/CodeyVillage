@@ -2,28 +2,36 @@ import Phaser from 'phaser';
 import { BootScene } from './scenes/BootScene';
 import { GameScene } from './scenes/GameScene';
 
-/**
- * Returns a Phaser GameConfig sized to the provided container element.
- * pixelArt mode is enabled globally so all textures stay crisp.
- */
-export function createGameConfig(parent: HTMLElement): Phaser.Types.Core.GameConfig {
+export function createGameConfig(
+  parent: HTMLElement,
+  roomId: string | null,
+  uid: string | null,
+  username: string | null,
+): Phaser.Types.Core.GameConfig {
   return {
     type: Phaser.AUTO,
-    width:  parent.clientWidth  || window.innerWidth,
+    width: parent.clientWidth || window.innerWidth,
     height: parent.clientHeight || window.innerHeight,
     parent,
     backgroundColor: '#1a6b8a',
-    pixelArt:        true,
-    roundPixels:     true,
+    pixelArt: true,
+    roundPixels: true,
     scene: [BootScene, GameScene],
     scale: {
-      mode:       Phaser.Scale.RESIZE,
+      mode: Phaser.Scale.RESIZE,
       autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     render: {
-      antialias:   false,
+      antialias: false,
       antialiasGL: false,
-      pixelArt:    true,
+      pixelArt: true,
     },
+    callbacks: {
+      preBoot: (game) => {
+        game.registry.set('roomId', roomId);
+        game.registry.set('uid', uid);
+        game.registry.set('username', username);
+      }
+    }
   };
 }
