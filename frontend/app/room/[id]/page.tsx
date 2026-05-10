@@ -16,15 +16,21 @@ export default function RoomPage() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (!room_id) return;  // 👈 add this guard
+        if (!room_id) return;
 
         const unsub = onAuthStateChanged(auth, (user) => {
             if (!user) { router.push("/auth"); return; }
             setUid(user.uid);
             const stored = localStorage.getItem(`username:${user.uid}`);
             setUsername(stored || "Player");
+        });
+        return () => unsub();
+    }, [room_id, router]);
 
-            // Fetch room data
+    useEffect(() => {
+        if (!room_id) return;
+
+        const fetchRoom = () =>
             fetch(`${BACKEND_URL}/rooms/${room_id}`)
                 .then((r) => r.ok ? r.json() : null)
                 .then((data) => {
@@ -32,9 +38,11 @@ export default function RoomPage() {
                     else setRoom(data);
                 })
                 .catch(() => setError("Could not load room."));
-        });
-        return () => unsub();
-    }, [room_id, router]);
+
+        fetchRoom();
+        const interval = setInterval(fetchRoom, 2000);
+        return () => clearInterval(interval);
+    }, [room_id]);
 
     function handleLeave() {
         fetch(`${BACKEND_URL}/rooms/${room_id}/leave?user_id=${uid}`, {
