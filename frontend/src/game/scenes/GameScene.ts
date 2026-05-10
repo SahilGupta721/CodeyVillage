@@ -101,6 +101,7 @@ export class GameScene extends Phaser.Scene {
   private player!: Player;
   private npcs: NPC[] = [];
   private pondAnims: Phaser.GameObjects.TileSprite[] = [];
+  private redFlowers: Phaser.GameObjects.Image[] = [];
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasd!: Record<'up' | 'down' | 'left' | 'right', Phaser.Input.Keyboard.Key>;
   private minZoom = 0.3;
@@ -141,6 +142,7 @@ export class GameScene extends Phaser.Scene {
     this.buildTileLayer();
     this.addPondOverlay();
     this.placeDecorations();
+    this.scheduleNextWind();
     this.island.buildings.forEach(b => this.drawBuilding(b));
     this.spawnNPCs();
 
@@ -544,7 +546,7 @@ export class GameScene extends Phaser.Scene {
         const wx = x * TS + 16;
         const wy = y * TS + 16;
         if (p < 6) this.add.image(wx, wy, 'bush').setOrigin(0.5, 0.60).setDepth(50 + wy * 0.001);
-        else if (p < 10) this.add.image(wx, wy, 'flower_r').setOrigin(0.5, 1.00).setDepth(20);
+        else if (p < 10) this.redFlowers.push(this.add.image(wx, wy, 'flower_r').setOrigin(0.5, 1.00).setDepth(20));
         else if (p < 14) this.add.image(wx, wy, 'flower_y').setOrigin(0.5, 1.00).setDepth(20);
       }
     }
@@ -704,6 +706,40 @@ export class GameScene extends Phaser.Scene {
     const pts = this.island.spawnPoints;
     if (pts.length === 0) return { x: WORLD_WIDTH / 2, y: WORLD_HEIGHT / 2 };
     return pts[Math.max(0, Math.min(idx, pts.length - 1))];
+  }
+
+  // ─── Wind effect ──────────────────────────────────────────────────────────
+
+  private scheduleNextWind(): void {
+    this.time.delayedCall(Phaser.Math.Between(3000, 9000), () => {
+      this.triggerWind();
+      this.scheduleNextWind();
+    });
+  }
+
+  private triggerWind(): void {
+    if (this.redFlowers.length === 0) return;
+
+    const windRight = Math.random() > 0.5;
+    const bendAngle = (windRight ? 1 : -1) * (0.07 + Math.random() * 0.06);
+
+    const affected = this.redFlowers
+      .filter(() => Math.random() < 0.55)
+      .sort((a, b) => windRight ? a.x - b.x : b.x - a.x);
+
+    affected.forEach((flower, i) => {
+      this.time.delayedCall(i * 25, () => {
+        const angle = bendAngle + (Math.random() - 0.5) * 0.03;
+        this.tweens.chain({
+          targets: flower,
+          tweens: [
+            { rotation: angle,         duration: 180, ease: 'Sine.easeOut'   },
+            { rotation: angle * -0.35, duration: 140, ease: 'Sine.easeInOut' },
+            { rotation: 0,             duration: 220, ease: 'Sine.easeOut'   },
+          ],
+        });
+      });
+    });
   }
 
   // ─── Public zoom API ──────────────────────────────────────────────────────
