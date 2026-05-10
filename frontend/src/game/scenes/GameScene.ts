@@ -73,10 +73,12 @@ export class GameScene extends Phaser.Scene {
 
   // ─── Multiplayer ───────────────────────────────────────────────────────────
   private socket: WebSocket | null = null;
-  private remotePlayers: Map<string, Phaser.GameObjects.Container> = new Map();
+  private remotePlayers: Map<string, { container: Phaser.GameObjects.Container; targetX: number; targetY: number }> = new Map();
   private remoteColorMap: Map<string, number> = new Map();
   private myUid: string | null = null;
   private lastBroadcast: number = 0;
+  private lastSentX: number = 0;
+  private lastSentY: number = 0;
 
   constructor() { super({ key: 'GameScene' }); }
 
@@ -137,7 +139,14 @@ export class GameScene extends Phaser.Scene {
     this.player.update(delta, this.cursors, this.wasd, this.col);
     for (const npc of this.npcs) npc.update(delta, this.col);
 
-    // Broadcast position at a throttled rate
+    // Lerp remote players toward their target position every frame for smooth movement
+    for (const rp of this.remotePlayers.values()) {
+      rp.container.x = Phaser.Math.Linear(rp.container.x, rp.targetX, 0.2);
+      rp.container.y = Phaser.Math.Linear(rp.container.y, rp.targetY, 0.2);
+      rp.container.setDepth(100 + rp.container.y * 0.01);
+    }
+
+    // Broadcast position at a throttled rate, only when moved
     if (time - this.lastBroadcast > WS_BROADCAST_INTERVAL) {
       this.broadcastPosition();
       this.lastBroadcast = time;
@@ -155,7 +164,8 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.myUid = uid;
-    const wsUrl = `ws://localhost:8000/ws/${roomId}/${uid}`;
+    const wsBase = process.env.NEXT_PUBLIC_WS_URL ?? 'ws://localhost:8000';
+    const wsUrl = `${wsBase}/ws/${roomId}/${uid}`;
     console.log('Connecting to', wsUrl);
 
     this.socket = new WebSocket(wsUrl);
@@ -169,6 +179,14 @@ export class GameScene extends Phaser.Scene {
         const msg = JSON.parse(event.data);
         if (msg.type === 'move') this.updateRemotePlayer(msg.uid, msg.x, msg.y, msg.username);
         if (msg.type === 'leave') this.removeRemotePlayer(msg.uid);
+        if (msg.type === 'room_state') {
+          for (const p of (msg.players ?? [])) {
+            if (p.uid !== this.myUid) this.updateRemotePlayer(p.uid, p.x, p.y, p.username);
+          }
+        }
+        if (msg.type === 'player_joined' && msg.uid !== this.myUid) {
+          this.updateRemotePlayer(msg.uid, msg.x, msg.y, msg.username);
+        }
       } catch (e) {
         console.warn('Bad WS message', event.data);
       }
@@ -191,13 +209,17 @@ export class GameScene extends Phaser.Scene {
 
   private broadcastPosition(): void {
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) return;
-    const uid = this.myUid;
+    const x = this.player.x;
+    const y = this.player.y;
+    if (Math.abs(x - this.lastSentX) < 2 && Math.abs(y - this.lastSentY) < 2) return;
+    this.lastSentX = x;
+    this.lastSentY = y;
     const username = this.game.registry.get('username') as string | null;
     this.socket.send(JSON.stringify({
       type: 'move',
-      x: this.player.x,
-      y: this.player.y,
-      username: username ?? uid?.slice(0, 6) ?? '???',
+      x,
+      y,
+      username: username ?? this.myUid?.slice(0, 6) ?? '???',
     }));
   }
 
@@ -256,20 +278,18 @@ export class GameScene extends Phaser.Scene {
 
       const container = this.add.container(x, y, [g, label]);
       container.setDepth(100 + y * 0.01);
-      this.remotePlayers.set(uid, container);
+      this.remotePlayers.set(uid, { container, targetX: x, targetY: y });
     } else {
-      const container = this.remotePlayers.get(uid)!;
-      // Smooth interpolation toward received position
-      container.x = Phaser.Math.Linear(container.x, x, 0.3);
-      container.y = Phaser.Math.Linear(container.y, y, 0.3);
-      container.setDepth(100 + container.y * 0.01);
+      const rp = this.remotePlayers.get(uid)!;
+      rp.targetX = x;
+      rp.targetY = y;
     }
   }
 
   private removeRemotePlayer(uid: string): void {
-    const container = this.remotePlayers.get(uid);
-    if (container) {
-      container.destroy();
+    const rp = this.remotePlayers.get(uid);
+    if (rp) {
+      rp.container.destroy();
       this.remotePlayers.delete(uid);
       this.remoteColorMap.delete(uid);
     }

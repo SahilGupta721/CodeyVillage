@@ -100,15 +100,7 @@ export default function LobbyPage() {
   }
 
   async function handleConnectGithub() {
-    // #region agent log
-    fetch('http://127.0.0.1:7495/ingest/d28f4d6d-694b-4660-a346-030c3e159ee6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'96c836'},body:JSON.stringify({sessionId:'96c836',location:'lobby/page.tsx:handleConnectGithub-entry',message:'handleConnectGithub called',data:{hasCurrentUser:!!auth.currentUser,uid},timestamp:Date.now(),hypothesisId:'H-E'})}).catch(()=>{});
-    // #endregion
-    if (!auth.currentUser || !uid) {
-      // #region agent log
-      fetch('http://127.0.0.1:7495/ingest/d28f4d6d-694b-4660-a346-030c3e159ee6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'96c836'},body:JSON.stringify({sessionId:'96c836',location:'lobby/page.tsx:handleConnectGithub-early-return',message:'Early return - no currentUser or uid',data:{hasCurrentUser:!!auth.currentUser,uid},timestamp:Date.now(),hypothesisId:'H-E'})}).catch(()=>{});
-      // #endregion
-      return;
-    }
+    if (!auth.currentUser || !uid) return;
     setGithubLoading(true);
     setGithubError(null);
     try {
@@ -126,9 +118,6 @@ export default function LobbyPage() {
       const data = await res.json();
       setGithubLogin(data.github_login);
     } catch (err: any) {
-      // #region agent log
-      fetch('http://127.0.0.1:7495/ingest/d28f4d6d-694b-4660-a346-030c3e159ee6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'96c836'},body:JSON.stringify({sessionId:'96c836',location:'lobby/page.tsx:handleConnectGithub-catch',message:'linkWithPopup error',data:{code:err.code,message:err.message},timestamp:Date.now(),hypothesisId:'H-C,H-E'})}).catch(()=>{});
-      // #endregion
       if (err.code === "auth/credential-already-in-use" || err.code === "auth/provider-already-linked") {
         setGithubError("This GitHub account is already linked.");
       } else {
