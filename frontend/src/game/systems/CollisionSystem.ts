@@ -47,6 +47,12 @@ export class CollisionSystem {
     }
   }
 
+  blockTile(tx: number, ty: number): void {
+    if (tx >= 0 && ty >= 0 && tx < MAP_WIDTH && ty < MAP_HEIGHT) {
+      this.grid[ty * MAP_WIDTH + tx] = 0;
+    }
+  }
+
   isTileWalkable(tx: number, ty: number): boolean {
     if (tx < 0 || ty < 0 || tx >= MAP_WIDTH || ty >= MAP_HEIGHT) return false;
     return this.grid[ty * MAP_WIDTH + tx] === 1;

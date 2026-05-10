@@ -18,6 +18,8 @@ export class BootScene extends Phaser.Scene {
     this.makeBush();
     this.makeFlower('flower_r', '#e03030', '#ffcc00');
     this.makeFlower('flower_y', '#f0c010', '#ff9900');
+    this.makeRock();
+    this.makeLeaf();
     this.makeShopItemTextures();
     this.scene.start('GameScene');
   }
@@ -98,35 +100,46 @@ export class BootScene extends Phaser.Scene {
   // ─── Bush — top-down (24 × 20) ──────────────────────────────────────────────
 
   private makeBush(): void {
-    const c   = this.textures.createCanvas('bush', 24, 20)!;
+    const c   = this.textures.createCanvas('bush', 24, 24)!;  // +4 rows for shadow
     const ctx = c.getContext();
 
+    // ── Soft drop shadow — three concentric rectangles fade to transparent ────
+    ctx.fillStyle = 'rgba(0,0,0,0.11)';
+    ctx.fillRect(1, 17, 22, 6);
+    ctx.fillRect(0, 18, 24, 5);
+    ctx.fillStyle = 'rgba(0,0,0,0.20)';
+    ctx.fillRect(3, 18, 18, 5);
+    ctx.fillRect(2, 19, 20, 4);
+    ctx.fillStyle = 'rgba(0,0,0,0.28)';
+    ctx.fillRect(5, 19, 14, 4);
+    ctx.fillRect(4, 20, 16, 3);
+
+    // ── Bush body (identical shape, same y-offsets as before) ─────────────────
     // Dark outer edge
     ctx.fillStyle = '#1a5008';
     ctx.fillRect(4,  0, 16, 20);
     ctx.fillRect(0,  4, 24, 12);
     ctx.fillRect(2,  2, 20, 16);
-
     // Main green fill
     ctx.fillStyle = '#368a14';
     ctx.fillRect(5,  1, 14, 18);
     ctx.fillRect(1,  5, 22, 10);
     ctx.fillRect(3,  3, 18, 14);
-
     // Highlight
     ctx.fillStyle = '#54b42a';
     ctx.fillRect(3,  2, 11,  8);
     ctx.fillRect(2,  3, 12,  5);
 
-    // Red berries
-    ctx.fillStyle = '#cc2a2a';
+    // ── Red berry dots ────────────────────────────────────────────────────────
+    ctx.fillStyle = '#d42020';
     ctx.fillRect(14,  5, 3, 3);
     ctx.fillRect( 8, 12, 3, 3);
-
-    // Berry highlights
-    ctx.fillStyle = '#ff5050';
+    ctx.fillRect(17, 10, 3, 3);  // third berry
+    // Berry specular highlights
+    ctx.fillStyle = '#ff6868';
     ctx.fillRect(15,  6, 1, 1);
     ctx.fillRect( 9, 13, 1, 1);
+    ctx.fillRect(18, 11, 1, 1);
 
     c.refresh();
   }
@@ -156,6 +169,96 @@ export class BootScene extends Phaser.Scene {
     ctx.fillStyle = 'rgba(255,255,255,0.40)';
     ctx.fillRect(6, 4, 2, 2);
 
+    c.refresh();
+  }
+
+  // ─── Boulder (28 × 26) — reference-style pixel rock ─────────────────────────
+  //
+  // Palette: grey-green (matches the reference pixel rock sheet)
+  //   #3a4844  darkest — outline, deep crevice, base shadow
+  //   #5f6e69  dark    — front face, left shadow side
+  //   #8da09a  mid     — main body mass
+  //   #b8ccc7  light   — upper lit surfaces
+  //   #d4e6e2  bright  — top highlight plane
+  //   #eaf6f2  specular— brightest peaks
+
+  private makeRock(): void {
+    const c   = this.textures.createCanvas('rock_sm', 28, 26)!;
+    const ctx = c.getContext();
+
+    // ── Ground shadow (flat ellipse beneath rock) ────────────────────────────
+    ctx.fillStyle = 'rgba(0,0,0,0.32)';
+    ctx.fillRect(4, 20, 20, 6);
+    ctx.fillRect(2, 21, 24, 4);
+
+    // ── Dark outline / entire silhouette ────────────────────────────────────
+    ctx.fillStyle = '#3a4844';
+    ctx.fillRect(5,  4, 18, 17);   // centre column
+    ctx.fillRect(3,  8, 22, 13);   // wide middle band
+    ctx.fillRect(4,  5, 20, 15);   // main bounds
+    ctx.fillRect(3, 12,  7,  8);   // secondary lobe (lower-left)
+
+    // ── Front face — heavy shadow on lower third ─────────────────────────────
+    ctx.fillStyle = '#5f6e69';
+    ctx.fillRect(5, 13, 18,  7);
+    ctx.fillRect(4, 14, 20,  6);
+    ctx.fillRect(3, 15, 22,  4);
+    ctx.fillRect(4,  8,  4, 11);   // left shadow side
+    ctx.fillRect(8, 14,  2,  6);   // crevice between lobes
+
+    // ── Mid-tone body ────────────────────────────────────────────────────────
+    ctx.fillStyle = '#8da09a';
+    ctx.fillRect(6, 10, 16,  5);
+    ctx.fillRect(4, 12, 20,  4);
+    ctx.fillRect(5, 11, 18,  4);
+    ctx.fillRect(4, 13,  6,  5);   // secondary lobe body
+
+    // ── Upper lit surfaces ───────────────────────────────────────────────────
+    ctx.fillStyle = '#b8ccc7';
+    ctx.fillRect(7,  6, 14,  7);
+    ctx.fillRect(5,  9, 16,  4);
+    ctx.fillRect(6,  7, 12,  5);
+    ctx.fillRect(4, 11,  5,  3);   // secondary lobe top
+
+    // ── Bright top highlight ─────────────────────────────────────────────────
+    ctx.fillStyle = '#d4e6e2';
+    ctx.fillRect(8,  5, 10,  5);
+    ctx.fillRect(7,  7, 10,  4);
+    ctx.fillRect(6,  6,  8,  4);
+
+    // ── Specular peaks ───────────────────────────────────────────────────────
+    ctx.fillStyle = '#eaf6f2';
+    ctx.fillRect(10,  5,  4,  2);
+    ctx.fillRect( 9,  6,  3,  2);
+    ctx.fillRect(14,  7,  3,  2);
+
+    // ── Crevice lines (dark seams between stone faces) ───────────────────────
+    ctx.fillStyle = '#2e3c38';
+    ctx.fillRect(15,  9,  1, 10);  // main vertical seam
+    ctx.fillRect(16, 15,  5,  1);  // horizontal crack right
+    ctx.fillRect( 8, 12,  1,  2);  // small nick left of crevice
+
+    c.refresh();
+  }
+
+  // ─── Leaf particle texture (8 × 8) ─────────────────────────────────────────
+
+  private makeLeaf(): void {
+    const c   = this.textures.createCanvas('leaf', 8, 8)!;
+    const ctx = c.getContext();
+    // White body so tint fully controls the leaf colour
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(2, 0, 3, 1);
+    ctx.fillRect(1, 1, 5, 1);
+    ctx.fillRect(0, 2, 7, 2);
+    ctx.fillRect(1, 4, 5, 1);
+    ctx.fillRect(2, 5, 3, 1);
+    // Stem
+    ctx.fillStyle = '#aaaaaa';
+    ctx.fillRect(3, 6, 1, 2);
+    // Centre vein (subtle darkening)
+    ctx.fillStyle = '#dddddd';
+    ctx.fillRect(3, 0, 1, 6);
     c.refresh();
   }
 

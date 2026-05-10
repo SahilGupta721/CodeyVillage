@@ -102,6 +102,7 @@ export class GameScene extends Phaser.Scene {
   private npcs: NPC[] = [];
   private pondAnims: Phaser.GameObjects.TileSprite[] = [];
   private redFlowers: Phaser.GameObjects.Image[] = [];
+  private leafEmitter: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasd!: Record<'up' | 'down' | 'left' | 'right', Phaser.Input.Keyboard.Key>;
   private minZoom = 0.3;
@@ -168,6 +169,8 @@ export class GameScene extends Phaser.Scene {
       .startFollow(this.player.getContainer(), true, CAMERA_LERP, CAMERA_LERP)
       .setBackgroundColor('#3898d8');
 
+    this.addLeafParticles();
+
     this.cursors = this.input.keyboard!.createCursorKeys();
     this.wasd = {
       up: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.W),
@@ -210,6 +213,16 @@ export class GameScene extends Phaser.Scene {
 
     this.player.update(delta, this.cursors, this.wasd, this.col);
     for (const npc of this.npcs) npc.update(delta, this.col);
+
+    if (this.leafEmitter) {
+      const cam   = this.cameras.main;
+      const viewW = cam.width / cam.zoom;
+      this.leafEmitter.setPosition(cam.scrollX + viewW * 0.5, cam.scrollY - 12);
+      this.leafEmitter.forEachAlive((p: Phaser.GameObjects.Particles.Particle) => {
+        const elapsed = p.life - p.lifeCurrent;
+        p.velocityX = Math.sin(elapsed * 0.0015 + p.x * 0.003) * 12;
+      }, this);
+    }
 
     // Lerp remote players toward their target position every frame for smooth movement
     for (const rp of this.remotePlayers.values()) {
@@ -545,9 +558,13 @@ export class GameScene extends Phaser.Scene {
         const p = (((x * 1664525) ^ (y * 1013904223)) >>> 0) % 100;
         const wx = x * TS + 16;
         const wy = y * TS + 16;
-        if (p < 6) this.add.image(wx, wy, 'bush').setOrigin(0.5, 0.60).setDepth(50 + wy * 0.001);
+        if (p < 6) this.add.image(wx, wy, 'bush').setOrigin(0.5, 0.50).setDepth(50 + wy * 0.001);
         else if (p < 10) this.redFlowers.push(this.add.image(wx, wy, 'flower_r').setOrigin(0.5, 1.00).setDepth(20));
         else if (p < 14) this.add.image(wx, wy, 'flower_y').setOrigin(0.5, 1.00).setDepth(20);
+        else if (p < 18) {
+          this.col.blockTile(x, y);
+          this.add.image(wx, wy, 'rock_sm').setOrigin(0.5, 0.78).setDepth(50 + wy * 0.001);
+        }
       }
     }
   }
@@ -740,6 +757,32 @@ export class GameScene extends Phaser.Scene {
         });
       });
     });
+  }
+
+  // ─── Leaf ambient particles ───────────────────────────────────────────────
+
+  private addLeafParticles(): void {
+    const cam   = this.cameras.main;
+    const viewW = cam.width / cam.zoom;
+
+    this.leafEmitter = this.add.particles(
+      cam.scrollX + viewW * 0.5,
+      cam.scrollY - 12,
+      'leaf',
+      {
+        x: { min: -viewW * 0.5 - 32, max: viewW * 0.5 + 32 },
+        y: 0,
+        speedX: { min: -8, max: 8 },
+        speedY: { min: 18, max: 36 },
+        lifespan: { min: 8000, max: 13000 },
+        frequency: 1800,
+        quantity: 1,
+        alpha: 0.50,
+        rotate: { min: 0, max: 360 },
+        scale: { min: 0.6, max: 1.1 },
+        tint: [0x70c840, 0x8cd040, 0xc8a820, 0xd07010],
+      },
+    ).setDepth(25);
   }
 
   // ─── Public zoom API ──────────────────────────────────────────────────────

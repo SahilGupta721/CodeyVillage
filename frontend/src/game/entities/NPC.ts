@@ -46,17 +46,22 @@ const LEG_COLORS = [
   0x282010, // dark olive
 ];
 
-const RADIUS = 9;
+const RADIUS        = 9;
+const BOB_AMPLITUDE = 1.5;
+const BOB_SPEED     = 0.009;
 
 const enum State { Idle = 0, Walking = 1 }
 
 export class NPC {
-  private root : Phaser.GameObjects.Container;
-  private state: State   = State.Idle;
-  private timer: number  = 0;   // ms remaining in IDLE
-  private tx   : number;        // walking target x (world space)
-  private ty   : number;        // walking target y (world space)
-  private speed: number;
+  private root    : Phaser.GameObjects.Container;
+  private body    : Phaser.GameObjects.Graphics;
+  private state   : State  = State.Idle;
+  private timer     : number = 0;   // ms remaining in IDLE
+  private walkTimer : number = 0;   // ms spent in current WALKING attempt
+  private tx        : number;       // walking target x (world space)
+  private ty        : number;       // walking target y (world space)
+  private speed     : number;
+  private bobPhase  = 0;
 
   get x() { return this.root.x; }
   get y() { return this.root.y; }
@@ -106,7 +111,8 @@ export class NPC {
     g.fillStyle(0x4060a8);
     g.fillRect(-6, -9, 12, 1);
 
-    this.root = scene.add.container(x, y, [g]);
+    this.body  = g;
+    this.root  = scene.add.container(x, y, [g]);
 
     // Stagger idle timers so NPCs don't all start walking at frame 0
     this.timer = idx * 700 + 400;
@@ -117,10 +123,22 @@ export class NPC {
       this.timer -= delta;
       if (this.timer <= 0) this.pickTarget(col);
     } else {
-      this.walk(delta, col);
+      this.walkTimer += delta;
+      if (this.walkTimer > 10_000) {
+        this.walkTimer = 0;
+        this.pickTarget(col); // stuck — immediately try a fresh direction
+      } else {
+        this.walk(delta, col);
+      }
     }
 
-    // Y-sort
+    if (this.state === State.Walking) {
+      this.bobPhase  += delta * BOB_SPEED;
+      this.body.y     = Math.sin(this.bobPhase) * BOB_AMPLITUDE;
+    } else {
+      this.body.y    *= 0.75;
+    }
+
     this.root.setDepth(100 + this.root.y * 0.01);
   }
 
@@ -134,9 +152,10 @@ export class NPC {
       const nty   = this.root.y + Math.sin(angle) * dist;
 
       if (col.canMoveTo(ntx, nty, RADIUS)) {
-        this.tx    = ntx;
-        this.ty    = nty;
-        this.state = State.Walking;
+        this.tx        = ntx;
+        this.ty        = nty;
+        this.state     = State.Walking;
+        this.walkTimer = 0;
         return;
       }
     }
