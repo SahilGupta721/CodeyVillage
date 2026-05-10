@@ -16,4 +16,11 @@ island_state_collection = db["island_state"]
 shop_items_collection = db["shop_items"]
 
 def get_db():
-    return {"Connected to MongoDB",db}
+    return {db}
+
+def check_connection():
+    try:
+        client.admin.command('ping')
+        print("✅ MongoDB connected successfully!")
+    except Exception as e:
+        print(f"❌ MongoDB connection failed: {e}")
