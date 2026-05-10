@@ -3,35 +3,14 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
-import dynamic from "next/dynamic";
 
 import { auth } from "../lib/firebase";
 
-// Load Phaser only on client
-const PhaserGame = dynamic(
-  () => import("../src/game/PhaserGame"),
-  {
-    ssr: false,
-    loading: () => (
-      <div
-        style={{
-          width: "100vw",
-          height: "100vh",
-          background: "#1a6b8a",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "#ffffff",
-          fontFamily: "monospace",
-          fontSize: "16px",
-        }}
-      >
-        Loading island...
-      </div>
-    ),
-  }
-);
-
+/**
+ * Root route only redirects — do not mount Phaser here.
+ * A bare <PhaserGame /> had no roomId, so GameScene logged
+ * "No roomId or uid — single-player" and wasted a full game boot.
+ */
 export default function Home() {
   const router = useRouter();
 
@@ -54,8 +33,16 @@ export default function Home() {
   }, [router]);
 
   return (
-    <div className="w-screen h-screen overflow-hidden">
-      <PhaserGame />
+    <div
+      className="w-screen h-screen overflow-hidden flex items-center justify-center"
+      style={{
+        background: "#1a6b8a",
+        color: "#ffffff",
+        fontFamily: "monospace",
+        fontSize: "16px",
+      }}
+    >
+      Loading...
     </div>
   );
 }

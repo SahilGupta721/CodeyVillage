@@ -19,6 +19,20 @@ class RoomManager:
             await ws.send_json({"type": "error", "code": "room_full"})
             await ws.close()
             return False
+
+        # If the same uid is already connected (e.g. user opened a second tab
+        # or the previous socket didn't close cleanly), evict the old socket
+        # so the new one becomes the canonical connection. Without this the
+        # old ws stays in the dict but no broadcasts ever reach it again.
+        existing = room.get(uid)
+        if existing is not None:
+            old_ws = existing.get("ws")
+            if old_ws is not None and old_ws is not ws:
+                try:
+                    await old_ws.close()
+                except Exception:
+                    pass
+
         room[uid] = {"ws": ws, "username": uid[:6], "x": 400.0, "y": 400.0}
         return True
 
@@ -29,12 +43,30 @@ class RoomManager:
             player["y"] = y
             player["username"] = username
 
-    def disconnect(self, room_id: str, uid: str):
+    def disconnect(self, room_id: str, uid: str, ws: WebSocket | None = None) -> bool:
+        """
+        Remove a player from the room.
+
+        If `ws` is provided, only remove the entry when it currently belongs
+        to that exact websocket. This prevents an evicted (older) socket from
+        stomping on a newer reconnect from the same uid.
+
+        Returns True iff an entry was actually removed (i.e. the caller
+        should broadcast a "leave" event to the rest of the room).
+        """
         room = self.rooms.get(room_id)
-        if room:
-            room.pop(uid, None)
-            if not room:
-                del self.rooms[room_id]
+        if not room:
+            return False
+        entry = room.get(uid)
+        if entry is None:
+            return False
+        if ws is not None and entry.get("ws") is not ws:
+            # The current entry belongs to a newer connection — leave it alone.
+            return False
+        room.pop(uid, None)
+        if not room:
+            del self.rooms[room_id]
+        return True
 
     def snapshot(self, room_id: str, exclude: str) -> list:
         return [
@@ -122,5 +154,9 @@ async def game_socket(ws: WebSocket, room_id: str, uid: str):
     except WebSocketDisconnect:
         pass
     finally:
-        manager.disconnect(room_id, uid)
-        await manager.broadcast(room_id, {"type": "leave", "uid": uid})
+        # Only emit "leave" when this socket is actually the active one for
+        # `uid`. Otherwise we'd tell everyone a player left every time a tab
+        # reconnects, even though a newer socket has already taken over.
+        removed = manager.disconnect(room_id, uid, ws)
+        if removed:
+            await manager.broadcast(room_id, {"type": "leave", "uid": uid})

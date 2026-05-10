@@ -117,6 +117,7 @@ export class GameScene extends Phaser.Scene {
   private lastBroadcast: number = 0;
   private lastSentX: number = 0;
   private lastSentY: number = 0;
+  private onlineHud: Phaser.GameObjects.Text | null = null;
 
   // ─── Shop placement ────────────────────────────────────────────────────────
   private placement: {
@@ -185,6 +186,14 @@ export class GameScene extends Phaser.Scene {
       color: '#ffffff',
       backgroundColor: '#00000066',
       padding: { x: 8, y: 5 },
+    }).setScrollFactor(0).setDepth(200);
+
+    this.onlineHud = this.add.text(12, 40, 'Online: connecting…', {
+      fontSize: '12px',
+      fontFamily: 'monospace',
+      color: '#ffffff',
+      backgroundColor: '#00000066',
+      padding: { x: 8, y: 4 },
     }).setScrollFactor(0).setDepth(200);
 
     // Connect multiplayer after everything is ready
@@ -261,35 +270,43 @@ export class GameScene extends Phaser.Scene {
     this.socket = new WebSocket(wsUrl);
 
     this.socket.onopen = () => {
-      console.log('WebSocket connected');
+      console.log('[multiplayer] WebSocket connected');
+      this.refreshOnlineHud();
     };
 
     this.socket.onmessage = (event) => {
       try {
         const msg = JSON.parse(event.data);
-        if (msg.type === 'move') this.updateRemotePlayer(msg.uid, msg.x, msg.y, msg.username);
-        if (msg.type === 'leave') this.removeRemotePlayer(msg.uid);
-        if (msg.type === 'room_state') {
+        if (msg.type === 'move') {
+          this.updateRemotePlayer(msg.uid, msg.x, msg.y, msg.username);
+        } else if (msg.type === 'leave') {
+          this.removeRemotePlayer(msg.uid);
+        } else if (msg.type === 'room_state') {
+          console.log('[multiplayer] room_state:', msg.players);
           for (const p of (msg.players ?? [])) {
             if (p.uid !== this.myUid) this.updateRemotePlayer(p.uid, p.x, p.y, p.username);
           }
-        }
-        if (msg.type === 'player_joined' && msg.uid !== this.myUid) {
+        } else if (msg.type === 'player_joined' && msg.uid !== this.myUid) {
+          console.log('[multiplayer] player_joined:', msg.uid, msg.username);
           this.updateRemotePlayer(msg.uid, msg.x, msg.y, msg.username);
+        } else if (msg.type === 'place_item') {
+          this.spawnPlacedItem(msg.id, msg.item_id, msg.x, msg.y, msg.price_paid ?? 0);
+        } else if (msg.type === 'remove_item') {
+          this.removePlacedItemVisual(msg.id);
         }
-        if (msg.type === 'place_item') this.spawnPlacedItem(msg.id, msg.item_id, msg.x, msg.y, msg.price_paid ?? 0);
-        if (msg.type === 'remove_item') this.removePlacedItemVisual(msg.id);
       } catch (e) {
         console.warn('Bad WS message', event.data);
       }
     };
 
     this.socket.onclose = () => {
-      console.log('WebSocket disconnected');
+      console.log('[multiplayer] WebSocket disconnected');
+      if (this.onlineHud) this.onlineHud.setText('Online: disconnected');
     };
 
     this.socket.onerror = (e) => {
-      console.error('WebSocket error', e);
+      console.error('[multiplayer] WebSocket error', e);
+      if (this.onlineHud) this.onlineHud.setText('Online: error (is the backend running?)');
     }
 
     // Clean up on scene shutdown
@@ -371,6 +388,7 @@ export class GameScene extends Phaser.Scene {
       const container = this.add.container(x, y, [g, label]);
       container.setDepth(100 + y * 0.01);
       this.remotePlayers.set(uid, { container, targetX: x, targetY: y });
+      this.refreshOnlineHud();
     } else {
       const rp = this.remotePlayers.get(uid)!;
       rp.targetX = x;
@@ -384,7 +402,14 @@ export class GameScene extends Phaser.Scene {
       rp.container.destroy();
       this.remotePlayers.delete(uid);
       this.remoteColorMap.delete(uid);
+      this.refreshOnlineHud();
     }
+  }
+
+  private refreshOnlineHud(): void {
+    if (!this.onlineHud) return;
+    const total = this.remotePlayers.size + 1;
+    this.onlineHud.setText(`Online: ${total} player${total === 1 ? '' : 's'}`);
   }
 
   // ─── Tile layer ───────────────────────────────────────────────────────────

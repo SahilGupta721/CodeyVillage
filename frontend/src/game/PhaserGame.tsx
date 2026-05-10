@@ -39,12 +39,46 @@ export default function PhaserGame({ roomId }: Props) {
 
       if (!aliveRef.current || !containerRef.current || gameRef.current) return;
 
-      // Firebase Auth is the source of truth for uid — localStorage fallback for edge cases
-      const firebaseUid = auth.currentUser?.uid ?? localStorage.getItem('firebaseUid');
-      const username = firebaseUid ? localStorage.getItem(`username:${firebaseUid}`) : null;
+      // Resolve the player's identity. Priority:
+      //   1. Firebase Auth current user (signed-in)
+      //   2. firebaseUid mirrored in localStorage (auth still rehydrating)
+      //   3. Guest id stored in sessionStorage (per-tab, so two tabs in the
+      //      same browser show up as two distinct players — useful for
+      //      testing and for letting unauthenticated visitors join).
+      let baseUid = auth.currentUser?.uid ?? localStorage.getItem('firebaseUid');
+      let displayName = baseUid ? localStorage.getItem(`username:${baseUid}`) : null;
+
+      if (!baseUid) {
+        let guestUid = sessionStorage.getItem('guestUid');
+        if (!guestUid) {
+          guestUid = 'guest-' + Math.random().toString(36).slice(2, 8);
+          sessionStorage.setItem('guestUid', guestUid);
+        }
+        baseUid = guestUid;
+        displayName = 'Guest-' + guestUid.slice(-4).toUpperCase();
+      }
+
+      // Always tag the uid with a per-tab session suffix so multiple tabs of
+      // the same logged-in user appear as separate avatars during testing.
+      // The display name (username/email) is shown on the label, not the uid,
+      // so this stays invisible to the player.
+      let tabSession = sessionStorage.getItem('tabSession');
+      if (!tabSession) {
+        tabSession = Math.random().toString(36).slice(2, 8);
+        sessionStorage.setItem('tabSession', tabSession);
+      }
+      const uid = `${baseUid}:${tabSession}`;
+
+      const username = displayName ?? baseUid.slice(0, 6);
+
+      // If the parent omits roomId (or passes null), still join the shared
+      // "public" room so WebSocket multiplayer works instead of silent single-player.
+      const effectiveRoomId = roomId ?? 'public';
+
+      console.log('[multiplayer] booting Phaser with', { uid, username, roomId: effectiveRoomId });
 
       gameRef.current = new Phaser.Game(
-        createGameConfig(containerRef.current, roomId ?? null, firebaseUid, username)
+        createGameConfig(containerRef.current, effectiveRoomId, uid, username)
       );
     })();
 

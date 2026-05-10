@@ -11,10 +11,12 @@ spec:
         # Each instance handles up to 50 concurrent WebSocket connections (~10 full rooms of 5)
         autoscaling.knative.dev/target: "50"
         autoscaling.knative.dev/minScale: "0"
-        # maxScale kept low: all players in a room MUST land on the same instance.
-        # Room state is in-memory — split across instances = players can't see each other.
-        # Proper cross-instance scaling requires Redis pub/sub (future work).
-        autoscaling.knative.dev/maxScale: "3"
+        # All players in a room MUST land on the same instance because room
+        # state is held in-memory in routes/ws_routes.py:RoomManager. Pinning
+        # maxScale to 1 forces every WebSocket onto the single live instance,
+        # which is what makes multiplayer actually work today.
+        # Proper horizontal scaling requires Redis pub/sub (future work).
+        autoscaling.knative.dev/maxScale: "1"
         run.googleapis.com/execution-environment: gen2
         # Session affinity: sticks a client to the same instance after first connection.
         # Helps but is not sufficient alone — players connecting fresh may still split.
