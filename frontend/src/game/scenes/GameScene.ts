@@ -185,17 +185,6 @@ export class GameScene extends Phaser.Scene {
     this.socket.onmessage = (event) => {
       try {
         const msg = JSON.parse(event.data);
-<<<<<<< Updated upstream
-        if (msg.type === 'move') this.updateRemotePlayer(msg.uid, msg.x, msg.y, msg.username);
-        if (msg.type === 'leave') this.removeRemotePlayer(msg.uid);
-        if (msg.type === 'room_state') {
-          for (const p of (msg.players ?? [])) {
-            if (p.uid !== this.myUid) this.updateRemotePlayer(p.uid, p.x, p.y, p.username);
-          }
-        }
-        if (msg.type === 'player_joined' && msg.uid !== this.myUid) {
-          this.updateRemotePlayer(msg.uid, msg.x, msg.y, msg.username);
-=======
         if (msg.type === 'move') {
           this.updateRemotePlayer(msg.uid, msg.x, msg.y, msg.username);
         } else if (msg.type === 'presence' && Array.isArray(msg.players)) {
@@ -205,7 +194,6 @@ export class GameScene extends Phaser.Scene {
           }
         } else if (msg.type === 'leave') {
           this.removeRemotePlayer(msg.uid);
->>>>>>> Stashed changes
         }
       } catch (e) {
         console.warn('Bad WS message', event.data);
@@ -218,7 +206,7 @@ export class GameScene extends Phaser.Scene {
 
     this.socket.onerror = (e) => {
       console.error('WebSocket error', e);
-    };
+    }
 
     // Clean up on scene shutdown
     this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {

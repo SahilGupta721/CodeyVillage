@@ -25,15 +25,8 @@ export default function PhaserGame({ roomId }: Props) {
 
       if (!aliveRef.current || !containerRef.current || gameRef.current) return;
 
-<<<<<<< Updated upstream
-      // Firebase Auth is the source of truth for uid — localStorage fallback for edge cases
-      const firebaseUid = auth.currentUser?.uid ?? localStorage.getItem('firebaseUid');
-      const username = firebaseUid ? localStorage.getItem(`username:${firebaseUid}`) : null;
-=======
-      // Pull the signed-in user's identity out of localStorage. If the user
-      // isn't logged in we mint a stable "guest-XXXX" id so they can still
-      // join multiplayer (otherwise the websocket would never connect).
-      let uid = localStorage.getItem('firebaseUid');
+      // Firebase Auth is the source of truth for uid; localStorage mirrors it after sign-in.
+      let uid = auth.currentUser?.uid ?? localStorage.getItem('firebaseUid');
       if (!uid) {
         uid = localStorage.getItem('guestUid');
         if (!uid) {
@@ -48,7 +41,6 @@ export default function PhaserGame({ roomId }: Props) {
           ? 'Guest-' + uid.slice(-4).toUpperCase()
           : uid.slice(0, 6);
       }
->>>>>>> Stashed changes
 
       gameRef.current = new Phaser.Game(
         createGameConfig(containerRef.current, roomId ?? null, uid, username)
