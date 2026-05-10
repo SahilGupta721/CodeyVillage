@@ -36,3 +36,5 @@ spec:
                 secretKeyRef:
                   name: mongo-url
                   key: latest
+            - name: WEBHOOK_URL
+              value: "https://productivity-island-backend-whqijrostq-uc.a.run.app"
