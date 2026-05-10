@@ -34,6 +34,41 @@ const NPC_COUNT = 6;
 const ISLAND_SEED = 42;
 const WS_BROADCAST_INTERVAL = 50; // ms between position broadcasts
 
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:8000';
+
+// Visual depth of placed shop items, y-sorted so taller props occlude correctly.
+const PLACED_ITEM_DEPTH_BASE = 60;
+
+// Texture key per shop item — used by both the ghost preview and the
+// permanent sprite that gets dropped on the map.
+const SHOP_ITEM_TEXTURES: Record<string, string> = {
+  tree: 'tree',
+  'wooden-chair': 'wooden-chair',
+  'cozy-sofa': 'cozy-sofa',
+  'oak-dresser': 'oak-dresser',
+  'feather-bed': 'feather-bed',
+  'pine-table': 'pine-table',
+  'rocking-chair': 'rocking-chair',
+  'potted-fern': 'potted-fern',
+  'candle-set': 'candle-set',
+  'hanging-vine': 'hanging-vine',
+  'landscape-print': 'landscape-print',
+  'woven-rug': 'woven-rug',
+  'flower-basket': 'flower-basket',
+  'stone-window': 'stone-window',
+  'carved-door': 'carved-door',
+  'cobble-wall': 'cobble-wall',
+  'wooden-arch': 'wooden-arch',
+  'fence-post': 'fence-post',
+  'garden-gate': 'garden-gate',
+  'fairy-lantern': 'fairy-lantern',
+  'moon-crystal': 'moon-crystal',
+  'mystic-orb': 'mystic-orb',
+  'enchanted-bonsai': 'enchanted-bonsai',
+  'star-fragment': 'star-fragment',
+  'spirit-bells': 'spirit-bells',
+};
+
 const TILE_COLORS = new Map<TileType, number>([
   [TileType.ROCK, 0x8a8462],
   [TileType.WATER, 0x3898d8],
@@ -60,6 +95,7 @@ const REMOTE_COLORS = [
 // ─── Scene ────────────────────────────────────────────────────────────────────
 
 export class GameScene extends Phaser.Scene {
+  private refundHandler: ((amount: number) => void) | null = null;
   private island!: IslandData;
   private col!: CollisionSystem;
   private player!: Player;
@@ -79,6 +115,20 @@ export class GameScene extends Phaser.Scene {
   private lastBroadcast: number = 0;
   private lastSentX: number = 0;
   private lastSentY: number = 0;
+
+  // ─── Shop placement ────────────────────────────────────────────────────────
+  private placement: {
+    itemId: string;
+    pricePaid: number;
+    ghost: Phaser.GameObjects.Image;
+    valid: boolean;
+  } | null = null;
+  private eraseMode = false;
+  private placedItems = new Map<string, { sprite: Phaser.GameObjects.Image; itemId: string; pricePaid: number }>();
+  // Tracks already-rendered placed items so we never double-spawn (e.g. when our
+  // own HTTP POST response races with the WS broadcast echo).
+  private placedItemIds: Set<string> = new Set();
+  private escKey: Phaser.Input.Keyboard.Key | null = null;
 
   constructor() { super({ key: 'GameScene' }); }
 
@@ -134,6 +184,18 @@ export class GameScene extends Phaser.Scene {
 
     // Connect multiplayer after everything is ready
     this.connectMultiplayer();
+
+    // Shop placement: ESC cancels, left-click confirms, right-click cancels.
+    this.escKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+    this.input.mouse?.disableContextMenu();
+    this.input.on('pointerdown', this.handlePlacementClick, this);
+
+    // Load any items already placed in this room and clean up listeners on shutdown.
+    this.loadPlacedItems();
+    this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.input.off('pointerdown', this.handlePlacementClick, this);
+      this.cancelPlacement();
+    });
   }
 
   // ─── update ───────────────────────────────────────────────────────────────
@@ -158,6 +220,11 @@ export class GameScene extends Phaser.Scene {
     if (time - this.lastBroadcast > WS_BROADCAST_INTERVAL) {
       this.broadcastPosition();
       this.lastBroadcast = time;
+    }
+
+    this.updatePlacementGhost();
+    if (this.placement && this.escKey && Phaser.Input.Keyboard.JustDown(this.escKey)) {
+      this.cancelPlacement();
     }
   }
 
@@ -195,6 +262,8 @@ export class GameScene extends Phaser.Scene {
         if (msg.type === 'player_joined' && msg.uid !== this.myUid) {
           this.updateRemotePlayer(msg.uid, msg.x, msg.y, msg.username);
         }
+        if (msg.type === 'place_item') this.spawnPlacedItem(msg.id, msg.item_id, msg.x, msg.y, msg.price_paid ?? 0);
+        if (msg.type === 'remove_item') this.removePlacedItemVisual(msg.id);
       } catch (e) {
         console.warn('Bad WS message', event.data);
       }
@@ -649,5 +718,235 @@ export class GameScene extends Phaser.Scene {
     const cam = this.cameras.main;
     const newZoom = Math.max(cam.zoom - this.zoomStep, this.minZoom);
     this.tweens.add({ targets: cam, zoom: newZoom, duration: 180, ease: 'Quad.Out' });
+  }
+
+  // ─── Shop placement: public API ───────────────────────────────────────────
+
+  /**
+   * Begin placement mode for a shop item. A semi-transparent ghost sprite
+   * follows the cursor until the player either clicks a valid tile (which
+   * "drops" the item permanently) or cancels with right-click / ESC.
+   *
+   * Called from React via the parent PhaserGame's onBuy handler.
+   */
+  enterPlacementMode(itemId: string, pricePaid: number): void {
+    const tex = SHOP_ITEM_TEXTURES[itemId];
+    if (!tex) {
+      console.warn(`No placement sprite registered for shop item "${itemId}"`);
+      return;
+    }
+    // If switching items mid-placement, clean up the previous ghost first.
+    this.cancelPlacement();
+
+    const ghost = this.add.image(-9999, -9999, tex)
+      .setOrigin(0.5, 0.7)
+      .setAlpha(0.65)
+      .setDepth(9999); // always on top while previewing
+
+    this.eraseMode = false;
+    this.placement = { itemId, pricePaid, ghost, valid: false };
+  }
+
+  toggleEraseMode(): void {
+    this.eraseMode = !this.eraseMode;
+    if (this.eraseMode) this.cancelPlacement();
+    this.add.text(12, 34, this.eraseMode ? 'ERASE MODE ON' : 'ERASE MODE OFF', {
+      fontSize: '11px',
+      fontFamily: 'monospace',
+      color: '#ffffff',
+      backgroundColor: this.eraseMode ? '#8a2020cc' : '#1f4f1fcc',
+      padding: { x: 6, y: 4 },
+    }).setScrollFactor(0).setDepth(210).setAlpha(0.9).setName('erase-toast');
+    this.time.delayedCall(900, () => {
+      const toast = this.children.getByName('erase-toast');
+      toast?.destroy();
+    });
+  }
+
+  setRefundHandler(handler: (amount: number) => void): void {
+    this.refundHandler = handler;
+  }
+
+  // ─── Shop placement: internals ────────────────────────────────────────────
+
+  private cancelPlacement(): void {
+    if (!this.placement) return;
+    this.placement.ghost.destroy();
+    this.placement = null;
+  }
+
+  /** Snap a world coordinate to the centre of its containing tile. */
+  private snapToTileCentre(wx: number, wy: number): { x: number; y: number; tx: number; ty: number } {
+    const tx = Math.floor(wx / TILE_SIZE);
+    const ty = Math.floor(wy / TILE_SIZE);
+    return {
+      x: tx * TILE_SIZE + TILE_SIZE / 2,
+      y: ty * TILE_SIZE + TILE_SIZE / 2,
+      tx,
+      ty,
+    };
+  }
+
+  private updatePlacementGhost(): void {
+    if (!this.placement) return;
+
+    const pointer = this.input.activePointer;
+    const world = pointer.positionToCamera(this.cameras.main) as Phaser.Math.Vector2;
+    const snapped = this.snapToTileCentre(world.x, world.y);
+
+    this.placement.ghost.setPosition(snapped.x, snapped.y);
+
+    // Valid only on a walkable, in-bounds, non-building tile.
+    const valid = this.col.isTileWalkable(snapped.tx, snapped.ty);
+    this.placement.valid = valid;
+    this.placement.ghost.setTint(valid ? 0xffffff : 0xff5050);
+    this.placement.ghost.setAlpha(valid ? 0.7 : 0.45);
+  }
+
+  private handlePlacementClick(pointer: Phaser.Input.Pointer): void {
+    if (!this.placement) return;
+
+    // Right-click cancels — matches the Clash-of-Clans-style flow.
+    if (pointer.rightButtonDown()) {
+      this.cancelPlacement();
+      return;
+    }
+
+    if (!this.placement.valid) return;
+
+    const { x, y } = this.snapToTileCentre(pointer.worldX, pointer.worldY);
+    const itemId = this.placement.itemId;
+    const pricePaid = this.placement.pricePaid;
+
+    // Render immediately for instant feedback, then persist + broadcast.
+    // Use a temporary local id; the server will assign the canonical one.
+    const tempId = `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    this.spawnPlacedItem(tempId, itemId, x, y, pricePaid);
+
+    this.cancelPlacement();
+    void this.persistPlacedItem(tempId, itemId, x, y, pricePaid);
+  }
+
+  /** Spawn a placed item sprite. Idempotent — duplicate ids are ignored. */
+  private spawnPlacedItem(id: string | undefined, itemId: string, x: number, y: number, pricePaid: number): void {
+    if (id && this.placedItemIds.has(id)) return;
+    const tex = SHOP_ITEM_TEXTURES[itemId];
+    if (!tex) return;
+
+    const sprite = this.add.image(x, y, tex)
+      .setOrigin(0.5, 0.7)
+      .setDepth(PLACED_ITEM_DEPTH_BASE + y * 0.001);
+    if (id) sprite.setData('placedId', id);
+    sprite.setInteractive({ useHandCursor: true });
+    sprite.on('pointerdown', () => {
+      if (!this.eraseMode) return;
+      const currentId = sprite.getData('placedId') as string | undefined;
+      if (!currentId) return;
+      void this.erasePlacedItem(currentId);
+    });
+
+    if (id) {
+      this.placedItemIds.add(id);
+      this.placedItems.set(id, { sprite, itemId, pricePaid });
+    }
+  }
+
+  private async loadPlacedItems(): Promise<void> {
+    const roomId = this.game.registry.get('roomId') as string | null;
+    if (!roomId) return;
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/island/${encodeURIComponent(roomId)}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      for (const item of (data.placed_items ?? [])) {
+        this.spawnPlacedItem(item.id, item.item_id, item.x, item.y, item.price_paid ?? 0);
+      }
+    } catch (e) {
+      console.warn('Failed to load placed items', e);
+    }
+  }
+
+  private async persistPlacedItem(
+    tempId: string,
+    itemId: string,
+    x: number,
+    y: number,
+    pricePaid: number,
+  ): Promise<void> {
+    const roomId = this.game.registry.get('roomId') as string | null;
+    if (!roomId) return;
+    const uid = this.game.registry.get('uid') as string | null;
+
+    let serverId: string | null = null;
+    try {
+      const res = await fetch(`${BACKEND_URL}/island/${encodeURIComponent(roomId)}/place`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ item_id: itemId, x, y, placed_by: uid, price_paid: pricePaid }),
+      });
+      if (res.ok) {
+        const saved = await res.json();
+        serverId = saved.id ?? null;
+        // Re-key the local sprite under the canonical server id so any later
+        // WS echo (or a refresh) doesn't try to render it a second time.
+        if (serverId) {
+          this.placedItemIds.delete(tempId);
+          this.placedItemIds.add(serverId);
+          const local = this.placedItems.get(tempId);
+          if (local) {
+            local.sprite.setData('placedId', serverId);
+            this.placedItems.delete(tempId);
+            this.placedItems.set(serverId, local);
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to persist placed item', e);
+    }
+
+    // Live-broadcast to others currently in the room.
+    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+      this.socket.send(JSON.stringify({
+        type: 'place_item',
+        id: serverId ?? tempId,
+        item_id: itemId,
+        x,
+        y,
+        price_paid: pricePaid,
+      }));
+    }
+  }
+
+  private removePlacedItemVisual(id: string): void {
+    const item = this.placedItems.get(id);
+    if (!item) return;
+    item.sprite.destroy();
+    this.placedItems.delete(id);
+    this.placedItemIds.delete(id);
+  }
+
+  private async erasePlacedItem(id: string): Promise<void> {
+    const roomId = this.game.registry.get('roomId') as string | null;
+    const uid = this.game.registry.get('uid') as string | null;
+    if (!roomId) return;
+
+    try {
+      const res = await fetch(
+        `${BACKEND_URL}/island/${encodeURIComponent(roomId)}/items/${encodeURIComponent(id)}?user_id=${encodeURIComponent(uid ?? '')}`,
+        { method: 'DELETE' },
+      );
+      if (!res.ok) return;
+      const data = await res.json();
+      this.removePlacedItemVisual(id);
+      const refund = Number(data.refund_amount ?? 0);
+      if (refund > 0) this.refundHandler?.(refund);
+
+      if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+        this.socket.send(JSON.stringify({ type: 'remove_item', id }));
+      }
+    } catch (e) {
+      console.warn('Failed to erase placed item', e);
+    }
   }
 }

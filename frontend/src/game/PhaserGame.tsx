@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useRef } from 'react';
-import ShopPanel from '../components/shop/ShopPanel';
+import ShopPanel, { type ShopPanelHandle } from '../components/shop/ShopPanel';
 import type PhaserType from 'phaser';
 import { auth } from '../../lib/firebase';
 
@@ -11,6 +11,7 @@ interface Props {
 export default function PhaserGame({ roomId }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<PhaserType.Game | null>(null);
+  const shopRef = useRef<ShopPanelHandle>(null);
   const aliveRef = useRef(true);
 
   useEffect(() => {
@@ -44,8 +45,30 @@ export default function PhaserGame({ roomId }: Props) {
 
   const getGameScene = () =>
     gameRef.current?.scene.getScene('GameScene') as
-    | { zoomIn(): void; zoomOut(): void }
+    | {
+      zoomIn(): void;
+      zoomOut(): void;
+      enterPlacementMode(itemId: string, pricePaid: number): void;
+      toggleEraseMode(): void;
+      setRefundHandler(handler: (amount: number) => void): void;
+    }
     | undefined;
+
+  const handleBuy = (itemId: string, price: number) => {
+    getGameScene()?.enterPlacementMode(itemId, price);
+  };
+
+  useEffect(() => {
+    const t = window.setInterval(() => {
+      const scene = getGameScene();
+      if (!scene) return;
+      scene.setRefundHandler((amount) => {
+        if (amount > 0) shopRef.current?.addCoins(amount);
+      });
+      window.clearInterval(t);
+    }, 200);
+    return () => window.clearInterval(t);
+  }, []);
 
   const btnStyle: React.CSSProperties = {
     position: 'absolute',
@@ -77,7 +100,14 @@ export default function PhaserGame({ roomId }: Props) {
       />
       <button style={{ ...btnStyle, bottom: 16, right: 16 }} onClick={() => getGameScene()?.zoomIn()}>+</button>
       <button style={{ ...btnStyle, bottom: 16, right: 64 }} onClick={() => getGameScene()?.zoomOut()}>−</button>
-      <ShopPanel />
+      <button
+        style={{ ...btnStyle, bottom: 16, right: 112, fontSize: 18 }}
+        onClick={() => getGameScene()?.toggleEraseMode()}
+        title="Toggle erase mode"
+      >
+        ⌫
+      </button>
+      <ShopPanel ref={shopRef} onBuy={handleBuy} />
     </div>
   );
 }

@@ -48,16 +48,25 @@ interface ShopCategory {
 
 export interface ShopPanelHandle {
   setCoins: (amount: number) => void;
+  addCoins: (delta: number) => void;
 }
 
 export interface ShopPanelProps {
   coins?: number;
-  onBuy?: (itemId: string) => void;
+  onBuy?: (itemId: string, price: number) => void;
 }
 
 // ── shop catalogue ───────────────────────────────────────────────────────────
 
-const CATEGORIES: ShopCategory[] = [
+const BASE_CATEGORIES: ShopCategory[] = [
+  {
+    id:    'nature',
+    label: 'Nature',
+    emoji: '🌳',
+    items: [
+      { id: 'tree', name: 'Oak Tree', emoji: '🌳', price: 110 },
+    ],
+  },
   {
     id:    'furniture',
     label: 'Furniture',
@@ -112,10 +121,12 @@ const CATEGORIES: ShopCategory[] = [
   },
 ];
 
+const CATEGORIES: ShopCategory[] = BASE_CATEGORIES;
+
 // ── component ────────────────────────────────────────────────────────────────
 
 const ShopPanel = forwardRef<ShopPanelHandle, ShopPanelProps>(
-  ({ coins: coinsProp = 1250, onBuy }, ref) => {
+  ({ coins: coinsProp = 10000, onBuy }, ref) => {
 
     const [isOpen,       setIsOpen]       = useState(false);
     const [coins,        setCoinsState]   = useState(coinsProp);
@@ -126,6 +137,7 @@ const ShopPanel = forwardRef<ShopPanelHandle, ShopPanelProps>(
 
     useImperativeHandle(ref, () => ({
       setCoins: (amount: number) => setCoinsState(amount),
+      addCoins: (delta: number) => setCoinsState(prev => prev + delta),
     }));
 
     const toggleCategory = (id: string) =>
@@ -134,11 +146,18 @@ const ShopPanel = forwardRef<ShopPanelHandle, ShopPanelProps>(
     const handleBuy = (item: ShopItem) => {
       if (coins < item.price) return;
       setCoinsState(prev => prev - item.price);
-      onBuy?.(item.id);
+      onBuy?.(item.id, item.price);
+      // Close the panel so the cursor-follow placement preview is visible.
+      setIsOpen(false);
     };
 
     return (
       <>
+        <div className={styles.coinHud}>
+          <span className={styles.coinIcon}>🪙</span>
+          {coins.toLocaleString()}
+        </div>
+
         {/* transparent overlay — closes panel when clicking outside */}
         {isOpen && (
           <div
@@ -156,19 +175,14 @@ const ShopPanel = forwardRef<ShopPanelHandle, ShopPanelProps>(
             aria-label={isOpen ? 'Close shop' : 'Open shop'}
           >
             <span className={styles.handleIcon}>🏪</span>
-            <span className={styles.handleLabel}>SHOP</span>
+            <span className={styles.handleLabel}>MARKET</span>
           </button>
 
           {/* ── panel body ── */}
           <div className={styles.panel}>
 
-            {/* top bar with coin balance */}
             <div className={styles.topBar}>
-              <span className={styles.shopTitle}>Village Shop</span>
-              <span className={styles.coinDisplay}>
-                <span className={styles.coinIcon}>🪙</span>
-                {coins.toLocaleString()}
-              </span>
+              <span className={styles.shopTitle}>Village Market</span>
             </div>
 
             {/* category accordions */}

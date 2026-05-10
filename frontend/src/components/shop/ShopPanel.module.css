@@ -7,7 +7,7 @@
 .shopRoot {
   /* ── theme tokens ─────────────────────────────────────────── */
   --shop-panel-width:   360px;
-  --shop-handle-width:   44px;
+  --shop-handle-width:   108px;
   --shop-bg:            #f5e6c8;
   --shop-bg-dark:       #ecdab6;
   --shop-accent:        #7a4f2e;
@@ -29,9 +29,9 @@
 
   /* ── layout ───────────────────────────────────────────────── */
   position:   fixed;
-  top:        0;
+  top:        14px;
   right:      0;
-  height:     100vh;
+  height:     auto;
   display:    flex;
   flex-direction: row;
   align-items: stretch;
@@ -60,14 +60,16 @@
   width:          var(--shop-handle-width);
   background:     var(--shop-handle-bg);
   border:         none;
-  border-radius:  12px 0 0 12px;
+  height:         56px;
+  border-radius:  14px 0 0 14px;
   cursor:         pointer;
   display:        flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items:    center;
   justify-content: center;
-  gap:            10px;
-  padding:        0;
+  gap:            8px;
+  padding:        0 14px;
+  margin-right:   -2px; /* overlap panel border to remove seam/gap */
   box-shadow:     -3px 0 14px rgba(40, 18, 5, 0.45);
   transition:     background 200ms ease;
 }
@@ -84,12 +86,9 @@
 .handleLabel {
   color:           var(--shop-handle-text);
   font-family:     Georgia, 'Times New Roman', serif;
-  font-size:       12px;
+  font-size:       11px;
   font-weight:     bold;
-  letter-spacing:  0.18em;
-  writing-mode:    vertical-rl;
-  text-orientation: mixed;
-  transform:       rotate(180deg);
+  letter-spacing:  0.08em;
   user-select:     none;
 }
 
@@ -98,13 +97,14 @@
 .panel {
   pointer-events: all;
   width:          var(--shop-panel-width);
-  height:         100vh;
+  height:         min(78vh, 720px);
   background:     var(--shop-bg);
   box-shadow:     var(--shop-shadow);
   display:        flex;
   flex-direction: column;
   overflow:       hidden;
   border-left:    2px solid var(--shop-border);
+  border-radius:  14px 0 0 14px;
 }
 
 /* ── top bar ────────────────────────────────────────────────── */
@@ -127,23 +127,27 @@
   letter-spacing: 0.04em;
 }
 
-.coinDisplay {
-  display:      flex;
-  align-items:  center;
-  gap:          5px;
-  background:   rgba(184, 121, 13, 0.12);
-  border:       1.5px solid rgba(184, 121, 13, 0.38);
-  border-radius: 20px;
-  padding:      5px 13px 5px 9px;
-  font-family:  Georgia, 'Times New Roman', serif;
-  font-size:    15px;
-  font-weight:  bold;
-  color:        var(--shop-gold);
-  letter-spacing: 0.02em;
-}
-
 .coinIcon {
   font-size: 16px;
+}
+
+.coinHud {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(12, 20, 36, 0.82);
+  color: #ffe08a;
+  border: 1.5px solid rgba(255, 210, 92, 0.45);
+  border-radius: 999px;
+  padding: 7px 14px 7px 10px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
 }
 
 /* ── categories scroll area ─────────────────────────────────── */
