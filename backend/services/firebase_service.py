@@ -13,13 +13,16 @@ def verify_token(authorization: str = Header(...)):
         
         # Verify via Google's public endpoint
         url = f"https://identitytoolkit.googleapis.com/v1/accounts:lookup?key={os.getenv('FIREBASE_API_KEY')}"
-        response = requests.post(url, json={"idToken": token})
+        response = requests.post(url, json={"idToken": token}, timeout=10)
         data = response.json()
-        
+
         if "error" in data:
             raise HTTPException(status_code=401, detail="Invalid token")
-        
-        user = data["users"][0]
+
+        firebase_users = data.get("users")
+        if not firebase_users:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        user = firebase_users[0]
         return user["localId"]  # this is the UID
     
     except Exception as e:

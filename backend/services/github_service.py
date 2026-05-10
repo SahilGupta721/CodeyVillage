@@ -17,12 +17,13 @@ async def get_github_user(token: str) -> dict:
 async def create_webhooks_for_user(token: str) -> int:
     created = 0
     page = 1
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=30.0) as client:
         while True:
             res = await client.get(
                 f"https://api.github.com/user/repos?per_page=100&page={page}",
                 headers={"Authorization": f"Bearer {token}", "User-Agent": "productivity-island"},
             )
+            res.raise_for_status()
             repos = res.json()
             if not repos:
                 break

@@ -44,7 +44,7 @@ def get_user(uid: str):
     user = users_collection.find_one({"_id": uid})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    user["id"] = user["_id"]
+    user["id"] = str(user["_id"])
     del user["_id"]
     return user
 

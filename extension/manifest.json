@@ -15,6 +15,8 @@
     "https://github.com/*",
     "https://api.github.com/*",
     "https://*.myworkdayjobs.com/*",
+    "https://frontend-gules-two-30.vercel.app/*",
+    "https://productivity-island-backend-whqijrostq-uc.a.run.app/*",
     "http://localhost:3000/*",
     "http://localhost:3001/*",
     "http://localhost:8000/*"
@@ -50,7 +52,11 @@
       "run_at": "document_idle"
     },
     {
-      "matches": ["http://localhost:3000/*", "http://localhost:3001/*"],
+      "matches": [
+        "http://localhost:3000/*",
+        "http://localhost:3001/*",
+        "https://frontend-gules-two-30.vercel.app/*"
+      ],
       "js": ["content-scripts/webapp.js"],
       "run_at": "document_start"
     }

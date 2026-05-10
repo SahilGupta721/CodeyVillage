@@ -68,6 +68,10 @@ async function createWebhooksForUser(token, login) {
     const res = await fetch(`https://api.github.com/user/repos?per_page=100&page=${page}`, {
       headers: { Authorization: `Bearer ${token}`, "User-Agent": "cs-tracker" },
     });
+    if (!res.ok) {
+      console.error(`GitHub repos API error: ${res.status}`);
+      break;
+    }
     const repos = await res.json();
     if (!repos.length) break;
 
@@ -79,7 +83,7 @@ async function createWebhooksForUser(token, login) {
 }
 
 async function createWebhook(token, fullName) {
-  await fetch(`https://api.github.com/repos/${fullName}/hooks`, {
+  const res = await fetch(`https://api.github.com/repos/${fullName}/hooks`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -96,15 +100,25 @@ async function createWebhook(token, fullName) {
       },
     }),
   });
+  // 201 = created, 422 = already exists — both are fine
+  if (res.status !== 201 && res.status !== 422) {
+    console.error(`Webhook creation failed for ${fullName}: ${res.status}`);
+  }
 }
 
 // --- Auth success page ---
 
 app.get("/auth/success", (req, res) => {
   const { login } = req.query;
+  const safeLogin = String(login || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
   res.send(`
     <html><body>
-      <p>GitHub connected as <strong>${login}</strong>! You can close this tab.</p>
+      <p>GitHub connected as <strong>${safeLogin}</strong>! You can close this tab.</p>
       <script>window.close()</script>
     </body></html>
   `);
@@ -126,7 +140,7 @@ app.post("/webhook/github", (req, res) => {
         repo: repository.full_name,
         commit_sha: commit.id,
         commit_message: commit.message,
-        author: commit.author.name,
+        author: commit.author?.name ?? "unknown",
       },
     };
     activityLog.unshift(entry);

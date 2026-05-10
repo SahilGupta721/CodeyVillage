@@ -31,7 +31,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 const DEFAULT_SERVER_URL = "http://localhost:3000/track";
-const BACKEND_URL = "http://localhost:8000";
+const BACKEND_URL = "https://productivity-island-backend-whqijrostq-uc.a.run.app";
 
 const COIN_VALUES = {
   leetcode_accepted: 10,

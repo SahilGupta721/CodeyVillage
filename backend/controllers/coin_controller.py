@@ -23,14 +23,22 @@ def add_coins(data: AddCoinsRequest):
     if not result:
         raise HTTPException(status_code=404, detail="User not found — create user first")
 
-    coin_ledger_collection.insert_one({
-        "uid": data.uid,
-        "activity_type": data.activity_type,
-        "amount": data.amount,
-        "dedup_key": data.dedup_key,
-        "balance_after": result["coins"],
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-    })
+    try:
+        coin_ledger_collection.insert_one({
+            "uid": data.uid,
+            "activity_type": data.activity_type,
+            "amount": data.amount,
+            "dedup_key": data.dedup_key,
+            "balance_after": result["coins"],
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        })
+    except Exception:
+        # Roll back the coin increment to keep the ledger consistent
+        users_collection.update_one(
+            {"_id": data.uid},
+            {"$inc": {"coins": -data.amount, "total_coins_earned": -data.amount}},
+        )
+        raise HTTPException(status_code=500, detail="Failed to record transaction")
 
     return {"coins": result["coins"], "earned": data.amount, "duplicate": False}
 

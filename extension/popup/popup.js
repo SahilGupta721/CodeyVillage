@@ -1,5 +1,5 @@
-const WEB_APP_URL = "http://localhost:3001";
-const BACKEND_URL = "http://localhost:8000";
+const WEB_APP_URL = "https://frontend-gules-two-30.vercel.app";
+const BACKEND_URL = "https://productivity-island-backend-whqijrostq-uc.a.run.app";
 
 const LABELS = {
   leetcode_accepted: "LeetCode Accepted",
