@@ -8,13 +8,19 @@ spec:
   template:
     metadata:
       annotations:
-        # Scale up when each instance is handling 10 concurrent connections
-        autoscaling.knative.dev/target: "10"
+        # Each instance handles up to 50 concurrent WebSocket connections (~10 full rooms of 5)
+        autoscaling.knative.dev/target: "50"
         autoscaling.knative.dev/minScale: "1"
-        autoscaling.knative.dev/maxScale: "20"
+        # maxScale kept low: all players in a room MUST land on the same instance.
+        # Room state is in-memory — split across instances = players can't see each other.
+        # Proper cross-instance scaling requires Redis pub/sub (future work).
+        autoscaling.knative.dev/maxScale: "3"
         run.googleapis.com/execution-environment: gen2
+        # Session affinity: sticks a client to the same instance after first connection.
+        # Helps but is not sufficient alone — players connecting fresh may still split.
+        run.googleapis.com/sessionAffinity: "true"
     spec:
-      containerConcurrency: 10
+      containerConcurrency: 50
       timeoutSeconds: 3600        # keep WebSocket connections alive up to 1 hour
       containers:
         - image: IMAGE_PLACEHOLDER  # replaced by deploy script
