@@ -30,7 +30,7 @@ export default function AuthPage() {
       }
 
       window.postMessage({
-        type: "productivity-island-auth",
+        type: "codey-village-auth",
         uid,
         idToken,
         username: hasUsername || null,
@@ -50,10 +50,10 @@ export default function AuthPage() {
 
         {/* Logo / Title */}
         <div className="text-center">
-          <div className="text-5xl mb-4">🏝️</div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">ProductivityIsland</h1>
+          <img src="/logo.svg" width={64} height={64} alt="Codey Village" className="rounded-xl mb-2 mx-auto" />
+          <h1 className="text-3xl font-bold text-white tracking-tight">Codey Village</h1>
           <p className="text-slate-400 mt-2 text-sm">
-            Grind your way to a mansion. Compete with friends.
+            Code your way to a mansion. Compete with friends.
           </p>
         </div>
 

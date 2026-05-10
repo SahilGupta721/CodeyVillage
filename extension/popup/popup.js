@@ -71,8 +71,8 @@ function renderLoginGate() {
         </linearGradient>
       </defs>
     </svg>
-    <div class="brand">ProductivityIsland</div>
-    <p class="auth-sub">Track your grind. Earn coins. Beat your friends.</p>
+    <div class="brand">Codey Village</div>
+    <p class="auth-sub">Code. Earn coins. Beat your friends.</p>
     <button id="loginBtn">Sign in with Google</button>
   `;
   document.getElementById("loginBtn").addEventListener("click", () => {

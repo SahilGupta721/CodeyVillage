@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "CS Activity Tracker",
+  "name": "Codey Village",
   "version": "1.0.0",
-  "description": "Tracks LeetCode acceptances, GitHub commits, and Workday job applications",
+  "description": "Earn coins for LeetCode solves, GitHub commits, and job applications. Build your Codey Village.",
 
   "permissions": [
     "storage",
@@ -38,17 +38,17 @@
   "content_scripts": [
     {
       "matches": ["https://leetcode.com/*"],
-      "js": ["content-scripts/leetcode.js"],
+      "js": ["content-scripts/leetcode.js", "content-scripts/toast.js"],
       "run_at": "document_start"
     },
     {
       "matches": ["https://github.com/*"],
-      "js": ["content-scripts/github.js"],
+      "js": ["content-scripts/github.js", "content-scripts/toast.js"],
       "run_at": "document_start"
     },
     {
       "matches": ["https://*.myworkdayjobs.com/*"],
-      "js": ["content-scripts/workday.js"],
+      "js": ["content-scripts/workday.js", "content-scripts/toast.js"],
       "run_at": "document_idle"
     },
     {
@@ -57,7 +57,7 @@
         "http://localhost:3001/*",
         "https://gdg-hacks-3.vercel.app/*"
       ],
-      "js": ["content-scripts/webapp.js"],
+      "js": ["content-scripts/webapp.js", "content-scripts/toast.js"],
       "run_at": "document_start"
     }
   ],

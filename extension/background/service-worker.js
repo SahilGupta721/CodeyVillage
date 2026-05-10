@@ -50,6 +50,16 @@ function getDedupKey(activityType, details) {
   return null;
 }
 
+function getToastTitle(type, details) {
+  if (type === "leetcode_accepted") {
+    const slug = details?.problem_slug || "";
+    return slug ? slug.split("-").map(w => w[0].toUpperCase() + w.slice(1)).join(" ") : "Problem Solved";
+  }
+  if (type === "github_commit") return "GitHub Commit";
+  if (type === "job_application") return "Job Applied";
+  return type;
+}
+
 async function handleActivity(payload) {
   const { firebaseUid } = await chrome.storage.local.get("firebaseUid");
   const enrichedPayload = { ...payload, uid: firebaseUid || null };
@@ -58,6 +68,22 @@ async function handleActivity(payload) {
 
   // Credit coins immediately, independent of Express server
   if (firebaseUid) await creditCoinsToBackend(firebaseUid, payload.type, payload.details);
+
+  // Show toast on active tab
+  const coins = COIN_VALUES[payload.type] ?? 0;
+  if (coins > 0) {
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (tab?.id) {
+        await chrome.tabs.sendMessage(tab.id, {
+          type: "show_toast",
+          activityType: payload.type,
+          title: getToastTitle(payload.type, payload.details),
+          coins,
+        });
+      }
+    } catch {}
+  }
 
   // Fire-and-forget to Express tracking server
   const { serverUrl } = await chrome.storage.sync.get("serverUrl");

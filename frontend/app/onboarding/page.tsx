@@ -47,7 +47,7 @@ export default function OnboardingPage() {
           body: JSON.stringify({ uid, username: trimmed }),
         }).catch(() => {});
 
-        window.postMessage({ type: "productivity-island-auth", uid, idToken: null, username: trimmed }, "*");
+        window.postMessage({ type: "codey-village-auth", uid, idToken: null, username: trimmed }, "*");
       }
       setStep("github");
     } catch {

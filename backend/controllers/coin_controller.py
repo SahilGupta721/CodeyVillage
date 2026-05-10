@@ -3,8 +3,16 @@ from fastapi import HTTPException
 from database.database import users_collection, coin_ledger_collection
 from models.coin_model import AddCoinsRequest
 
+ACTIVITY_COIN_VALUES = {
+    "leetcode_accepted": 50,
+    "github_commit": 25,
+    "job_application": 25,
+}
+
 
 def add_coins(data: AddCoinsRequest):
+    # Server is source of truth for coin values — ignore client-provided amount for known activity types
+    amount = ACTIVITY_COIN_VALUES.get(data.activity_type, data.amount)
     if data.dedup_key:
         existing = coin_ledger_collection.find_one({
             "uid": data.uid,
@@ -17,7 +25,7 @@ def add_coins(data: AddCoinsRequest):
 
     result = users_collection.find_one_and_update(
         {"_id": data.uid},
-        {"$inc": {"coins": data.amount, "total_coins_earned": data.amount}},
+        {"$inc": {"coins": amount, "total_coins_earned": amount}},
         return_document=True,
     )
     if not result:
@@ -27,21 +35,20 @@ def add_coins(data: AddCoinsRequest):
         coin_ledger_collection.insert_one({
             "uid": data.uid,
             "activity_type": data.activity_type,
-            "amount": data.amount,
+            "amount": amount,
             "dedup_key": data.dedup_key,
             "details": data.details or {},
             "balance_after": result["coins"],
             "timestamp": datetime.now(timezone.utc).isoformat(),
         })
     except Exception:
-        # Roll back the coin increment to keep the ledger consistent
         users_collection.update_one(
             {"_id": data.uid},
-            {"$inc": {"coins": -data.amount, "total_coins_earned": -data.amount}},
+            {"$inc": {"coins": -amount, "total_coins_earned": -amount}},
         )
         raise HTTPException(status_code=500, detail="Failed to record transaction")
 
-    return {"coins": result["coins"], "earned": data.amount, "duplicate": False}
+    return {"coins": result["coins"], "earned": amount, "duplicate": False}
 
 
 def get_coins(uid: str):

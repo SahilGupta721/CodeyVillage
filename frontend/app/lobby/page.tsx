@@ -168,8 +168,8 @@ export default function LobbyPage() {
       {/* Header */}
       <header className="border-b border-slate-800 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">🏝️</span>
-          <span className="text-white font-bold text-lg tracking-tight">ProductivityIsland</span>
+          <img src="/logo.svg" width={28} height={28} alt="Codey Village" className="rounded" />
+          <span className="text-white font-bold text-lg tracking-tight">Codey Village</span>
         </div>
         <div className="flex items-center gap-4">
           <span className="text-slate-400 text-sm">
