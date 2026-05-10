@@ -102,15 +102,12 @@ export default function RoomPage() {
                         </div>
                     </div>
 
-                    {/* Start game — only host can start */}
-                    {uid === room.host_id && (
-                        <button
-                            onClick={() => router.push(`/game?room_id=${room_id}`)}
-                            className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-4 rounded-xl transition-colors text-base"
-                        >
-                            Start game →
-                        </button>
-                    )}
+                    <button
+                        onClick={() => router.push(`/game?room_id=${room_id}`)}
+                        className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-4 rounded-xl transition-colors text-base"
+                    >
+                        Enter island →
+                    </button>
 
                 </div>
             </main>

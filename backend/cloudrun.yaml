@@ -10,7 +10,7 @@ spec:
       annotations:
         # Each instance handles up to 50 concurrent WebSocket connections (~10 full rooms of 5)
         autoscaling.knative.dev/target: "50"
-        autoscaling.knative.dev/minScale: "1"
+        autoscaling.knative.dev/minScale: "0"
         # maxScale kept low: all players in a room MUST land on the same instance.
         # Room state is in-memory — split across instances = players can't see each other.
         # Proper cross-instance scaling requires Redis pub/sub (future work).
