@@ -7,31 +7,35 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   width: 360px;
-  padding: 12px;
-  background: #0f172a;
+  max-height: 560px;
+  overflow-y: auto;
+  background: #0a0e1a;
   color: #e2e8f0;
+  padding: 12px;
 }
 
-/* ── Auth gate ── */
+/* ── Login gate ── */
 #auth-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 24px 0 16px;
+  gap: 10px;
+  padding: 28px 8px 20px;
 }
 
-.auth-title {
-  font-size: 16px;
+.brand {
+  font-size: 15px;
   font-weight: 700;
   color: #818cf8;
+  letter-spacing: -0.01em;
+  margin-top: 2px;
 }
 
 .auth-sub {
-  font-size: 12px;
-  color: #64748b;
+  font-size: 11px;
+  color: #475569;
   text-align: center;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 #loginBtn {
@@ -40,7 +44,7 @@ body {
   background: #4f46e5;
   color: #fff;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -51,11 +55,13 @@ body {
   background: #4338ca;
 }
 
-/* ── Header row shown when logged in ── */
+/* ── Logged-in header ── */
 .user-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 0 12px;
+  border-bottom: 1px solid #1e293b;
   margin-bottom: 10px;
 }
 
@@ -63,99 +69,153 @@ body {
   font-size: 13px;
   font-weight: 600;
   color: #a5b4fc;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.coin-count {
-  font-size: 13px;
+.coin-badge {
+  font-size: 12px;
   font-weight: 700;
   color: #fbbf24;
-  margin-left: auto;
-  margin-right: 10px;
+  background: #1c1a0e;
+  border: 1px solid #3d3200;
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
 }
 
 #signoutBtn {
   font-size: 11px;
-  color: #475569;
+  color: #334155;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 2px 0;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 #signoutBtn:hover {
-  color: #94a3b8;
+  color: #64748b;
 }
 
-/* ── GitHub connect ── */
+/* ── GitHub button ── */
 #connectGithub {
   width: 100%;
   padding: 8px 12px;
-  margin-bottom: 10px;
-  background: #1e293b;
-  color: #e2e8f0;
-  border: 1px solid #334155;
-  border-radius: 6px;
+  margin-bottom: 12px;
+  background: #111827;
+  color: #cbd5e1;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
   font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 7px;
+  transition: background 0.15s, border-color 0.15s;
 }
 
 #connectGithub:hover:not(:disabled) {
-  background: #273548;
-  border-color: #4f6282;
+  background: #1e293b;
+  border-color: #334155;
 }
 
-#connectGithub:disabled {
+#connectGithub.connected {
   color: #4ade80;
-  border-color: #166534;
+  border-color: #14532d;
+  background: #071a10;
   cursor: default;
 }
 
-/* ── Activity log ── */
-.empty {
-  font-size: 12px;
-  color: #64748b;
-  text-align: center;
-  padding: 20px 0;
+.gh-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
-.entry {
-  padding: 8px 6px;
-  border-bottom: 1px solid #1e293b;
+.gh-dot.connected {
+  background: #4ade80;
 }
 
-.entry:last-child {
-  border-bottom: none;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+/* ── Feed ── */
+.feed-header {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #334155;
   margin-bottom: 6px;
 }
 
-.label {
+.empty {
+  font-size: 12px;
+  color: #334155;
+  text-align: center;
+  padding: 24px 0;
+}
+
+.entry {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  background: #111827;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  margin-bottom: 6px;
+}
+
+.entry-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.entry-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.entry-title {
   font-size: 12px;
   font-weight: 600;
-  color: #818cf8;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.time {
+.entry-sub {
   font-size: 10px;
   color: #475569;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.payload {
+.entry-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.entry-coins {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fbbf24;
+}
+
+.entry-time {
   font-size: 10px;
-  color: #94a3b8;
-  background: #1e293b;
-  border-radius: 4px;
-  padding: 6px 8px;
-  white-space: pre-wrap;
-  word-break: break-all;
-  line-height: 1.5;
+  color: #334155;
 }

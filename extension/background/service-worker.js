@@ -23,7 +23,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.type === "firebase_signout") {
-    chrome.storage.local.remove(["firebaseUid", "firebaseIdToken", "firebaseUsername", "coins"]);
+    chrome.storage.local.remove(["firebaseUid", "firebaseIdToken", "firebaseUsername", "coins", "githubUsername"]);
+    sendResponse({ ok: true });
+  }
+
+  if (message.type === "github_connected") {
+    chrome.storage.local.set({ githubUsername: message.githubUsername });
     sendResponse({ ok: true });
   }
 
@@ -31,7 +36,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 const DEFAULT_SERVER_URL = "http://localhost:3000/track";
-const BACKEND_URL = "https://productivity-island-backend-whqijrostq-uc.a.run.app";
+const BACKEND_URL = "https://productivity-island-backend-lbi4hsm5aa-uc.a.run.app";
 
 const COIN_VALUES = {
   leetcode_accepted: 10,

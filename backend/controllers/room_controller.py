@@ -51,6 +51,9 @@ def join_room(data: JoinRoomRequest):
     if data.user_id in room.get("members", []):
         return {"room_id": room_id, "name": room["name"], "code": room["code"], "already_member": True}
 
+    if len(room.get("members", [])) >= 5:
+        raise HTTPException(status_code=409, detail="Room is full (max 5 players).")
+
     existing = rooms_collection.find_one({"members": data.user_id})
     if existing:
         raise HTTPException(status_code=409, detail="You are already in a room. Leave it before joining another.")

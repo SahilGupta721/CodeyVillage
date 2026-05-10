@@ -1,11 +1,35 @@
-const WEB_APP_URL = "https://frontend-gules-two-30.vercel.app";
-const BACKEND_URL = "https://productivity-island-backend-whqijrostq-uc.a.run.app";
+const WEB_APP_URL = "https://gdg-hacks-3.vercel.app";
+const BACKEND_URL = "https://productivity-island-backend-lbi4hsm5aa-uc.a.run.app";
 
-const LABELS = {
-  leetcode_accepted: "LeetCode Accepted",
-  github_commit: "GitHub Commit",
-  job_application: "Job Application",
+const COIN_VALUES = { leetcode_accepted: 10, github_commit: 5, job_application: 15 };
+
+const ENTRY_ICONS = {
+  leetcode_accepted: "⚡",
+  github_commit: "📦",
+  job_application: "💼",
 };
+
+function formatSlug(slug) {
+  if (!slug) return "Problem";
+  return slug.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+}
+
+function playDing() {
+  try {
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(1046, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.6);
+  } catch {}
+}
 
 async function init() {
   const { firebaseUid, firebaseUsername } = await chrome.storage.local.get([
@@ -22,8 +46,33 @@ async function init() {
 
 function renderLoginGate() {
   document.getElementById("auth-section").innerHTML = `
-    <div class="auth-title">🏝️ ProductivityIsland</div>
-    <p class="auth-sub">Sign in to start tracking your grind.</p>
+    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- water -->
+      <ellipse cx="32" cy="52" rx="26" ry="7" fill="#0f2744"/>
+      <ellipse cx="32" cy="52" rx="26" ry="7" fill="url(#water)"/>
+      <!-- island -->
+      <ellipse cx="32" cy="46" rx="18" ry="6" fill="#c9a84c"/>
+      <ellipse cx="32" cy="44" rx="14" ry="4" fill="#e0b85a"/>
+      <!-- trunk -->
+      <path d="M32 44 Q30 34 28 24" stroke="#7c5c2a" stroke-width="2.5" stroke-linecap="round"/>
+      <!-- leaves -->
+      <path d="M28 24 Q18 18 16 10" stroke="#2d9e4e" stroke-width="2" stroke-linecap="round"/>
+      <path d="M28 24 Q22 16 24 8"  stroke="#34b85a" stroke-width="2" stroke-linecap="round"/>
+      <path d="M28 24 Q30 14 34 10" stroke="#2d9e4e" stroke-width="2" stroke-linecap="round"/>
+      <path d="M28 24 Q36 18 40 14" stroke="#34b85a" stroke-width="2" stroke-linecap="round"/>
+      <path d="M28 24 Q38 22 42 20" stroke="#2d9e4e" stroke-width="2" stroke-linecap="round"/>
+      <!-- sun -->
+      <circle cx="50" cy="14" r="5" fill="#fbbf24"/>
+      <defs>
+        <linearGradient id="water" x1="6" y1="52" x2="58" y2="52" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#1e3a5f"/>
+          <stop offset="50%" stop-color="#1d4ed8" stop-opacity="0.4"/>
+          <stop offset="100%" stop-color="#1e3a5f"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <div class="brand">ProductivityIsland</div>
+    <p class="auth-sub">Track your grind. Earn coins. Beat your friends.</p>
     <button id="loginBtn">Sign in with Google</button>
   `;
   document.getElementById("loginBtn").addEventListener("click", () => {
@@ -32,27 +81,51 @@ function renderLoginGate() {
 }
 
 async function renderMain(uid, username) {
-  // Render shell immediately using cached coin value
   const { coins: cachedCoins = 0 } = await chrome.storage.local.get("coins");
 
   document.getElementById("auth-section").innerHTML = `
     <div class="user-row">
-      <span class="user-name">🏝️ ${username || "Player"}</span>
-      <span class="coin-count" id="coinCount">🪙 ${cachedCoins}</span>
+      <span class="user-name">
+        <svg width="16" height="16" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline;vertical-align:middle;margin-right:4px">
+          <ellipse cx="32" cy="52" rx="26" ry="7" fill="#0f2744"/>
+          <ellipse cx="32" cy="46" rx="18" ry="6" fill="#c9a84c"/>
+          <ellipse cx="32" cy="44" rx="14" ry="4" fill="#e0b85a"/>
+          <path d="M32 44 Q30 34 28 24" stroke="#7c5c2a" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M28 24 Q18 18 16 10" stroke="#2d9e4e" stroke-width="2" stroke-linecap="round"/>
+          <path d="M28 24 Q30 14 34 10" stroke="#34b85a" stroke-width="2" stroke-linecap="round"/>
+          <path d="M28 24 Q38 22 42 20" stroke="#2d9e4e" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="50" cy="14" r="5" fill="#fbbf24"/>
+        </svg>${username || "Player"}</span>
+      <span class="coin-badge" id="coinCount">🪙 ${cachedCoins}</span>
       <button id="signoutBtn">Sign out</button>
     </div>
   `;
   document.getElementById("main-section").style.display = "block";
 
   document.getElementById("signoutBtn").addEventListener("click", async () => {
-    await chrome.storage.local.remove(["firebaseUid", "firebaseIdToken", "firebaseUsername", "coins"]);
+    await chrome.storage.local.remove(["firebaseUid", "firebaseIdToken", "firebaseUsername", "coins", "githubUsername"]);
     window.location.reload();
   });
 
-  // Populate log immediately from local storage
   await renderLog();
 
-  // Fetch live data from backend in the background — updates UI when ready
+  const { githubUsername: cachedGithub } = await chrome.storage.local.get("githubUsername");
+  const btn = document.getElementById("connectGithub");
+  if (cachedGithub && btn) {
+    btn.innerHTML = `<span class="gh-dot connected"></span>@${cachedGithub}`;
+    btn.disabled = true;
+    btn.classList.add("connected");
+  } else if (btn) {
+    btn.innerHTML = `
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+      </svg>
+      Connect GitHub`;
+    btn.addEventListener("click", () => {
+      chrome.tabs.create({ url: `${WEB_APP_URL}/lobby` });
+    });
+  }
+
   fetchCoinsFromBackend(uid).then((coins) => {
     const el = document.getElementById("coinCount");
     if (el) el.textContent = `🪙 ${coins}`;
@@ -60,14 +133,12 @@ async function renderMain(uid, username) {
 
   fetchGithubStatus(uid).then((githubLogin) => {
     const btn = document.getElementById("connectGithub");
-    if (!btn) return;
+    if (!btn || btn.disabled) return;
     if (githubLogin) {
-      btn.textContent = `GitHub: @${githubLogin}`;
+      btn.innerHTML = `<span class="gh-dot connected"></span>@${githubLogin}`;
       btn.disabled = true;
-    } else {
-      btn.addEventListener("click", () => {
-        chrome.tabs.create({ url: `${WEB_APP_URL}/lobby` });
-      });
+      btn.classList.add("connected");
+      chrome.storage.local.set({ githubUsername: githubLogin });
     }
   });
 }
@@ -96,41 +167,65 @@ async function fetchGithubStatus(uid) {
   return null;
 }
 
+function buildEntryHTML(entry) {
+  const coins = COIN_VALUES[entry.type] ?? 0;
+  const icon = ENTRY_ICONS[entry.type] ?? "•";
+  const time = new Date(entry.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+  let title = "";
+  let sub = "";
+
+  if (entry.type === "leetcode_accepted") {
+    title = formatSlug(entry.details?.problem_slug);
+    const parts = [entry.details?.lang, entry.details?.runtime].filter(Boolean);
+    sub = parts.join(" · ");
+  } else if (entry.type === "github_commit") {
+    title = "GitHub Commit";
+    sub = entry.details?.repo || "";
+  } else if (entry.type === "job_application") {
+    title = "Job Applied";
+    const match = (entry.details?.url || "").match(/\/\/([^.]+)/);
+    sub = match ? match[1] : "";
+  }
+
+  return `
+    <div class="entry">
+      <span class="entry-icon">${icon}</span>
+      <div class="entry-body">
+        <span class="entry-title">${title}</span>
+        ${sub ? `<span class="entry-sub">${sub}</span>` : ""}
+      </div>
+      <div class="entry-meta">
+        <span class="entry-coins">+${coins} 🪙</span>
+        <span class="entry-time">${time}</span>
+      </div>
+    </div>
+  `;
+}
+
 async function renderLog() {
   const { activityLog = [] } = await chrome.storage.local.get("activityLog");
   const log = document.getElementById("log");
+  if (!log) return;
 
   if (activityLog.length === 0) {
-    log.innerHTML = '<p class="empty">No activity tracked yet.</p>';
+    log.innerHTML = '<p class="empty">No activity yet — solve a problem to start!</p>';
     return;
   }
 
-  log.innerHTML = activityLog
-    .map((entry) => {
-      const label = LABELS[entry.type] || entry.type;
-      const time = new Date(entry.timestamp).toLocaleTimeString();
-      const payload = JSON.stringify(
-        { type: entry.type, source: entry.source, timestamp: entry.timestamp, details: entry.details },
-        null,
-        2
-      );
-      return `
-      <div class="entry">
-        <div class="header">
-          <span class="label">${label}</span>
-          <span class="time">${time}</span>
-        </div>
-        <pre class="payload">${payload}</pre>
-      </div>
-    `;
-    })
-    .join("");
+  log.innerHTML = activityLog.map(buildEntryHTML).join("");
 }
 
 init();
 
+let prevLogLength = 0;
+chrome.storage.local.get("activityLog").then(({ activityLog = [] }) => {
+  prevLogLength = activityLog.length;
+});
+
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area !== "local") return;
+
   if ("firebaseUid" in changes || "firebaseUsername" in changes) {
     window.location.reload();
     return;
@@ -138,5 +233,13 @@ chrome.storage.onChanged.addListener((changes, area) => {
   if ("coins" in changes) {
     const el = document.getElementById("coinCount");
     if (el) el.textContent = `🪙 ${changes.coins.newValue ?? 0}`;
+  }
+  if ("activityLog" in changes) {
+    const newLog = changes.activityLog.newValue ?? [];
+    if (newLog.length > prevLogLength) {
+      playDing();
+      prevLogLength = newLog.length;
+    }
+    renderLog();
   }
 });

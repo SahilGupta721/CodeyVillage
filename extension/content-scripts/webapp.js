@@ -10,5 +10,9 @@
     if (event.data?.type === "productivity-island-signout") {
       chrome.runtime.sendMessage({ type: "firebase_signout" });
     }
+
+    if (event.data?.type === "productivity-island-github-connected") {
+      chrome.runtime.sendMessage({ type: "github_connected", githubUsername: event.data.githubUsername });
+    }
   });
 })();
