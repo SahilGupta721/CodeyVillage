@@ -206,7 +206,7 @@ export class GameScene extends Phaser.Scene {
 
     this.socket.onerror = (e) => {
       console.error('WebSocket error', e);
-    };
+    }
 
     // Clean up on scene shutdown
     this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
