@@ -21,8 +21,9 @@ export default function LobbyPage() {
 
   const [roomName, setRoomName] = useState("");
   const [joinCode, setJoinCode] = useState("");
-  const [loading, setLoading] = useState<"create" | "join" | null>(null);
+  const [loading, setLoading] = useState<"create" | "join" | "leave" | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [activeRoom, setActiveRoom] = useState<{ room_id: string; name: string; code: string; host_id: string } | null>(null);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
@@ -51,6 +52,11 @@ export default function LobbyPage() {
         .then((r) => r.ok ? r.json() : null)
         .then((data) => { if (data) setStats(data); })
         .catch(() => {});
+
+      fetch(`${BACKEND_URL}/rooms/user/${user.uid}`)
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => { setActiveRoom(data ?? null); })
+        .catch(() => {});
     });
     return () => unsub();
   }, [router]);
@@ -67,11 +73,14 @@ export default function LobbyPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, host_id: uid }),
       });
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.detail ?? "Failed to create room.");
+      }
       const data = await res.json();
       router.push(`/room/${data.room_id}`);
     } catch (err: any) {
-      setError("Failed to create room. Is the backend running?");
+      setError(err.message);
     } finally {
       setLoading(null);
     }
@@ -89,11 +98,28 @@ export default function LobbyPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code, user_id: uid }),
       });
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.detail ?? "Room not found or invalid code.");
+      }
       const data = await res.json();
       router.push(`/room/${data.room_id}`);
     } catch (err: any) {
-      setError("Room not found or invalid code.");
+      setError(err.message);
+    } finally {
+      setLoading(null);
+    }
+  }
+
+  async function handleLeaveActive() {
+    if (!activeRoom || !uid) return;
+    setLoading("leave");
+    setError(null);
+    try {
+      await fetch(`${BACKEND_URL}/rooms/${activeRoom.room_id}/leave?user_id=${uid}`, { method: "DELETE" });
+      setActiveRoom(null);
+    } catch {
+      setError("Failed to leave room.");
     } finally {
       setLoading(null);
     }
@@ -179,57 +205,90 @@ export default function LobbyPage() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Create Room */}
-            <div className="bg-[#111827] border border-slate-700 rounded-2xl p-6 flex flex-col gap-4">
+          {activeRoom ? (
+            <div className="bg-[#111827] border border-indigo-700 rounded-2xl p-6 flex flex-col gap-4">
               <div>
-                <h2 className="text-white font-semibold text-base">Create a room</h2>
-                <p className="text-slate-500 text-xs mt-1">Start a new island and invite friends.</p>
+                <h2 className="text-white font-semibold text-base">Your current room</h2>
+                <p className="text-slate-500 text-xs mt-1">You're already in a room. Leave it to create or join another.</p>
               </div>
-              <form onSubmit={handleCreate} className="flex flex-col gap-3">
-                <input
-                  type="text"
-                  value={roomName}
-                  onChange={(e) => setRoomName(e.target.value)}
-                  placeholder="Room name"
-                  maxLength={32}
-                  className="bg-[#0a0e1a] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 placeholder:text-slate-600"
-                />
+              <div className="flex items-center justify-between bg-[#0a0e1a] rounded-xl px-4 py-3">
+                <div>
+                  <div className="text-white font-medium">{activeRoom.name}</div>
+                  <div className="text-slate-400 text-xs font-mono tracking-widest mt-0.5">{activeRoom.code}</div>
+                </div>
+                {activeRoom.host_id === uid && (
+                  <span className="text-xs text-yellow-400">host</span>
+                )}
+              </div>
+              <div className="flex gap-3">
                 <button
-                  type="submit"
-                  disabled={loading === "create" || !roomName.trim()}
-                  className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium py-3 rounded-xl transition-colors text-sm"
+                  onClick={() => router.push(`/room/${activeRoom.room_id}`)}
+                  className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-xl transition-colors text-sm"
                 >
-                  {loading === "create" ? "Creating..." : "Create room →"}
+                  Rejoin →
                 </button>
-              </form>
+                <button
+                  onClick={handleLeaveActive}
+                  disabled={loading === "leave"}
+                  className="flex-1 bg-slate-700 hover:bg-red-900 disabled:opacity-40 disabled:cursor-not-allowed text-slate-300 hover:text-red-400 font-medium py-3 rounded-xl transition-colors text-sm"
+                >
+                  {loading === "leave" ? "Leaving..." : "Leave room"}
+                </button>
+              </div>
             </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Create Room */}
+              <div className="bg-[#111827] border border-slate-700 rounded-2xl p-6 flex flex-col gap-4">
+                <div>
+                  <h2 className="text-white font-semibold text-base">Create a room</h2>
+                  <p className="text-slate-500 text-xs mt-1">Start a new island and invite friends.</p>
+                </div>
+                <form onSubmit={handleCreate} className="flex flex-col gap-3">
+                  <input
+                    type="text"
+                    value={roomName}
+                    onChange={(e) => setRoomName(e.target.value)}
+                    placeholder="Room name"
+                    maxLength={32}
+                    className="bg-[#0a0e1a] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 placeholder:text-slate-600"
+                  />
+                  <button
+                    type="submit"
+                    disabled={loading === "create" || !roomName.trim()}
+                    className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium py-3 rounded-xl transition-colors text-sm"
+                  >
+                    {loading === "create" ? "Creating..." : "Create room →"}
+                  </button>
+                </form>
+              </div>
 
-            {/* Join Room */}
-            <div className="bg-[#111827] border border-slate-700 rounded-2xl p-6 flex flex-col gap-4">
-              <div>
-                <h2 className="text-white font-semibold text-base">Join a room</h2>
-                <p className="text-slate-500 text-xs mt-1">Enter the 6-character code to jump in.</p>
+              {/* Join Room */}
+              <div className="bg-[#111827] border border-slate-700 rounded-2xl p-6 flex flex-col gap-4">
+                <div>
+                  <h2 className="text-white font-semibold text-base">Join a room</h2>
+                  <p className="text-slate-500 text-xs mt-1">Enter the 6-character code to jump in.</p>
+                </div>
+                <form onSubmit={handleJoin} className="flex flex-col gap-3">
+                  <input
+                    type="text"
+                    value={joinCode}
+                    onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                    placeholder="e.g. XK7P2M"
+                    maxLength={6}
+                    className="bg-[#0a0e1a] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 placeholder:text-slate-600 tracking-widest font-mono uppercase"
+                  />
+                  <button
+                    type="submit"
+                    disabled={loading === "join" || joinCode.trim().length !== 6}
+                    className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium py-3 rounded-xl transition-colors text-sm"
+                  >
+                    {loading === "join" ? "Joining..." : "Join room →"}
+                  </button>
+                </form>
               </div>
-              <form onSubmit={handleJoin} className="flex flex-col gap-3">
-                <input
-                  type="text"
-                  value={joinCode}
-                  onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-                  placeholder="e.g. XK7P2M"
-                  maxLength={6}
-                  className="bg-[#0a0e1a] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 placeholder:text-slate-600 tracking-widest font-mono uppercase"
-                />
-                <button
-                  type="submit"
-                  disabled={loading === "join" || joinCode.trim().length !== 6}
-                  className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium py-3 rounded-xl transition-colors text-sm"
-                >
-                  {loading === "join" ? "Joining..." : "Join room →"}
-                </button>
-              </form>
             </div>
-          </div>
+          )}
 
           {/* GitHub connect */}
           <div className="bg-[#111827] border border-slate-700 rounded-2xl p-6 flex items-center justify-between gap-4">

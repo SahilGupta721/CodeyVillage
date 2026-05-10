@@ -9,7 +9,22 @@ def generate_code(length=6):
     chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
     return "".join(random.choices(chars, k=length))
 
+def get_user_room(uid: str):
+    room = rooms_collection.find_one({"members": uid})
+    if not room:
+        return None
+    return {
+        "room_id": str(room["_id"]),
+        "name": room["name"],
+        "host_id": room["host_id"],
+        "code": room["code"],
+        "members": room.get("members", []),
+    }
+
 def create_room(data: CreateRoomRequest):
+    if rooms_collection.find_one({"members": data.host_id}):
+        raise HTTPException(status_code=409, detail="You are already in a room. Leave it before creating a new one.")
+
     code = generate_code()
     while rooms_collection.find_one({"code": code}):
         code = generate_code()
@@ -35,6 +50,10 @@ def join_room(data: JoinRoomRequest):
 
     if data.user_id in room.get("members", []):
         return {"room_id": room_id, "name": room["name"], "code": room["code"], "already_member": True}
+
+    existing = rooms_collection.find_one({"members": data.user_id})
+    if existing:
+        raise HTTPException(status_code=409, detail="You are already in a room. Leave it before joining another.")
 
     rooms_collection.update_one(
         {"_id": room["_id"]},
