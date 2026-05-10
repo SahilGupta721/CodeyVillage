@@ -2,7 +2,7 @@ import random
 import string
 from datetime import datetime, timezone
 from fastapi import HTTPException
-from database.database import rooms_collection, room_members_collection
+from database.database import rooms_collection
 from models.room_model import CreateRoomRequest, JoinRoomRequest
 
 def generate_code(length=6):

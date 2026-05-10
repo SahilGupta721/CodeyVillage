@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from fastapi import HTTPException
-from database.database import users_collection
+from database.database import users_collection, coin_ledger_collection
 from models.user_model import User, UserUpsertRequest, ConnectGithubRequest
 from services.github_service import get_github_user, create_webhooks_for_user
 
@@ -24,6 +24,7 @@ def upsert_user(data: UserUpsertRequest):
         {"$setOnInsert": {
             "_id": data.uid,
             "username": data.username,
+            "email": getattr(data, "email", None),
             "coins": 0,
             "total_coins_earned": 0,
             "streak_days": 0,
@@ -51,7 +52,7 @@ def get_user(uid: str):
 def get_user_by_email(email: str):
     user = users_collection.find_one({"email": email})
     if not user:
-        return {"error": "User not found"}
+        raise HTTPException(status_code=404, detail="User not found")
     user["id"] = str(user["_id"])
     del user["_id"]
     return user
@@ -63,15 +64,29 @@ def update_user(uid: str, user: User):
         {"$set": user.model_dump(exclude={"id"}, exclude_none=True)},
     )
     if not result:
-        return {"error": "User not found"}
+        raise HTTPException(status_code=404, detail="User not found")
     return {"message": "User updated successfully"}
 
 
 def delete_user(uid: str):
     result = users_collection.delete_one({"_id": uid})
     if result.deleted_count == 0:
-        return {"error": "User not found"}
+        raise HTTPException(status_code=404, detail="User not found")
     return {"message": "User deleted successfully"}
+
+
+def get_stats(uid: str):
+    pipeline = [
+        {"$match": {"uid": uid}},
+        {"$group": {"_id": "$activity_type", "count": {"$sum": 1}}},
+    ]
+    results = list(coin_ledger_collection.aggregate(pipeline))
+    counts = {r["_id"]: r["count"] for r in results}
+    return {
+        "leetcode_solved": counts.get("leetcode_accepted", 0),
+        "commits": counts.get("github_commit", 0),
+        "jobs_applied": counts.get("job_application", 0),
+    }
 
 
 async def connect_github(data: ConnectGithubRequest):

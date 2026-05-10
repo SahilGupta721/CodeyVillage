@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from models.user_model import User, UserUpsertRequest, ConnectGithubRequest
 from controllers.user_controller import (
     create_user, upsert_user, get_user, get_user_by_email,
-    update_user, delete_user, connect_github,
+    update_user, delete_user, connect_github, get_stats,
 )
 
 router = APIRouter()
@@ -36,6 +36,11 @@ def update(uid: str, user: User):
 @router.delete("/{uid}")
 def delete(uid: str):
     return delete_user(uid)
+
+
+@router.get("/{uid}/stats")
+def fetch_stats(uid: str):
+    return get_stats(uid)
 
 
 @router.post("/connect-github")
