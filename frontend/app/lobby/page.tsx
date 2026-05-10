@@ -16,6 +16,9 @@ export default function LobbyPage() {
   const [githubLoading, setGithubLoading] = useState(false);
   const [githubError, setGithubError] = useState<string | null>(null);
 
+  const [coins, setCoins] = useState(0);
+  const [stats, setStats] = useState({ leetcode_solved: 0, commits: 0, jobs_applied: 0 });
+
   const [roomName, setRoomName] = useState("");
   const [joinCode, setJoinCode] = useState("");
   const [loading, setLoading] = useState<"create" | "join" | null>(null);
@@ -35,10 +38,18 @@ export default function LobbyPage() {
       setUid(user.uid);
       setUsername(stored);
 
-      // Load GitHub status from backend
+      // Load user data from backend
       fetch(`${BACKEND_URL}/users/${user.uid}`)
         .then((r) => r.ok ? r.json() : null)
-        .then((data) => { if (data?.github_login) setGithubLogin(data.github_username); })
+        .then((data) => {
+          if (data?.github_username) setGithubLogin(data.github_username);
+          if (data?.coins != null) setCoins(data.coins);
+        })
+        .catch(() => {});
+
+      fetch(`${BACKEND_URL}/users/${user.uid}/stats`)
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => { if (data) setStats(data); })
         .catch(() => {});
     });
     return () => unsub();
@@ -105,7 +116,7 @@ export default function LobbyPage() {
       });
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
-      setGithubLogin(data.github_username);
+      setGithubLogin(data.github_login);
     } catch (err: any) {
       if (err.code === "auth/credential-already-in-use" || err.code === "auth/provider-already-linked") {
         setGithubError("This GitHub account is already linked.");
@@ -256,19 +267,19 @@ export default function LobbyPage() {
           <div className="bg-[#111827] border border-slate-700 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-white font-semibold text-base">Your stats</h2>
-              <span className="text-yellow-400 text-sm font-medium">🪙 0 coins</span>
+              <span className="text-yellow-400 text-sm font-medium">🪙 {coins} coins</span>
             </div>
             <div className="grid grid-cols-3 gap-4 text-center">
               <div className="bg-[#0a0e1a] rounded-xl p-3">
-                <div className="text-white font-bold text-xl">0</div>
+                <div className="text-white font-bold text-xl">{stats.leetcode_solved}</div>
                 <div className="text-slate-500 text-xs mt-1">LeetCode solved</div>
               </div>
               <div className="bg-[#0a0e1a] rounded-xl p-3">
-                <div className="text-white font-bold text-xl">0</div>
+                <div className="text-white font-bold text-xl">{stats.commits}</div>
                 <div className="text-slate-500 text-xs mt-1">Commits pushed</div>
               </div>
               <div className="bg-[#0a0e1a] rounded-xl p-3">
-                <div className="text-white font-bold text-xl">0</div>
+                <div className="text-white font-bold text-xl">{stats.jobs_applied}</div>
                 <div className="text-slate-500 text-xs mt-1">Jobs applied</div>
               </div>
             </div>
