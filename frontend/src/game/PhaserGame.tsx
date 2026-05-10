@@ -1,8 +1,10 @@
 'use client';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ShopPanel, { type ShopPanelHandle } from '../components/shop/ShopPanel';
 import type PhaserType from 'phaser';
 import { auth } from '../../lib/firebase';
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
 
 interface Props {
   roomId?: string | null;
@@ -13,6 +15,16 @@ export default function PhaserGame({ roomId }: Props) {
   const gameRef = useRef<PhaserType.Game | null>(null);
   const shopRef = useRef<ShopPanelHandle>(null);
   const aliveRef = useRef(true);
+  const [coins, setCoins] = useState<number | null>(null);
+
+  useEffect(() => {
+    const uid = auth.currentUser?.uid ?? localStorage.getItem('firebaseUid');
+    if (!uid) return;
+    fetch(`${BACKEND_URL}/coins/${uid}`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { if (data?.coins != null) setCoins(data.coins); })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     aliveRef.current = true;
@@ -107,7 +119,7 @@ export default function PhaserGame({ roomId }: Props) {
       >
         ⌫
       </button>
-      <ShopPanel ref={shopRef} onBuy={handleBuy} />
+      <ShopPanel ref={shopRef} coins={coins ?? undefined} onBuy={handleBuy} />
     </div>
   );
 }

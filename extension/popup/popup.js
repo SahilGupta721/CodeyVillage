@@ -1,7 +1,7 @@
 const WEB_APP_URL = "https://gdg-hacks-3.vercel.app";
 const BACKEND_URL = "https://productivity-island-backend-lbi4hsm5aa-uc.a.run.app";
 
-const COIN_VALUES = { leetcode_accepted: 10, github_commit: 5, job_application: 15 };
+const COIN_VALUES = { leetcode_accepted: 50, github_commit: 25, job_application: 25 };
 
 const ENTRY_ICONS = {
   leetcode_accepted: "⚡",
@@ -107,7 +107,7 @@ async function renderMain(uid, username) {
     window.location.reload();
   });
 
-  await renderLog();
+  await renderLog(uid);
 
   const { githubUsername: cachedGithub } = await chrome.storage.local.get("githubUsername");
   const btn = document.getElementById("connectGithub");
@@ -203,17 +203,44 @@ function buildEntryHTML(entry) {
   `;
 }
 
-async function renderLog() {
-  const { activityLog = [] } = await chrome.storage.local.get("activityLog");
+async function renderLog(uid) {
   const log = document.getElementById("log");
   if (!log) return;
 
-  if (activityLog.length === 0) {
+  const { activityLog: localLog = [] } = await chrome.storage.local.get("activityLog");
+
+  // Fetch backend ledger (includes webhook-triggered events like GitHub commits)
+  let backendEntries = [];
+  if (uid) {
+    try {
+      const res = await fetch(`${BACKEND_URL}/coins/${uid}/recent?limit=20`);
+      if (res.ok) backendEntries = await res.json();
+    } catch {}
+  }
+
+  // Normalise backend entries to same shape as local entries
+  const backendNormalised = backendEntries.map((e) => ({
+    type: e.activity_type,
+    timestamp: e.timestamp,
+    details: e.details || {},
+    source: "backend",
+  }));
+
+  // Merge: deduplicate by type+timestamp (backend is authoritative)
+  const localFiltered = localLog.filter((local) =>
+    !backendNormalised.some((b) => b.type === local.type && Math.abs(new Date(b.timestamp) - new Date(local.timestamp)) < 5000)
+  );
+
+  const merged = [...backendNormalised, ...localFiltered]
+    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+    .slice(0, 30);
+
+  if (merged.length === 0) {
     log.innerHTML = '<p class="empty">No activity yet — solve a problem to start!</p>';
     return;
   }
 
-  log.innerHTML = activityLog.map(buildEntryHTML).join("");
+  log.innerHTML = merged.map(buildEntryHTML).join("");
 }
 
 init();
@@ -240,6 +267,6 @@ chrome.storage.onChanged.addListener((changes, area) => {
       playDing();
       prevLogLength = newLog.length;
     }
-    renderLog();
+    chrome.storage.local.get("firebaseUid").then(({ firebaseUid }) => renderLog(firebaseUid));
   }
 });

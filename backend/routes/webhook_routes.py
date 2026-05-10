@@ -5,7 +5,7 @@ from models.coin_model import AddCoinsRequest
 
 router = APIRouter()
 
-COINS_PER_COMMIT = 5
+COINS_PER_COMMIT = 25
 
 
 @router.post("/webhook/github")
@@ -23,6 +23,7 @@ async def github_webhook(request: Request):
         return {"ok": True}
 
     uid = str(user["_id"])
+    repo_name = payload.get("repository", {}).get("name", "")
     awarded = 0
     for commit in commits:
         sha = commit.get("id")
@@ -33,6 +34,7 @@ async def github_webhook(request: Request):
             activity_type="github_commit",
             amount=COINS_PER_COMMIT,
             dedup_key=sha,
+            details={"repo": repo_name, "message": commit.get("message", "")[:80]},
         ))
         if not result.get("duplicate"):
             awarded += COINS_PER_COMMIT

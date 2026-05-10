@@ -39,9 +39,9 @@ const DEFAULT_SERVER_URL = "http://localhost:3000/track";
 const BACKEND_URL = "https://productivity-island-backend-lbi4hsm5aa-uc.a.run.app";
 
 const COIN_VALUES = {
-  leetcode_accepted: 10,
-  github_commit: 5,
-  job_application: 15,
+  leetcode_accepted: 50,
+  github_commit: 25,
+  job_application: 25,
 };
 
 function getDedupKey(activityType, details) {

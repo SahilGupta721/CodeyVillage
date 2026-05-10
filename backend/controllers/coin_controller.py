@@ -29,6 +29,7 @@ def add_coins(data: AddCoinsRequest):
             "activity_type": data.activity_type,
             "amount": data.amount,
             "dedup_key": data.dedup_key,
+            "details": data.details or {},
             "balance_after": result["coins"],
             "timestamp": datetime.now(timezone.utc).isoformat(),
         })
