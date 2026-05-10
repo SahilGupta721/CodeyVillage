@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useRef } from 'react';
 import type PhaserType from 'phaser';
+import { auth } from '../../lib/firebase';
 
 interface Props {
   roomId?: string | null;
@@ -24,8 +25,8 @@ export default function PhaserGame({ roomId }: Props) {
 
       if (!aliveRef.current || !containerRef.current || gameRef.current) return;
 
-      // 👇 Read from localStorage HERE in React, not inside Phaser preBoot
-      const firebaseUid = localStorage.getItem('firebaseUid');
+      // Firebase Auth is the source of truth for uid — localStorage fallback for edge cases
+      const firebaseUid = auth.currentUser?.uid ?? localStorage.getItem('firebaseUid');
       const username = firebaseUid ? localStorage.getItem(`username:${firebaseUid}`) : null;
 
       gameRef.current = new Phaser.Game(
