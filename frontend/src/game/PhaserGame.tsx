@@ -63,7 +63,7 @@ export default function PhaserGame() {
   };
 
   return (
-    <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
+    <div className="game-container" style={{ position: 'relative', width: '100vw', height: '100vh' }}>
       <div
         ref={containerRef}
         style={{
