@@ -1,0 +1,309 @@
+/*
+ * ShopPanel styles — cozy/whimsical RPG aesthetic.
+ * All colours are CSS custom properties so the theme can be swapped
+ * by overriding the variables on .shopRoot from a parent scope.
+ */
+
+.shopRoot {
+  /* ── theme tokens ─────────────────────────────────────────── */
+  --shop-panel-width:   360px;
+  --shop-handle-width:   44px;
+  --shop-bg:            #f5e6c8;
+  --shop-bg-dark:       #ecdab6;
+  --shop-accent:        #7a4f2e;
+  --shop-accent-hover:  #9b6b40;
+  --shop-text:          #3d2a1a;
+  --shop-text-muted:    #7a5a3a;
+  --shop-gold:          #b8790d;
+  --shop-border:        rgba(122, 79, 46, 0.25);
+  --shop-shadow:        -4px 0 28px rgba(40, 18, 5, 0.38);
+  --shop-card-bg:       #fdf3e0;
+  --shop-card-border:   rgba(180, 130, 80, 0.28);
+  --shop-btn-bg:        #7a4f2e;
+  --shop-btn-hover:     #9b6b40;
+  --shop-btn-disabled:  #c8ac86;
+  --shop-btn-txt-disabled: #9e7d5a;
+  --shop-handle-bg:     #5c3418;
+  --shop-handle-text:   #f5e6c8;
+  --shop-transition:    600ms ease-in-out;
+
+  /* ── layout ───────────────────────────────────────────────── */
+  position:   fixed;
+  top:        0;
+  right:      0;
+  height:     100vh;
+  display:    flex;
+  flex-direction: row;
+  align-items: stretch;
+  z-index:    1000;
+
+  /*
+   * Closed default: translate right by panel width so only the
+   * handle tab pokes out from the viewport edge.
+   */
+  transform:  translateX(var(--shop-panel-width));
+  transition: transform var(--shop-transition);
+
+  /* don't eat pointer events in the transparent gap */
+  pointer-events: none;
+}
+
+.shopRoot.open {
+  transform: translateX(0);
+}
+
+/* ── handle tab ─────────────────────────────────────────────── */
+
+.handle {
+  pointer-events: all;
+  flex-shrink:    0;
+  width:          var(--shop-handle-width);
+  background:     var(--shop-handle-bg);
+  border:         none;
+  border-radius:  12px 0 0 12px;
+  cursor:         pointer;
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  justify-content: center;
+  gap:            10px;
+  padding:        0;
+  box-shadow:     -3px 0 14px rgba(40, 18, 5, 0.45);
+  transition:     background 200ms ease;
+}
+
+.handle:hover {
+  background: var(--shop-accent-hover);
+}
+
+.handleIcon {
+  font-size:  20px;
+  line-height: 1;
+}
+
+.handleLabel {
+  color:           var(--shop-handle-text);
+  font-family:     Georgia, 'Times New Roman', serif;
+  font-size:       12px;
+  font-weight:     bold;
+  letter-spacing:  0.18em;
+  writing-mode:    vertical-rl;
+  text-orientation: mixed;
+  transform:       rotate(180deg);
+  user-select:     none;
+}
+
+/* ── panel body ─────────────────────────────────────────────── */
+
+.panel {
+  pointer-events: all;
+  width:          var(--shop-panel-width);
+  height:         100vh;
+  background:     var(--shop-bg);
+  box-shadow:     var(--shop-shadow);
+  display:        flex;
+  flex-direction: column;
+  overflow:       hidden;
+  border-left:    2px solid var(--shop-border);
+}
+
+/* ── top bar ────────────────────────────────────────────────── */
+
+.topBar {
+  display:          flex;
+  align-items:      center;
+  justify-content:  space-between;
+  padding:          14px 18px;
+  background:       var(--shop-bg-dark);
+  border-bottom:    2px solid var(--shop-border);
+  flex-shrink:      0;
+}
+
+.shopTitle {
+  font-family:  Georgia, 'Times New Roman', serif;
+  font-size:    18px;
+  font-weight:  bold;
+  color:        var(--shop-text);
+  letter-spacing: 0.04em;
+}
+
+.coinDisplay {
+  display:      flex;
+  align-items:  center;
+  gap:          5px;
+  background:   rgba(184, 121, 13, 0.12);
+  border:       1.5px solid rgba(184, 121, 13, 0.38);
+  border-radius: 20px;
+  padding:      5px 13px 5px 9px;
+  font-family:  Georgia, 'Times New Roman', serif;
+  font-size:    15px;
+  font-weight:  bold;
+  color:        var(--shop-gold);
+  letter-spacing: 0.02em;
+}
+
+.coinIcon {
+  font-size: 16px;
+}
+
+/* ── categories scroll area ─────────────────────────────────── */
+
+.categories {
+  flex:            1;
+  overflow-y:      auto;
+  padding:         6px 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--shop-border) transparent;
+}
+
+.categories::-webkit-scrollbar        { width: 5px; }
+.categories::-webkit-scrollbar-track  { background: transparent; }
+.categories::-webkit-scrollbar-thumb  { background: var(--shop-border); border-radius: 3px; }
+
+/* ── accordion category ─────────────────────────────────────── */
+
+.category {
+  border-bottom: 1px solid var(--shop-border);
+}
+
+.categoryHeader {
+  width:          100%;
+  display:        flex;
+  align-items:    center;
+  justify-content: space-between;
+  padding:        13px 18px;
+  background:     transparent;
+  border:         none;
+  cursor:         pointer;
+  font-family:    Georgia, 'Times New Roman', serif;
+  font-size:      15px;
+  font-weight:    bold;
+  color:          var(--shop-text);
+  text-align:     left;
+  transition:     background 180ms ease;
+  letter-spacing: 0.02em;
+}
+
+.categoryHeader:hover {
+  background: var(--shop-bg-dark);
+}
+
+.categoryOpen {
+  background: var(--shop-bg-dark);
+}
+
+.chevron {
+  font-size:   20px;
+  color:       var(--shop-text-muted);
+  line-height: 1;
+  display:     inline-block;
+  transition:  transform 280ms ease;
+  transform:   rotate(0deg);
+}
+
+/* rotate chevron when parent header has .categoryOpen */
+.categoryOpen .chevron {
+  transform: rotate(90deg);
+}
+
+/* ── accordion body: CSS grid trick for smooth height ───────── */
+
+.categoryContent {
+  display:    grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 300ms ease-in-out;
+}
+
+.categoryContent.expanded {
+  grid-template-rows: 1fr;
+}
+
+.categoryContentInner {
+  overflow: hidden;
+}
+
+/* ── item grid ──────────────────────────────────────────────── */
+
+.itemGrid {
+  display:               grid;
+  grid-template-columns: 1fr 1fr;
+  gap:                   8px;
+  padding:               10px 12px 16px;
+}
+
+.itemCard {
+  background:     var(--shop-card-bg);
+  border:         1.5px solid var(--shop-card-border);
+  border-radius:  12px;
+  padding:        12px 8px 10px;
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  gap:            4px;
+  box-shadow:     0 2px 8px rgba(80, 40, 10, 0.09);
+  transition:     box-shadow 150ms ease, transform 150ms ease;
+}
+
+.itemCard:hover {
+  box-shadow: 0 4px 14px rgba(80, 40, 10, 0.17);
+  transform:  translateY(-2px);
+}
+
+.itemEmoji {
+  font-size:   28px;
+  line-height: 1;
+}
+
+.itemName {
+  font-family:  Georgia, 'Times New Roman', serif;
+  font-size:    11px;
+  color:        var(--shop-text);
+  text-align:   center;
+  line-height:  1.3;
+  font-weight:  600;
+}
+
+.itemPrice {
+  font-size:    11px;
+  color:        var(--shop-gold);
+  font-weight:  bold;
+  font-family:  Georgia, 'Times New Roman', serif;
+}
+
+/* ── buy button ─────────────────────────────────────────────── */
+
+.buyBtn {
+  margin-top:     5px;
+  width:          100%;
+  padding:        5px 4px;
+  border-radius:  8px;
+  border:         none;
+  background:     var(--shop-btn-bg);
+  color:          #f5e6c8;
+  font-size:      11px;
+  font-family:    Georgia, 'Times New Roman', serif;
+  font-weight:    bold;
+  cursor:         pointer;
+  letter-spacing: 0.06em;
+  transition:     background 160ms ease, transform 100ms ease;
+}
+
+.buyBtn:hover:not(:disabled) {
+  background: var(--shop-btn-hover);
+  transform:  scale(1.04);
+}
+
+.buyBtn:disabled {
+  background: var(--shop-btn-disabled);
+  color:      var(--shop-btn-txt-disabled);
+  cursor:     not-allowed;
+}
+
+/* ── outside-click overlay ──────────────────────────────────── */
+
+.overlay {
+  position:   fixed;
+  inset:      0;
+  z-index:    999;   /* just below the panel (1000) */
+  background: transparent;
+}

@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useRef } from 'react';
+import ShopPanel from '../components/shop/ShopPanel';
 import type PhaserType from 'phaser';
 
 interface Props {
@@ -75,6 +76,7 @@ export default function PhaserGame({ roomId }: Props) {
       />
       <button style={{ ...btnStyle, bottom: 16, right: 16 }} onClick={() => getGameScene()?.zoomIn()}>+</button>
       <button style={{ ...btnStyle, bottom: 16, right: 64 }} onClick={() => getGameScene()?.zoomOut()}>−</button>
+      <ShopPanel />
     </div>
   );
 }
