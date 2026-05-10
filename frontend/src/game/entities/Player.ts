@@ -14,6 +14,7 @@ const RADIUS = 10;
 
 export class Player {
   private root: Phaser.GameObjects.Container;
+  private label: Phaser.GameObjects.Text | null = null;
 
   get x() { return this.root.x; }
   get y() { return this.root.y; }
@@ -58,6 +59,21 @@ export class Player {
 
     this.root = scene.add.container(x, y, [g]);
     this.updateDepth();
+  }
+
+  setLabel(scene: Phaser.Scene, text: string): void {
+    if (this.label) {
+      this.label.setText(text);
+      return;
+    }
+    this.label = scene.add.text(0, -22, text, {
+      fontSize: '9px',
+      fontFamily: 'monospace',
+      color: '#ffffff',
+      backgroundColor: '#00000088',
+      padding: { x: 3, y: 2 },
+    }).setOrigin(0.5);
+    this.root.add(this.label);
   }
 
   update(

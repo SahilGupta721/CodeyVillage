@@ -27,7 +27,9 @@ const PhaserGame = dynamic(() => import("../../src/game/PhaserGame"), {
 
 function GamePageInner() {
   const searchParams = useSearchParams();
-  const roomId = searchParams.get("room_id");
+  // Fall back to a shared "public" room so anyone hitting /game directly
+  // ends up in the same multiplayer world.
+  const roomId = searchParams.get("room_id") ?? "public";
 
   return (
     <div className="w-screen h-screen overflow-hidden">
