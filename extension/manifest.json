@@ -1,0 +1,61 @@
+{
+  "manifest_version": 3,
+  "name": "CS Activity Tracker",
+  "version": "1.0.0",
+  "description": "Tracks LeetCode acceptances, GitHub commits, and Workday job applications",
+
+  "permissions": [
+    "storage",
+    "alarms",
+    "tabs"
+  ],
+
+  "host_permissions": [
+    "https://leetcode.com/*",
+    "https://github.com/*",
+    "https://api.github.com/*",
+    "https://*.myworkdayjobs.com/*",
+    "http://localhost:3000/*"
+  ],
+
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["https://leetcode.com/*"],
+      "js": ["content-scripts/leetcode.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://github.com/*"],
+      "js": ["content-scripts/github.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://*.myworkdayjobs.com/*"],
+      "js": ["content-scripts/workday.js"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "web_accessible_resources": [
+    {
+      "resources": ["injected/interceptor.js"],
+      "matches": [
+        "https://leetcode.com/*",
+        "https://github.com/*"
+      ]
+    }
+  ]
+}
