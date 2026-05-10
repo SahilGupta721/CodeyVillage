@@ -100,6 +100,25 @@ async def game_socket(ws: WebSocket, room_id: str, uid: str):
                     "username": username,
                 }, exclude=uid)
 
+            elif msg.get("type") == "place_item":
+                # Live relay so other players see the placement instantly.
+                # Persistence happens via the HTTP POST /island/{room_id}/place,
+                # so we only re-broadcast here.
+                await manager.broadcast(room_id, {
+                    "type": "place_item",
+                    "id": msg.get("id"),
+                    "item_id": msg.get("item_id"),
+                    "x": float(msg.get("x", 0)),
+                    "y": float(msg.get("y", 0)),
+                    "placed_by": uid,
+                }, exclude=uid)
+            elif msg.get("type") == "remove_item":
+                await manager.broadcast(room_id, {
+                    "type": "remove_item",
+                    "id": msg.get("id"),
+                    "removed_by": uid,
+                }, exclude=uid)
+
     except WebSocketDisconnect:
         pass
     finally:
