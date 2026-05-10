@@ -75,8 +75,7 @@ export default function Home() {
           <div className="bg-[#111827] border border-indigo-700 rounded-2xl p-8 mb-6 text-center">
             <p className="text-slate-400 text-sm mb-4">Step 1 — Get the extension</p>
             <a
-              href="/extension.zip"
-              download="codey-village-extension.zip"
+              href="/extension"
               className="inline-flex items-center gap-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-8 py-4 rounded-xl transition-colors text-base"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -97,6 +96,7 @@ export default function Home() {
                 number="1"
                 title="Unzip the downloaded file"
                 detail='Find "codey-village-extension.zip" in your Downloads folder and double-click it to unzip. You will get a folder called "extension".'
+
               />
               <Instruction
                 number="2"
