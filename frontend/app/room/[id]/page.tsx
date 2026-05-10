@@ -40,7 +40,7 @@ export default function RoomPage() {
                 .catch(() => setError("Could not load room."));
 
         fetchRoom();
-        const interval = setInterval(fetchRoom, 2000);
+        const interval = setInterval(fetchRoom, 10000);
         return () => clearInterval(interval);
     }, [room_id]);
 
