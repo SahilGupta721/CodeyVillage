@@ -87,23 +87,6 @@ export default function AuthPage() {
           </p>
         </div>
 
-        {/* Stats preview */}
-        <div className="flex gap-6 text-center">
-          <div>
-            <div className="text-white font-bold text-xl">2.4k</div>
-            <div className="text-slate-500 text-xs">Players</div>
-          </div>
-          <div className="w-px bg-slate-700" />
-          <div>
-            <div className="text-white font-bold text-xl">18k</div>
-            <div className="text-slate-500 text-xs">LeetCode solved</div>
-          </div>
-          <div className="w-px bg-slate-700" />
-          <div>
-            <div className="text-white font-bold text-xl">94k</div>
-            <div className="text-slate-500 text-xs">Commits tracked</div>
-          </div>
-        </div>
 
       </div>
     </div>
