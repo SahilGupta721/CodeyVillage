@@ -306,6 +306,8 @@ export class GameScene extends Phaser.Scene {
   // ─── Tile layer ───────────────────────────────────────────────────────────
 
   private buildTileLayer(): void {
+    console.log('RenderTexture size:', WORLD_WIDTH, WORLD_HEIGHT); // add this
+
     const rt = this.add.renderTexture(0, 0, WORLD_WIDTH, WORLD_HEIGHT)
       .setOrigin(0, 0).setDepth(2);
     const gfx = this.add.graphics();
