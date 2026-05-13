@@ -235,55 +235,184 @@ export default function LobbyPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Create Room */}
-              <div className="bg-[#111827] border border-slate-700 rounded-2xl p-6 flex flex-col gap-4">
+
+              {/* Create Room — warm amber */}
+              <div style={{
+                background: '#2D1F0A',
+                border: '3px solid #180E04',
+                boxShadow: 'inset 2px 2px 0 0 #5A3A10, inset -2px -2px 0 0 #110800, 4px 4px 0 0 #080400',
+                padding: '20px',
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column' as const,
+                gap: 16,
+                imageRendering: 'pixelated' as const,
+              }}>
+                {/* Corner accents */}
+                <div style={{position:'absolute',top:6,left:6,width:12,height:2,background:'#7A5220'}}/>
+                <div style={{position:'absolute',top:6,left:6,width:2,height:12,background:'#7A5220'}}/>
+                <div style={{position:'absolute',top:6,right:6,width:12,height:2,background:'#7A5220'}}/>
+                <div style={{position:'absolute',top:6,right:6,width:2,height:12,background:'#7A5220'}}/>
+                <div style={{position:'absolute',bottom:6,left:6,width:12,height:2,background:'#7A5220'}}/>
+                <div style={{position:'absolute',bottom:6,left:6,width:2,height:12,background:'#7A5220'}}/>
+                <div style={{position:'absolute',bottom:6,right:6,width:12,height:2,background:'#7A5220'}}/>
+                <div style={{position:'absolute',bottom:6,right:6,width:2,height:12,background:'#7A5220'}}/>
+
+                {/* Header */}
                 <div>
-                  <h2 className="text-white font-semibold text-base">Create a room</h2>
-                  <p className="text-slate-500 text-xs mt-1">Start a new island and invite friends.</p>
+                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
+                    <div style={{display:'flex',flexDirection:'column' as const,gap:2}}>
+                      <div style={{width:14,height:3,background:'#7A5220'}}/>
+                      <div style={{width:10,height:3,background:'#7A5220',opacity:0.6}}/>
+                      <div style={{width:6,height:3,background:'#7A5220',opacity:0.3}}/>
+                    </div>
+                    <span style={{fontFamily:'var(--font-pixel),monospace',fontSize:9,color:'#FFD88A',textShadow:'2px 2px 0 #180E04',letterSpacing:'0.05em',lineHeight:1,paddingTop:2}}>
+                      CREATE ROOM
+                    </span>
+                  </div>
+                  <div style={{height:2,marginBottom:10,backgroundImage:'repeating-linear-gradient(90deg,#4A2E08 0px,#4A2E08 6px,transparent 6px,transparent 10px)'}}/>
+                  <p style={{fontFamily:'var(--font-pixel),monospace',fontSize:6,color:'#7A5220',lineHeight:1.9,margin:0,whiteSpace:'pre-line' as const}}>
+                    {'START A NEW ISLAND AND\nINVITE FRIENDS'}
+                  </p>
                 </div>
-                <form onSubmit={handleCreate} className="flex flex-col gap-3">
+
+                {/* Form */}
+                <form onSubmit={handleCreate} style={{display:'flex',flexDirection:'column' as const,gap:10}}>
                   <input
                     type="text"
                     value={roomName}
                     onChange={(e) => setRoomName(e.target.value)}
-                    placeholder="Room name"
+                    placeholder="ROOM NAME..."
                     maxLength={32}
-                    className="bg-[#0a0e1a] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 placeholder:text-slate-600"
+                    style={{
+                      background:'#1A1005',
+                      border:'2px solid #180E04',
+                      boxShadow:'inset 2px 2px 0 0 #0C0800,inset -1px -1px 0 0 #4A3010',
+                      color:'#FFD88A',
+                      fontFamily:'var(--font-pixel),monospace',
+                      fontSize:8,
+                      padding:'11px 12px',
+                      outline:'none',
+                      width:'100%',
+                      boxSizing:'border-box' as const,
+                    }}
                   />
                   <button
                     type="submit"
                     disabled={loading === "create" || !roomName.trim()}
-                    className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium py-3 rounded-xl transition-colors text-sm"
+                    style={{
+                      background: loading === "create" || !roomName.trim() ? '#1F1508' : '#7A4A10',
+                      border:'3px solid #180E04',
+                      boxShadow: loading === "create" || !roomName.trim()
+                        ? 'inset 2px 2px 0 0 #0C0800'
+                        : 'inset 2px 2px 0 0 #C07A20,inset -2px -2px 0 0 #3A1A00,3px 3px 0 0 #080400',
+                      padding:'11px 10px',
+                      fontFamily:'var(--font-pixel),monospace',
+                      fontSize:7,
+                      color: loading === "create" || !roomName.trim() ? '#4A2E08' : '#FFD88A',
+                      textShadow:'2px 2px 0 #180E04',
+                      cursor: loading === "create" || !roomName.trim() ? 'not-allowed' as const : 'pointer' as const,
+                      transform: loading === "create" || !roomName.trim() ? 'translate(2px,2px)' : 'none',
+                      width:'100%',
+                      imageRendering:'pixelated' as const,
+                      letterSpacing:'0.04em',
+                    }}
                   >
-                    {loading === "create" ? "Creating..." : "Create room →"}
+                    {loading === "create" ? "CREATING..." : "CREATE ROOM  ▶"}
                   </button>
                 </form>
               </div>
 
-              {/* Join Room */}
-              <div className="bg-[#111827] border border-slate-700 rounded-2xl p-6 flex flex-col gap-4">
+              {/* Join Room — deep sapphire */}
+              <div style={{
+                background: '#1A1E35',
+                border: '3px solid #0D1020',
+                boxShadow: 'inset 2px 2px 0 0 #2E3560, inset -2px -2px 0 0 #080A18, 4px 4px 0 0 #050810',
+                padding: '20px',
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column' as const,
+                gap: 16,
+                imageRendering: 'pixelated' as const,
+              }}>
+                {/* Corner accents */}
+                <div style={{position:'absolute',top:6,left:6,width:12,height:2,background:'#4A5888'}}/>
+                <div style={{position:'absolute',top:6,left:6,width:2,height:12,background:'#4A5888'}}/>
+                <div style={{position:'absolute',top:6,right:6,width:12,height:2,background:'#4A5888'}}/>
+                <div style={{position:'absolute',top:6,right:6,width:2,height:12,background:'#4A5888'}}/>
+                <div style={{position:'absolute',bottom:6,left:6,width:12,height:2,background:'#4A5888'}}/>
+                <div style={{position:'absolute',bottom:6,left:6,width:2,height:12,background:'#4A5888'}}/>
+                <div style={{position:'absolute',bottom:6,right:6,width:12,height:2,background:'#4A5888'}}/>
+                <div style={{position:'absolute',bottom:6,right:6,width:2,height:12,background:'#4A5888'}}/>
+
+                {/* Header */}
                 <div>
-                  <h2 className="text-white font-semibold text-base">Join a room</h2>
-                  <p className="text-slate-500 text-xs mt-1">Enter the 6-character code to jump in.</p>
+                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
+                    <div style={{display:'flex',flexDirection:'column' as const,gap:2}}>
+                      <div style={{width:14,height:3,background:'#4A5888'}}/>
+                      <div style={{width:10,height:3,background:'#4A5888',opacity:0.6}}/>
+                      <div style={{width:6,height:3,background:'#4A5888',opacity:0.3}}/>
+                    </div>
+                    <span style={{fontFamily:'var(--font-pixel),monospace',fontSize:9,color:'#A8B8FF',textShadow:'2px 2px 0 #0D1020',letterSpacing:'0.05em',lineHeight:1,paddingTop:2}}>
+                      JOIN ROOM
+                    </span>
+                  </div>
+                  <div style={{height:2,marginBottom:10,backgroundImage:'repeating-linear-gradient(90deg,#2E3560 0px,#2E3560 6px,transparent 6px,transparent 10px)'}}/>
+                  <p style={{fontFamily:'var(--font-pixel),monospace',fontSize:6,color:'#4A5888',lineHeight:1.9,margin:0,whiteSpace:'pre-line' as const}}>
+                    {'ENTER THE 6-CHAR CODE\nTO JUMP IN'}
+                  </p>
                 </div>
-                <form onSubmit={handleJoin} className="flex flex-col gap-3">
+
+                {/* Form */}
+                <form onSubmit={handleJoin} style={{display:'flex',flexDirection:'column' as const,gap:10}}>
                   <input
                     type="text"
                     value={joinCode}
                     onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-                    placeholder="e.g. XK7P2M"
+                    placeholder="_ _ _ _ _ _"
                     maxLength={6}
-                    className="bg-[#0a0e1a] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 placeholder:text-slate-600 tracking-widest font-mono uppercase"
+                    style={{
+                      background:'#0F1225',
+                      border:'2px solid #0D1020',
+                      boxShadow:'inset 2px 2px 0 0 #060810,inset -1px -1px 0 0 #2A3058',
+                      color:'#A8B8FF',
+                      fontFamily:'var(--font-pixel),monospace',
+                      fontSize:11,
+                      letterSpacing:'0.35em',
+                      textTransform:'uppercase' as const,
+                      padding:'11px 12px',
+                      outline:'none',
+                      width:'100%',
+                      boxSizing:'border-box' as const,
+                      textAlign:'center' as const,
+                    }}
                   />
                   <button
                     type="submit"
                     disabled={loading === "join" || joinCode.trim().length !== 6}
-                    className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium py-3 rounded-xl transition-colors text-sm"
+                    style={{
+                      background: loading === "join" || joinCode.trim().length !== 6 ? '#111525' : '#2A3578',
+                      border:'3px solid #0D1020',
+                      boxShadow: loading === "join" || joinCode.trim().length !== 6
+                        ? 'inset 2px 2px 0 0 #060810'
+                        : 'inset 2px 2px 0 0 #4A60CC,inset -2px -2px 0 0 #0F1840,3px 3px 0 0 #050810',
+                      padding:'11px 10px',
+                      fontFamily:'var(--font-pixel),monospace',
+                      fontSize:7,
+                      color: loading === "join" || joinCode.trim().length !== 6 ? '#2A3050' : '#A8B8FF',
+                      textShadow:'2px 2px 0 #0D1020',
+                      cursor: loading === "join" || joinCode.trim().length !== 6 ? 'not-allowed' as const : 'pointer' as const,
+                      transform: loading === "join" || joinCode.trim().length !== 6 ? 'translate(2px,2px)' : 'none',
+                      width:'100%',
+                      imageRendering:'pixelated' as const,
+                      letterSpacing:'0.04em',
+                    }}
                   >
-                    {loading === "join" ? "Joining..." : "Join room →"}
+                    {loading === "join" ? "JOINING..." : "JOIN ROOM  ▶"}
                   </button>
                 </form>
               </div>
+
             </div>
           )}
 
