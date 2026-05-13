@@ -1,7 +1,9 @@
-const WEB_APP_URL = "http://codey-village-six.vercel.app";
+const WEB_APP_URL = "https://codey-village-six.vercel.app";
 const BACKEND_URL = "https://gdg-hacks3.onrender.com";
 
 const COIN_VALUES = { leetcode_accepted: 50, github_commit: 25, job_application: 25 };
+
+const COIN_SVG = '<svg width="14" height="14" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" style="vertical-align:-2px;display:inline-block"><rect x="4" y="1" width="6" height="1" fill="#fbbf24"/><rect x="2" y="2" width="10" height="1" fill="#fbbf24"/><rect x="1" y="3" width="12" height="8" fill="#fbbf24"/><rect x="2" y="11" width="10" height="1" fill="#fbbf24"/><rect x="4" y="12" width="6" height="1" fill="#fbbf24"/><rect x="4" y="2" width="4" height="1" fill="#fef9c3"/><rect x="2" y="3" width="2" height="4" fill="#fef9c3"/><rect x="2" y="3" width="1" height="1" fill="#fff"/><rect x="11" y="6" width="1" height="3" fill="#d97706"/><rect x="10" y="9" width="2" height="1" fill="#d97706"/><rect x="8" y="11" width="4" height="1" fill="#d97706"/></svg>';
 
 const ENTRY_ICONS = {
   leetcode_accepted: "⚡",
@@ -107,7 +109,7 @@ async function renderMain(uid, username) {
           <rect x="44" y="24" width="4"  height="4"  fill="#f87171"/>
           <rect x="40" y="28" width="4"  height="4"  fill="#4ade80"/>
         </svg>${username || "Player"}</span>
-      <span class="coin-badge" id="coinCount">🪙 ${cachedCoins}</span>
+      <span class="coin-badge" id="coinCount">${COIN_SVG} ${cachedCoins}</span>
       <button id="signoutBtn">Sign out</button>
     </div>
   `;
@@ -143,7 +145,7 @@ async function renderMain(uid, username) {
   fetchCoinsFromBackend(uid).then((coins) => {
     const el = document.getElementById("coinCount");
     if (el) {
-      el.textContent = `🪙 ${coins}`;
+      el.innerHTML = `${COIN_SVG} ${coins}`;
       el.classList.remove("coin-pop");
       void el.offsetWidth;
       el.classList.add("coin-pop");
@@ -243,7 +245,7 @@ async function renderWeeklySummary(uid) {
             <span class="stat-label">applied</span>
           </div>
           <div class="stat-item stat-coins">
-            <span class="stat-icon">🪙</span>
+            <span class="stat-icon">${COIN_SVG}</span>
             <span class="stat-val">+${total_coins}</span>
             <span class="stat-label">coins</span>
           </div>
@@ -277,7 +279,7 @@ async function renderLeaderboard(uid) {
         <div class="lb-row${isYou ? " lb-you" : ""}">
           <span class="lb-rank">${medals[i] || `${i + 1}.`}</span>
           <span class="lb-name">${p.username}${isYou ? " (you)" : ""}</span>
-          <span class="lb-coins">🪙 ${p.coins}</span>
+          <span class="lb-coins">${COIN_SVG} ${p.coins}</span>
         </div>
       `;
     }).join("");
@@ -320,7 +322,7 @@ function buildEntryHTML(entry) {
         ${sub ? `<span class="entry-sub">${sub}</span>` : ""}
       </div>
       <div class="entry-meta">
-        <span class="entry-coins">+${coins} 🪙</span>
+        <span class="entry-coins">${COIN_SVG} +${coins}</span>
         <span class="entry-time">${time}</span>
       </div>
     </div>
@@ -384,7 +386,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
   if ("coins" in changes) {
     const el = document.getElementById("coinCount");
     if (el) {
-      el.textContent = `🪙 ${changes.coins.newValue ?? 0}`;
+      el.innerHTML = `${COIN_SVG} ${changes.coins.newValue ?? 0}`;
       el.classList.remove("coin-pop");
       void el.offsetWidth;
       el.classList.add("coin-pop");

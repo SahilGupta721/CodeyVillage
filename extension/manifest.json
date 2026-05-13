@@ -14,7 +14,7 @@
     "https://github.com/*",
     "https://api.github.com/*",
     "https://*.myworkdayjobs.com/*",
-    "http://codey-village-six.vercel.app/*",
+    "https://codey-village-six.vercel.app/*",
     "https://gdg-hacks3.onrender.com/*",
     "http://localhost:3000/*",
     "http://localhost:3001/*",
@@ -66,7 +66,7 @@
       "matches": [
         "http://localhost:3000/*",
         "http://localhost:3001/*",
-        "http://codey-village-six.vercel.app/*"
+        "https://codey-village-six.vercel.app/*"
       ],
       "js": [
         "content-scripts/webapp.js",
