@@ -127,9 +127,6 @@
   letter-spacing: 0.04em;
 }
 
-.coinIcon {
-  font-size: 16px;
-}
 
 .coinHud {
   position: fixed;
@@ -138,16 +135,18 @@
   z-index: 1200;
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(12, 20, 36, 0.82);
-  color: #ffe08a;
-  border: 1.5px solid rgba(255, 210, 92, 0.45);
-  border-radius: 999px;
-  padding: 7px 14px 7px 10px;
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 15px;
-  font-weight: 700;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
+  gap: 8px;
+  background: #9B6B2F;
+  color: #FFFDE7;
+  border: 3px solid #2A1208;
+  border-radius: 0;
+  padding: 6px 12px 6px 8px;
+  font-family: var(--font-pixel), monospace;
+  font-size: 11px;
+  line-height: 1;
+  text-shadow: 2px 2px 0 #2A1208;
+  box-shadow: inset 2px 2px 0 0 #C89A3A, inset -2px -2px 0 0 #5C3010, 3px 3px 0 0 #1A0800;
+  image-rendering: pixelated;
 }
 
 /* ── categories scroll area ─────────────────────────────────── */

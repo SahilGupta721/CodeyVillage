@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged, signOut, signInWithPopup, GithubAuthProvider } from "firebase/auth";
 import { auth, githubProvider } from "../../lib/firebase";
+import CoinDisplay from "@/src/components/ui/CoinDisplay";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
@@ -322,7 +323,7 @@ export default function LobbyPage() {
           <div className="bg-[#111827] border border-slate-700 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-white font-semibold text-base">Your stats</h2>
-              <span className="text-yellow-400 text-sm font-medium">🪙 {coins} coins</span>
+              <CoinDisplay coins={coins} />
             </div>
             <div className="grid grid-cols-3 gap-4 text-center">
               <div className="bg-[#0a0e1a] rounded-xl p-3">
