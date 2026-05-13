@@ -12,7 +12,7 @@ app.add_middleware(
         "https://codey-village-six.vercel.app",
         "http://localhost:3000",
         "http://localhost:3001",
-        # "https://frontend-gules-two-30.vercel.app",
+      
     ],
     allow_credentials=True,
     allow_methods=["*"],

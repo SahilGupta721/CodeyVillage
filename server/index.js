@@ -59,7 +59,7 @@ app.get("/auth/github/callback", async (req, res) => {
   // Create webhooks on all repos
   await createWebhooksForUser(access_token, user.login);
 
-  res.redirect(`http://localhost:3000/auth/success?login=${user.login}`);
+  res.redirect(`https://gdg-hacks3.onrender.com/auth/success?login=${user.login}`);
 });
 
 async function createWebhooksForUser(token, login) {

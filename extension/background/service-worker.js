@@ -17,7 +17,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ uid, username }),
-      }).catch(() => {});
+      }).catch(() => { });
     }
     sendResponse({ ok: true });
   }
@@ -35,8 +35,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   return true;
 });
 
-const DEFAULT_SERVER_URL = "http://localhost:3000/track";
-const BACKEND_URL = "https://productivity-island-backend-lbi4hsm5aa-uc.a.run.app";
+const DEFAULT_SERVER_URL = "https://gdg-hacks3.onrender.com/track";
+const BACKEND_URL = "https://gdg-hacks3.onrender.com";
 
 const COIN_VALUES = {
   leetcode_accepted: 50,
@@ -82,7 +82,7 @@ async function handleActivity(payload) {
           coins,
         });
       }
-    } catch {}
+    } catch { }
   }
 
   // Fire-and-forget to Express tracking server

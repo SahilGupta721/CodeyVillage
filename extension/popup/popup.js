@@ -1,5 +1,5 @@
 const WEB_APP_URL = "https://gdg-hacks-3.vercel.app";
-const BACKEND_URL = "https://productivity-island-backend-lbi4hsm5aa-uc.a.run.app";
+const BACKEND_URL = "https://gdg-hacks3.onrender.com";
 
 const COIN_VALUES = { leetcode_accepted: 50, github_commit: 25, job_application: 25 };
 
