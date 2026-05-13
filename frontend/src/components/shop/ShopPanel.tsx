@@ -56,6 +56,46 @@ export interface ShopPanelProps {
   onBuy?: (itemId: string, price: number) => void;
 }
 
+// ── pixel coin icon ──────────────────────────────────────────────────────────
+
+function PixelCoin() {
+  const K = '#1A0A00'; // black outline
+  const D = '#9B6000'; // dark gold ring
+  const G = '#FFD700'; // bright gold
+  const H = '#FFFACD'; // top-left highlight
+  const M = '#C89000'; // bottom-right shadow
+  const _ = null;
+
+  const grid = [
+    [_,_,_,K,K,K,K,K,K,_,_,_],
+    [_,_,K,D,G,G,G,G,D,K,_,_],
+    [_,K,D,G,H,H,G,G,G,D,K,_],
+    [K,D,G,G,H,G,G,G,G,M,D,K],
+    [K,D,G,H,G,G,G,G,G,M,D,K],
+    [K,D,G,G,G,G,G,G,G,M,D,K],
+    [K,D,G,G,G,G,G,G,G,M,D,K],
+    [K,D,G,G,G,G,G,G,M,M,D,K],
+    [_,K,D,G,G,G,M,M,M,D,K,_],
+    [_,_,K,D,D,M,M,M,D,K,_,_],
+    [_,_,_,K,K,K,K,K,K,_,_,_],
+  ];
+
+  return (
+    <svg
+      width="20" height="20"
+      viewBox="0 0 12 11"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}
+    >
+      {grid.flatMap((row, y) =>
+        row.map((color, x) =>
+          color ? <rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} fill={color} /> : null
+        )
+      )}
+    </svg>
+  );
+}
+
 // ── shop catalogue ───────────────────────────────────────────────────────────
 
 const BASE_CATEGORIES: ShopCategory[] = [
@@ -154,7 +194,7 @@ const ShopPanel = forwardRef<ShopPanelHandle, ShopPanelProps>(
     return (
       <>
         <div className={styles.coinHud}>
-          <span className={styles.coinIcon}>🪙</span>
+          <PixelCoin />
           {coins.toLocaleString()}
         </div>
 
