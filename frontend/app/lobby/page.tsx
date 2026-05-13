@@ -319,25 +319,110 @@ export default function LobbyPage() {
             )}
           </div>
 
-          {/* Coin summary placeholder */}
-          <div className="bg-[#111827] border border-slate-700 rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-white font-semibold text-base">Your stats</h2>
+          {/* Stats — pixel-art redesign */}
+          <div style={{
+            background: '#1A3535',
+            border: '3px solid #0D1F1F',
+            boxShadow: 'inset 2px 2px 0 0 #2E6060, inset -2px -2px 0 0 #0A1818, 4px 4px 0 0 #050C0C',
+            padding: '20px',
+            position: 'relative',
+            imageRendering: 'pixelated' as const,
+          }}>
+            {/* Corner accents */}
+            <div style={{position:'absolute',top:6,left:6,width:12,height:2,background:'#4A9898'}}/>
+            <div style={{position:'absolute',top:6,left:6,width:2,height:12,background:'#4A9898'}}/>
+            <div style={{position:'absolute',top:6,right:6,width:12,height:2,background:'#4A9898'}}/>
+            <div style={{position:'absolute',top:6,right:6,width:2,height:12,background:'#4A9898'}}/>
+            <div style={{position:'absolute',bottom:6,left:6,width:12,height:2,background:'#4A9898'}}/>
+            <div style={{position:'absolute',bottom:6,left:6,width:2,height:12,background:'#4A9898'}}/>
+            <div style={{position:'absolute',bottom:6,right:6,width:12,height:2,background:'#4A9898'}}/>
+            <div style={{position:'absolute',bottom:6,right:6,width:2,height:12,background:'#4A9898'}}/>
+
+            {/* Header */}
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
+              <div style={{display:'flex',alignItems:'center',gap:8}}>
+                <div style={{display:'flex',flexDirection:'column' as const,gap:2}}>
+                  <div style={{width:14,height:3,background:'#4A9898'}}/>
+                  <div style={{width:10,height:3,background:'#4A9898',opacity:0.6}}/>
+                  <div style={{width:6,height:3,background:'#4A9898',opacity:0.3}}/>
+                </div>
+                <span style={{
+                  fontFamily:'var(--font-pixel),monospace',
+                  fontSize:9,
+                  color:'#A8FFE8',
+                  textShadow:'2px 2px 0 #0D1F1F',
+                  letterSpacing:'0.05em',
+                  lineHeight:1,
+                  paddingTop:2,
+                }}>
+                  YOUR STATS
+                </span>
+              </div>
               <CoinDisplay coins={coins} />
             </div>
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div className="bg-[#0a0e1a] rounded-xl p-3">
-                <div className="text-white font-bold text-xl">{stats.leetcode_solved}</div>
-                <div className="text-slate-500 text-xs mt-1">LeetCode solved</div>
-              </div>
-              <div className="bg-[#0a0e1a] rounded-xl p-3">
-                <div className="text-white font-bold text-xl">{stats.commits}</div>
-                <div className="text-slate-500 text-xs mt-1">Commits pushed</div>
-              </div>
-              <div className="bg-[#0a0e1a] rounded-xl p-3">
-                <div className="text-white font-bold text-xl">{stats.jobs_applied}</div>
-                <div className="text-slate-500 text-xs mt-1">Jobs applied</div>
-              </div>
+
+            {/* Pixel dotted divider */}
+            <div style={{
+              height:2,
+              marginBottom:14,
+              backgroundImage:'repeating-linear-gradient(90deg,#2E6060 0px,#2E6060 6px,transparent 6px,transparent 10px)',
+            }}/>
+
+            {/* Stat cards */}
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10}}>
+              {[
+                {value:stats.leetcode_solved,label:'LEETCODE\nSOLVED',accent:'#FFD36E',gem:'#8B6200'},
+                {value:stats.commits,        label:'COMMITS\nPUSHED', accent:'#5BFFD8',gem:'#1A7060'},
+                {value:stats.jobs_applied,   label:'JOBS\nAPPLIED',   accent:'#C090FF',gem:'#5A2A9A'},
+              ].map(({value,label,accent,gem})=>(
+                <div key={label} style={{
+                  background:'#0F2828',
+                  backgroundImage:'repeating-linear-gradient(0deg,rgba(0,0,0,0.12) 0px,rgba(0,0,0,0.12) 1px,transparent 1px,transparent 4px)',
+                  border:'2px solid #0D1F1F',
+                  boxShadow:'inset 2px 2px 0 0 #081818,inset -1px -1px 0 0 #2A5050',
+                  padding:'14px 6px 12px',
+                  textAlign:'center' as const,
+                  display:'flex',
+                  flexDirection:'column' as const,
+                  alignItems:'center',
+                  gap:7,
+                }}>
+                  {/* Gem indicator */}
+                  <div style={{
+                    width:10,height:10,
+                    background:accent,
+                    boxShadow:`inset 2px 2px 0 rgba(255,255,255,0.45),inset -2px -2px 0 ${gem},0 0 0 1px #0D1F1F`,
+                    imageRendering:'pixelated' as const,
+                  }}/>
+                  {/* Value */}
+                  <div style={{
+                    fontFamily:'var(--font-pixel),monospace',
+                    fontSize:16,
+                    color:accent,
+                    textShadow:'2px 2px 0 #0D1F1F',
+                    lineHeight:1,
+                  }}>
+                    {value}
+                  </div>
+                  {/* Three-dot separator */}
+                  <div style={{display:'flex',gap:3}}>
+                    <div style={{width:2,height:2,background:accent,opacity:0.35}}/>
+                    <div style={{width:2,height:2,background:accent,opacity:0.7}}/>
+                    <div style={{width:2,height:2,background:accent,opacity:0.35}}/>
+                  </div>
+                  {/* Label */}
+                  <div style={{
+                    fontFamily:'var(--font-pixel),monospace',
+                    fontSize:6,
+                    color:'#3A8878',
+                    letterSpacing:'0.02em',
+                    lineHeight:1.8,
+                    whiteSpace:'pre-line' as const,
+                  }}>
+                    {label}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
