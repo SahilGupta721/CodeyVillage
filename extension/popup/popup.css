@@ -219,3 +219,151 @@ body {
   font-size: 10px;
   color: #334155;
 }
+
+/* ── Quick launch ── */
+.quick-launch {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.launch-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 7px 4px;
+  background: #111827;
+  border: 1px solid #1e293b;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #94a3b8;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.launch-btn:hover {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+/* ── Weekly summary ── */
+.weekly-card {
+  background: #111827;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.section-header {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #334155;
+  margin-bottom: 8px;
+}
+
+.weekly-stats {
+  display: flex;
+  gap: 0;
+}
+
+.stat-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.stat-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.stat-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: #e2e8f0;
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 9px;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-item.stat-coins .stat-val {
+  color: #fbbf24;
+}
+
+/* ── Leaderboard ── */
+.leaderboard-card {
+  background: #111827;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.lb-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 12px;
+  color: #94a3b8;
+  border-bottom: 1px solid #0f172a;
+}
+
+.lb-row:last-child {
+  border-bottom: none;
+}
+
+.lb-you {
+  color: #a5b4fc;
+  font-weight: 600;
+}
+
+.lb-rank {
+  width: 22px;
+  flex-shrink: 0;
+  font-size: 13px;
+}
+
+.lb-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lb-coins {
+  font-size: 11px;
+  color: #fbbf24;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ── Coin pop animation ── */
+.coin-badge {
+  display: inline-block;
+}
+
+@keyframes coinPop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.28); background: #2a1f00; border-color: #a87f00; }
+  100% { transform: scale(1); }
+}
+
+.coin-pop {
+  animation: coinPop 0.38s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}

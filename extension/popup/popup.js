@@ -1,4 +1,4 @@
-const WEB_APP_URL = "https://gdg-hacks-3.vercel.app";
+const WEB_APP_URL = "http://codey-village-six.vercel.app";
 const BACKEND_URL = "https://gdg-hacks3.onrender.com";
 
 const COIN_VALUES = { leetcode_accepted: 50, github_commit: 25, job_application: 25 };
@@ -46,30 +46,35 @@ async function init() {
 
 function renderLoginGate() {
   document.getElementById("auth-section").innerHTML = `
-    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- water -->
-      <ellipse cx="32" cy="52" rx="26" ry="7" fill="#0f2744"/>
-      <ellipse cx="32" cy="52" rx="26" ry="7" fill="url(#water)"/>
-      <!-- island -->
-      <ellipse cx="32" cy="46" rx="18" ry="6" fill="#c9a84c"/>
-      <ellipse cx="32" cy="44" rx="14" ry="4" fill="#e0b85a"/>
-      <!-- trunk -->
-      <path d="M32 44 Q30 34 28 24" stroke="#7c5c2a" stroke-width="2.5" stroke-linecap="round"/>
-      <!-- leaves -->
-      <path d="M28 24 Q18 18 16 10" stroke="#2d9e4e" stroke-width="2" stroke-linecap="round"/>
-      <path d="M28 24 Q22 16 24 8"  stroke="#34b85a" stroke-width="2" stroke-linecap="round"/>
-      <path d="M28 24 Q30 14 34 10" stroke="#2d9e4e" stroke-width="2" stroke-linecap="round"/>
-      <path d="M28 24 Q36 18 40 14" stroke="#34b85a" stroke-width="2" stroke-linecap="round"/>
-      <path d="M28 24 Q38 22 42 20" stroke="#2d9e4e" stroke-width="2" stroke-linecap="round"/>
-      <!-- sun -->
-      <circle cx="50" cy="14" r="5" fill="#fbbf24"/>
-      <defs>
-        <linearGradient id="water" x1="6" y1="52" x2="58" y2="52" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stop-color="#1e3a5f"/>
-          <stop offset="50%" stop-color="#1d4ed8" stop-opacity="0.4"/>
-          <stop offset="100%" stop-color="#1e3a5f"/>
-        </linearGradient>
-      </defs>
+    <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+      <rect width="64" height="64" rx="12" fill="#0d1117"/>
+      <rect x="6"  y="6"  width="2" height="2" fill="#fff8c0"/>
+      <rect x="52" y="8"  width="2" height="2" fill="#fff8c0"/>
+      <rect x="30" y="4"  width="2" height="2" fill="#fff8c0"/>
+      <rect x="8"  y="16" width="48" height="22" fill="#7c3aed"/>
+      <rect x="8"  y="16" width="48" height="3"  fill="#9d5cf6"/>
+      <rect x="8"  y="35" width="48" height="3"  fill="#5b21b6"/>
+      <rect x="8"  y="34" width="16" height="20" fill="#7c3aed"/>
+      <rect x="8"  y="34" width="3"  height="20" fill="#9d5cf6"/>
+      <rect x="8"  y="52" width="16" height="2"  fill="#5b21b6"/>
+      <rect x="40" y="34" width="16" height="20" fill="#7c3aed"/>
+      <rect x="53" y="34" width="3"  height="20" fill="#5b21b6"/>
+      <rect x="40" y="52" width="16" height="2"  fill="#5b21b6"/>
+      <rect x="18" y="20" width="4"  height="4"  fill="#e2e8f0"/>
+      <rect x="14" y="24" width="4"  height="4"  fill="#e2e8f0"/>
+      <rect x="18" y="24" width="4"  height="4"  fill="#cbd5e1"/>
+      <rect x="22" y="24" width="4"  height="4"  fill="#e2e8f0"/>
+      <rect x="18" y="28" width="4"  height="4"  fill="#e2e8f0"/>
+      <rect x="40" y="20" width="4"  height="4"  fill="#facc15"/>
+      <rect x="36" y="24" width="4"  height="4"  fill="#60a5fa"/>
+      <rect x="44" y="24" width="4"  height="4"  fill="#f87171"/>
+      <rect x="40" y="28" width="4"  height="4"  fill="#4ade80"/>
+      <rect x="27" y="26" width="4"  height="2"  fill="#a78bfa"/>
+      <rect x="33" y="26" width="4"  height="2"  fill="#a78bfa"/>
+      <rect x="12" y="39" width="8"  height="8"  fill="#4c1d95"/>
+      <rect x="14" y="41" width="4"  height="4"  fill="#6d28d9"/>
+      <rect x="44" y="39" width="8"  height="8"  fill="#4c1d95"/>
+      <rect x="46" y="41" width="4"  height="4"  fill="#6d28d9"/>
     </svg>
     <div class="brand">Codey Village</div>
     <p class="auth-sub">Code. Earn coins. Beat your friends.</p>
@@ -86,15 +91,21 @@ async function renderMain(uid, username) {
   document.getElementById("auth-section").innerHTML = `
     <div class="user-row">
       <span class="user-name">
-        <svg width="16" height="16" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline;vertical-align:middle;margin-right:4px">
-          <ellipse cx="32" cy="52" rx="26" ry="7" fill="#0f2744"/>
-          <ellipse cx="32" cy="46" rx="18" ry="6" fill="#c9a84c"/>
-          <ellipse cx="32" cy="44" rx="14" ry="4" fill="#e0b85a"/>
-          <path d="M32 44 Q30 34 28 24" stroke="#7c5c2a" stroke-width="2.5" stroke-linecap="round"/>
-          <path d="M28 24 Q18 18 16 10" stroke="#2d9e4e" stroke-width="2" stroke-linecap="round"/>
-          <path d="M28 24 Q30 14 34 10" stroke="#34b85a" stroke-width="2" stroke-linecap="round"/>
-          <path d="M28 24 Q38 22 42 20" stroke="#2d9e4e" stroke-width="2" stroke-linecap="round"/>
-          <circle cx="50" cy="14" r="5" fill="#fbbf24"/>
+        <svg width="16" height="16" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" style="display:inline;vertical-align:middle;margin-right:4px">
+          <rect width="64" height="64" rx="12" fill="#0d1117"/>
+          <rect x="8"  y="16" width="48" height="22" fill="#7c3aed"/>
+          <rect x="8"  y="16" width="48" height="3"  fill="#9d5cf6"/>
+          <rect x="8"  y="34" width="16" height="20" fill="#7c3aed"/>
+          <rect x="40" y="34" width="16" height="20" fill="#7c3aed"/>
+          <rect x="18" y="20" width="4"  height="4"  fill="#e2e8f0"/>
+          <rect x="14" y="24" width="4"  height="4"  fill="#e2e8f0"/>
+          <rect x="18" y="24" width="4"  height="4"  fill="#cbd5e1"/>
+          <rect x="22" y="24" width="4"  height="4"  fill="#e2e8f0"/>
+          <rect x="18" y="28" width="4"  height="4"  fill="#e2e8f0"/>
+          <rect x="40" y="20" width="4"  height="4"  fill="#facc15"/>
+          <rect x="36" y="24" width="4"  height="4"  fill="#60a5fa"/>
+          <rect x="44" y="24" width="4"  height="4"  fill="#f87171"/>
+          <rect x="40" y="28" width="4"  height="4"  fill="#4ade80"/>
         </svg>${username || "Player"}</span>
       <span class="coin-badge" id="coinCount">🪙 ${cachedCoins}</span>
       <button id="signoutBtn">Sign out</button>
@@ -107,7 +118,10 @@ async function renderMain(uid, username) {
     window.location.reload();
   });
 
+  renderQuickLaunch();
   await renderLog(uid);
+  renderWeeklySummary(uid);
+  renderLeaderboard(uid);
 
   const { githubUsername: cachedGithub } = await chrome.storage.local.get("githubUsername");
   const btn = document.getElementById("connectGithub");
@@ -128,7 +142,12 @@ async function renderMain(uid, username) {
 
   fetchCoinsFromBackend(uid).then((coins) => {
     const el = document.getElementById("coinCount");
-    if (el) el.textContent = `🪙 ${coins}`;
+    if (el) {
+      el.textContent = `🪙 ${coins}`;
+      el.classList.remove("coin-pop");
+      void el.offsetWidth;
+      el.classList.add("coin-pop");
+    }
   });
 
   fetchGithubStatus(uid).then((githubLogin) => {
@@ -165,6 +184,111 @@ async function fetchGithubStatus(uid) {
     }
   } catch {}
   return null;
+}
+
+function renderQuickLaunch() {
+  const el = document.getElementById("quick-launch");
+  if (!el) return;
+  el.innerHTML = `
+    <div class="quick-launch">
+      <button class="launch-btn" id="launchLeetcode">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="#fbbf24"><path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 1.271 1.818l4.277 4.193.039.038c2.248 2.165 5.852 2.133 8.063-.074l2.396-2.426.166-.185a5.896 5.896 0 0 0 1.24-3.736 5.916 5.916 0 0 0-1.2-3.564L13.5 2.025A1.456 1.456 0 0 0 13.483 0zm.02 3.011l4.73 7.897a3.91 3.91 0 0 1 .802 2.376 3.895 3.895 0 0 1-.822 2.474l-4.73-7.897 .02-4.85zM7.16 8.489l4.724 7.9-2.365 2.394a3.88 3.88 0 0 1-5.437.05L.805 15.64a3.926 3.926 0 0 1-.836-1.202 3.878 3.878 0 0 1-.041-2.914 3.93 3.93 0 0 1 .801-1.38L7.16 8.49z"/></svg>
+        LeetCode
+      </button>
+      <button class="launch-btn" id="launchGithub">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub
+      </button>
+      <button class="launch-btn" id="launchVillage">
+        <svg width="13" height="13" viewBox="0 0 64 64" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="16" width="48" height="22" fill="#7c3aed"/><rect x="8" y="34" width="16" height="20" fill="#7c3aed"/><rect x="40" y="34" width="16" height="20" fill="#7c3aed"/><rect x="18" y="20" width="4" height="4" fill="#e2e8f0"/><rect x="14" y="24" width="4" height="4" fill="#e2e8f0"/><rect x="18" y="24" width="4" height="4" fill="#cbd5e1"/><rect x="22" y="24" width="4" height="4" fill="#e2e8f0"/><rect x="18" y="28" width="4" height="4" fill="#e2e8f0"/><rect x="40" y="20" width="4" height="4" fill="#facc15"/><rect x="36" y="24" width="4" height="4" fill="#60a5fa"/><rect x="44" y="24" width="4" height="4" fill="#f87171"/><rect x="40" y="28" width="4" height="4" fill="#4ade80"/></svg>
+        Village
+      </button>
+    </div>
+  `;
+  document.getElementById("launchLeetcode").addEventListener("click", () => {
+    chrome.tabs.create({ url: "https://leetcode.com" });
+  });
+  document.getElementById("launchGithub").addEventListener("click", () => {
+    chrome.tabs.create({ url: "https://github.com" });
+  });
+  document.getElementById("launchVillage").addEventListener("click", () => {
+    chrome.tabs.create({ url: `${WEB_APP_URL}/lobby` });
+  });
+}
+
+async function renderWeeklySummary(uid) {
+  const el = document.getElementById("weekly-summary");
+  if (!el) return;
+  try {
+    const res = await fetch(`${BACKEND_URL}/coins/${uid}/weekly`);
+    if (!res.ok) return;
+    const { leetcode, commits, jobs, total_coins } = await res.json();
+    el.innerHTML = `
+      <div class="weekly-card">
+        <div class="section-header">This Week</div>
+        <div class="weekly-stats">
+          <div class="stat-item">
+            <span class="stat-icon">⚡</span>
+            <span class="stat-val">${leetcode}</span>
+            <span class="stat-label">solved</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-icon">📦</span>
+            <span class="stat-val">${commits}</span>
+            <span class="stat-label">commits</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-icon">💼</span>
+            <span class="stat-val">${jobs}</span>
+            <span class="stat-label">applied</span>
+          </div>
+          <div class="stat-item stat-coins">
+            <span class="stat-icon">🪙</span>
+            <span class="stat-val">+${total_coins}</span>
+            <span class="stat-label">coins</span>
+          </div>
+        </div>
+      </div>
+    `;
+  } catch {}
+}
+
+async function renderLeaderboard(uid) {
+  const el = document.getElementById("leaderboard");
+  if (!el) return;
+  try {
+    const roomRes = await fetch(`${BACKEND_URL}/rooms/user/${uid}`);
+    if (!roomRes.ok) return;
+    const room = await roomRes.json();
+    if (!room || !room.members || room.members.length < 2) return;
+
+    const lbRes = await fetch(`${BACKEND_URL}/coins/leaderboard`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uids: room.members }),
+    });
+    if (!lbRes.ok) return;
+    const standings = await lbRes.json();
+
+    const medals = ["🥇", "🥈", "🥉"];
+    const rows = standings.slice(0, 5).map((p, i) => {
+      const isYou = p.uid === uid;
+      return `
+        <div class="lb-row${isYou ? " lb-you" : ""}">
+          <span class="lb-rank">${medals[i] || `${i + 1}.`}</span>
+          <span class="lb-name">${p.username}${isYou ? " (you)" : ""}</span>
+          <span class="lb-coins">🪙 ${p.coins}</span>
+        </div>
+      `;
+    }).join("");
+
+    el.innerHTML = `
+      <div class="leaderboard-card">
+        <div class="section-header">${room.name}</div>
+        ${rows}
+      </div>
+    `;
+  } catch {}
 }
 
 function buildEntryHTML(entry) {
@@ -259,7 +383,12 @@ chrome.storage.onChanged.addListener((changes, area) => {
   }
   if ("coins" in changes) {
     const el = document.getElementById("coinCount");
-    if (el) el.textContent = `🪙 ${changes.coins.newValue ?? 0}`;
+    if (el) {
+      el.textContent = `🪙 ${changes.coins.newValue ?? 0}`;
+      el.classList.remove("coin-pop");
+      void el.offsetWidth;
+      el.classList.add("coin-pop");
+    }
   }
   if ("activityLog" in changes) {
     const newLog = changes.activityLog.newValue ?? [];

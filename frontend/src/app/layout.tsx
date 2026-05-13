@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import ExtensionAuthBridge from '../components/ExtensionAuthBridge';
 
 export const metadata: Metadata = {
   title:       'Codey Village',
@@ -10,6 +11,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" style={{ height: '100%' }}>
       <body style={{ margin: 0, padding: 0, height: '100%', overflow: 'hidden' }}>
+        <ExtensionAuthBridge />
         {children}
       </body>
     </html>

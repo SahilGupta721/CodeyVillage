@@ -69,9 +69,15 @@ async function handleActivity(payload) {
   // Credit coins immediately, independent of Express server
   if (firebaseUid) await creditCoinsToBackend(firebaseUid, payload.type, payload.details);
 
-  // Show toast on active tab
   const coins = COIN_VALUES[payload.type] ?? 0;
   if (coins > 0) {
+    chrome.notifications.create(`cv-${payload.timestamp}`, {
+      type: "basic",
+      iconUrl: chrome.runtime.getURL("icons/icon128.png"),
+      title: `+${coins} coins earned!`,
+      message: getToastTitle(payload.type, payload.details),
+    });
+
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       if (tab?.id) {

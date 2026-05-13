@@ -56,3 +56,33 @@ def get_coins(uid: str):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return {"uid": uid, "coins": user["coins"]}
+
+
+def get_leaderboard(uids: list):
+    users = list(users_collection.find(
+        {"_id": {"$in": uids}},
+        {"_id": 1, "username": 1, "coins": 1}
+    ))
+    result = [{"uid": u["_id"], "username": u.get("username", "?"), "coins": u.get("coins", 0)} for u in users]
+    result.sort(key=lambda x: x["coins"], reverse=True)
+    return result
+
+
+def get_weekly_stats(uid: str):
+    from datetime import timedelta
+    week_ago = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+    entries = list(coin_ledger_collection.find(
+        {"uid": uid, "timestamp": {"$gte": week_ago}},
+        {"_id": 0, "activity_type": 1, "amount": 1}
+    ))
+    total_coins = sum(e.get("amount", 0) for e in entries)
+    counts = {}
+    for e in entries:
+        t = e["activity_type"]
+        counts[t] = counts.get(t, 0) + 1
+    return {
+        "total_coins": total_coins,
+        "leetcode": counts.get("leetcode_accepted", 0),
+        "commits": counts.get("github_commit", 0),
+        "jobs": counts.get("job_application", 0),
+    }
