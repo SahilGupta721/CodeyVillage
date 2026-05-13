@@ -287,34 +287,142 @@ export default function LobbyPage() {
             </div>
           )}
 
-          {/* GitHub connect */}
-          <div className="bg-[#111827] border border-slate-700 rounded-2xl p-6 flex items-center justify-between gap-4">
-            <div>
-              <h2 className="text-white font-semibold text-base">GitHub</h2>
-              <p className="text-slate-500 text-xs mt-1">
+          {/* GitHub connect — pixel-art redesign */}
+          <div style={{
+            background: '#2E1A2A',
+            border: '3px solid #170D14',
+            boxShadow: 'inset 2px 2px 0 0 #5A3050, inset -2px -2px 0 0 #110810, 4px 4px 0 0 #0A0508',
+            padding: '20px',
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 16,
+            imageRendering: 'pixelated' as const,
+          }}>
+            {/* Corner accents */}
+            <div style={{position:'absolute',top:6,left:6,width:12,height:2,background:'#8A4568'}}/>
+            <div style={{position:'absolute',top:6,left:6,width:2,height:12,background:'#8A4568'}}/>
+            <div style={{position:'absolute',top:6,right:6,width:12,height:2,background:'#8A4568'}}/>
+            <div style={{position:'absolute',top:6,right:6,width:2,height:12,background:'#8A4568'}}/>
+            <div style={{position:'absolute',bottom:6,left:6,width:12,height:2,background:'#8A4568'}}/>
+            <div style={{position:'absolute',bottom:6,left:6,width:2,height:12,background:'#8A4568'}}/>
+            <div style={{position:'absolute',bottom:6,right:6,width:12,height:2,background:'#8A4568'}}/>
+            <div style={{position:'absolute',bottom:6,right:6,width:2,height:12,background:'#8A4568'}}/>
+
+            {/* Left: title + description */}
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
+                <div style={{display:'flex',flexDirection:'column' as const,gap:2}}>
+                  <div style={{width:14,height:3,background:'#8A4568'}}/>
+                  <div style={{width:10,height:3,background:'#8A4568',opacity:0.6}}/>
+                  <div style={{width:6,height:3,background:'#8A4568',opacity:0.3}}/>
+                </div>
+                <span style={{
+                  fontFamily:'var(--font-pixel),monospace',
+                  fontSize:9,
+                  color:'#FFCCE8',
+                  textShadow:'2px 2px 0 #170D14',
+                  letterSpacing:'0.05em',
+                  lineHeight:1,
+                  paddingTop:2,
+                }}>
+                  GITHUB
+                </span>
+              </div>
+
+              {/* Pixel dotted divider */}
+              <div style={{
+                height:2,
+                marginBottom:10,
+                backgroundImage:'repeating-linear-gradient(90deg,#5A3050 0px,#5A3050 6px,transparent 6px,transparent 10px)',
+              }}/>
+
+              <p style={{
+                fontFamily:'var(--font-pixel),monospace',
+                fontSize:6,
+                color:'#9A6080',
+                lineHeight:1.9,
+                margin:0,
+                whiteSpace:'pre-line' as const,
+              }}>
                 {githubLogin
-                  ? `Connected as @${githubLogin} — commits are being tracked`
-                  : "Connect to track commits and earn coins automatically"}
+                  ? `CONNECTED AS @${githubLogin.toUpperCase()}\nCOMMITS ARE BEING TRACKED`
+                  : 'LINK YOUR ACCOUNT TO TRACK\nCOMMITS AND EARN COINS'}
               </p>
-              {githubError && <p className="text-red-400 text-xs mt-1">{githubError}</p>}
+              {githubError && (
+                <p style={{
+                  fontFamily:'var(--font-pixel),monospace',
+                  fontSize:6,
+                  color:'#FF6868',
+                  lineHeight:1.9,
+                  margin:'6px 0 0',
+                }}>
+                  !! {githubError.toUpperCase()}
+                </p>
+              )}
             </div>
+
+            {/* Right: connected badge or connect button */}
             {githubLogin ? (
-              <div className="flex items-center gap-2 text-emerald-400 text-sm font-medium shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
-                </svg>
-                @{githubLogin}
+              <div style={{
+                flexShrink:0,
+                display:'flex',
+                alignItems:'center',
+                gap:8,
+                background:'#1A2E1F',
+                border:'2px solid #0D1A10',
+                boxShadow:'inset 1px 1px 0 0 #2A5A35,inset -1px -1px 0 0 #0A1810,2px 2px 0 0 #050C08',
+                padding:'8px 12px',
+              }}>
+                {/* Pixel status dot */}
+                <div style={{
+                  width:8,height:8,flexShrink:0,
+                  background:'#66FF88',
+                  boxShadow:'inset 2px 2px 0 rgba(255,255,255,0.45),inset -2px -2px 0 #1A8A35,0 0 0 1px #0D1A10',
+                  imageRendering:'pixelated' as const,
+                }}/>
+                <span style={{
+                  fontFamily:'var(--font-pixel),monospace',
+                  fontSize:7,
+                  color:'#FFCCE8',
+                  textShadow:'1px 1px 0 #170D14',
+                  lineHeight:1,
+                  whiteSpace:'nowrap' as const,
+                }}>
+                  @{githubLogin}
+                </span>
               </div>
             ) : (
               <button
                 onClick={handleConnectGithub}
                 disabled={githubLoading}
-                className="shrink-0 flex items-center gap-2 bg-slate-700 hover:bg-slate-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors"
+                style={{
+                  flexShrink:0,
+                  display:'flex',
+                  alignItems:'center',
+                  gap:6,
+                  background: githubLoading ? '#3A1428' : '#6A2848',
+                  border:'3px solid #170D14',
+                  boxShadow: githubLoading
+                    ? 'inset 2px 2px 0 0 #350C20'
+                    : 'inset 2px 2px 0 0 #9A3A68,inset -2px -2px 0 0 #350C20,3px 3px 0 0 #0A0508',
+                  padding:'9px 14px',
+                  cursor: githubLoading ? 'not-allowed' as const : 'pointer' as const,
+                  opacity: githubLoading ? 0.6 : 1,
+                  transform: githubLoading ? 'translate(2px,2px)' : 'none',
+                  fontFamily:'var(--font-pixel),monospace',
+                  fontSize:7,
+                  color:'#FFCCE8',
+                  textShadow:'2px 2px 0 #170D14',
+                  lineHeight:1,
+                  imageRendering:'pixelated' as const,
+                }}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#FFCCE8">
                   <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
                 </svg>
-                {githubLoading ? "Connecting..." : "Connect GitHub"}
+                {githubLoading ? 'CONNECTING...' : 'CONNECT'}
               </button>
             )}
           </div>
