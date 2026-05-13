@@ -9,6 +9,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://gdg-hacks-3.vercel.app",
+        "https://gdg-hacks3.onrender.com",
         "http://localhost:3000",
         "http://localhost:3001",
         # "https://frontend-gules-two-30.vercel.app",
