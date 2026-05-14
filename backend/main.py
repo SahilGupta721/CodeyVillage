@@ -31,4 +31,4 @@ db.check_connection()
 
 @app.get("/")
 def root():
-    return {"status": "GDG Hacks 3 API running"}
+    return {"status": "CodeyVillage backend API running"}

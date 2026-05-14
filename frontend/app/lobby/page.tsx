@@ -153,7 +153,7 @@ export default function LobbyPage() {
 
   async function handleSignOut() {
     await signOut(auth);
-    router.push("/auth");
+    router.push("/");
   }
 
   if (!username) {
@@ -249,35 +249,35 @@ export default function LobbyPage() {
                 imageRendering: 'pixelated' as const,
               }}>
                 {/* Corner accents */}
-                <div style={{position:'absolute',top:6,left:6,width:12,height:2,background:'#7A5220'}}/>
-                <div style={{position:'absolute',top:6,left:6,width:2,height:12,background:'#7A5220'}}/>
-                <div style={{position:'absolute',top:6,right:6,width:12,height:2,background:'#7A5220'}}/>
-                <div style={{position:'absolute',top:6,right:6,width:2,height:12,background:'#7A5220'}}/>
-                <div style={{position:'absolute',bottom:6,left:6,width:12,height:2,background:'#7A5220'}}/>
-                <div style={{position:'absolute',bottom:6,left:6,width:2,height:12,background:'#7A5220'}}/>
-                <div style={{position:'absolute',bottom:6,right:6,width:12,height:2,background:'#7A5220'}}/>
-                <div style={{position:'absolute',bottom:6,right:6,width:2,height:12,background:'#7A5220'}}/>
+                <div style={{ position: 'absolute', top: 6, left: 6, width: 12, height: 2, background: '#7A5220' }} />
+                <div style={{ position: 'absolute', top: 6, left: 6, width: 2, height: 12, background: '#7A5220' }} />
+                <div style={{ position: 'absolute', top: 6, right: 6, width: 12, height: 2, background: '#7A5220' }} />
+                <div style={{ position: 'absolute', top: 6, right: 6, width: 2, height: 12, background: '#7A5220' }} />
+                <div style={{ position: 'absolute', bottom: 6, left: 6, width: 12, height: 2, background: '#7A5220' }} />
+                <div style={{ position: 'absolute', bottom: 6, left: 6, width: 2, height: 12, background: '#7A5220' }} />
+                <div style={{ position: 'absolute', bottom: 6, right: 6, width: 12, height: 2, background: '#7A5220' }} />
+                <div style={{ position: 'absolute', bottom: 6, right: 6, width: 2, height: 12, background: '#7A5220' }} />
 
                 {/* Header */}
                 <div>
-                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
-                    <div style={{display:'flex',flexDirection:'column' as const,gap:2}}>
-                      <div style={{width:14,height:3,background:'#7A5220'}}/>
-                      <div style={{width:10,height:3,background:'#7A5220',opacity:0.6}}/>
-                      <div style={{width:6,height:3,background:'#7A5220',opacity:0.3}}/>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 2 }}>
+                      <div style={{ width: 14, height: 3, background: '#7A5220' }} />
+                      <div style={{ width: 10, height: 3, background: '#7A5220', opacity: 0.6 }} />
+                      <div style={{ width: 6, height: 3, background: '#7A5220', opacity: 0.3 }} />
                     </div>
-                    <span style={{fontFamily:'var(--font-pixel),monospace',fontSize:9,color:'#FFD88A',textShadow:'2px 2px 0 #180E04',letterSpacing:'0.05em',lineHeight:1,paddingTop:2}}>
+                    <span style={{ fontFamily: 'var(--font-pixel),monospace', fontSize: 9, color: '#FFD88A', textShadow: '2px 2px 0 #180E04', letterSpacing: '0.05em', lineHeight: 1, paddingTop: 2 }}>
                       CREATE ROOM
                     </span>
                   </div>
-                  <div style={{height:2,marginBottom:10,backgroundImage:'repeating-linear-gradient(90deg,#4A2E08 0px,#4A2E08 6px,transparent 6px,transparent 10px)'}}/>
-                  <p style={{fontFamily:'var(--font-pixel),monospace',fontSize:6,color:'#7A5220',lineHeight:1.9,margin:0,whiteSpace:'pre-line' as const}}>
+                  <div style={{ height: 2, marginBottom: 10, backgroundImage: 'repeating-linear-gradient(90deg,#4A2E08 0px,#4A2E08 6px,transparent 6px,transparent 10px)' }} />
+                  <p style={{ fontFamily: 'var(--font-pixel),monospace', fontSize: 6, color: '#7A5220', lineHeight: 1.9, margin: 0, whiteSpace: 'pre-line' as const }}>
                     {'START A NEW ISLAND AND\nINVITE FRIENDS'}
                   </p>
                 </div>
 
                 {/* Form */}
-                <form onSubmit={handleCreate} style={{display:'flex',flexDirection:'column' as const,gap:10}}>
+                <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column' as const, gap: 10 }}>
                   <input
                     type="text"
                     value={roomName}
@@ -285,16 +285,16 @@ export default function LobbyPage() {
                     placeholder="ROOM NAME..."
                     maxLength={32}
                     style={{
-                      background:'#1A1005',
-                      border:'2px solid #180E04',
-                      boxShadow:'inset 2px 2px 0 0 #0C0800,inset -1px -1px 0 0 #4A3010',
-                      color:'#FFD88A',
-                      fontFamily:'var(--font-pixel),monospace',
-                      fontSize:8,
-                      padding:'11px 12px',
-                      outline:'none',
-                      width:'100%',
-                      boxSizing:'border-box' as const,
+                      background: '#1A1005',
+                      border: '2px solid #180E04',
+                      boxShadow: 'inset 2px 2px 0 0 #0C0800,inset -1px -1px 0 0 #4A3010',
+                      color: '#FFD88A',
+                      fontFamily: 'var(--font-pixel),monospace',
+                      fontSize: 8,
+                      padding: '11px 12px',
+                      outline: 'none',
+                      width: '100%',
+                      boxSizing: 'border-box' as const,
                     }}
                   />
                   <button
@@ -302,20 +302,20 @@ export default function LobbyPage() {
                     disabled={loading === "create" || !roomName.trim()}
                     style={{
                       background: loading === "create" || !roomName.trim() ? '#1F1508' : '#7A4A10',
-                      border:'3px solid #180E04',
+                      border: '3px solid #180E04',
                       boxShadow: loading === "create" || !roomName.trim()
                         ? 'inset 2px 2px 0 0 #0C0800'
                         : 'inset 2px 2px 0 0 #C07A20,inset -2px -2px 0 0 #3A1A00,3px 3px 0 0 #080400',
-                      padding:'11px 10px',
-                      fontFamily:'var(--font-pixel),monospace',
-                      fontSize:7,
+                      padding: '11px 10px',
+                      fontFamily: 'var(--font-pixel),monospace',
+                      fontSize: 7,
                       color: loading === "create" || !roomName.trim() ? '#4A2E08' : '#FFD88A',
-                      textShadow:'2px 2px 0 #180E04',
+                      textShadow: '2px 2px 0 #180E04',
                       cursor: loading === "create" || !roomName.trim() ? 'not-allowed' as const : 'pointer' as const,
                       transform: loading === "create" || !roomName.trim() ? 'translate(2px,2px)' : 'none',
-                      width:'100%',
-                      imageRendering:'pixelated' as const,
-                      letterSpacing:'0.04em',
+                      width: '100%',
+                      imageRendering: 'pixelated' as const,
+                      letterSpacing: '0.04em',
                     }}
                   >
                     {loading === "create" ? "CREATING..." : "CREATE ROOM  ▶"}
@@ -336,35 +336,35 @@ export default function LobbyPage() {
                 imageRendering: 'pixelated' as const,
               }}>
                 {/* Corner accents */}
-                <div style={{position:'absolute',top:6,left:6,width:12,height:2,background:'#4A5888'}}/>
-                <div style={{position:'absolute',top:6,left:6,width:2,height:12,background:'#4A5888'}}/>
-                <div style={{position:'absolute',top:6,right:6,width:12,height:2,background:'#4A5888'}}/>
-                <div style={{position:'absolute',top:6,right:6,width:2,height:12,background:'#4A5888'}}/>
-                <div style={{position:'absolute',bottom:6,left:6,width:12,height:2,background:'#4A5888'}}/>
-                <div style={{position:'absolute',bottom:6,left:6,width:2,height:12,background:'#4A5888'}}/>
-                <div style={{position:'absolute',bottom:6,right:6,width:12,height:2,background:'#4A5888'}}/>
-                <div style={{position:'absolute',bottom:6,right:6,width:2,height:12,background:'#4A5888'}}/>
+                <div style={{ position: 'absolute', top: 6, left: 6, width: 12, height: 2, background: '#4A5888' }} />
+                <div style={{ position: 'absolute', top: 6, left: 6, width: 2, height: 12, background: '#4A5888' }} />
+                <div style={{ position: 'absolute', top: 6, right: 6, width: 12, height: 2, background: '#4A5888' }} />
+                <div style={{ position: 'absolute', top: 6, right: 6, width: 2, height: 12, background: '#4A5888' }} />
+                <div style={{ position: 'absolute', bottom: 6, left: 6, width: 12, height: 2, background: '#4A5888' }} />
+                <div style={{ position: 'absolute', bottom: 6, left: 6, width: 2, height: 12, background: '#4A5888' }} />
+                <div style={{ position: 'absolute', bottom: 6, right: 6, width: 12, height: 2, background: '#4A5888' }} />
+                <div style={{ position: 'absolute', bottom: 6, right: 6, width: 2, height: 12, background: '#4A5888' }} />
 
                 {/* Header */}
                 <div>
-                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
-                    <div style={{display:'flex',flexDirection:'column' as const,gap:2}}>
-                      <div style={{width:14,height:3,background:'#4A5888'}}/>
-                      <div style={{width:10,height:3,background:'#4A5888',opacity:0.6}}/>
-                      <div style={{width:6,height:3,background:'#4A5888',opacity:0.3}}/>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 2 }}>
+                      <div style={{ width: 14, height: 3, background: '#4A5888' }} />
+                      <div style={{ width: 10, height: 3, background: '#4A5888', opacity: 0.6 }} />
+                      <div style={{ width: 6, height: 3, background: '#4A5888', opacity: 0.3 }} />
                     </div>
-                    <span style={{fontFamily:'var(--font-pixel),monospace',fontSize:9,color:'#A8B8FF',textShadow:'2px 2px 0 #0D1020',letterSpacing:'0.05em',lineHeight:1,paddingTop:2}}>
+                    <span style={{ fontFamily: 'var(--font-pixel),monospace', fontSize: 9, color: '#A8B8FF', textShadow: '2px 2px 0 #0D1020', letterSpacing: '0.05em', lineHeight: 1, paddingTop: 2 }}>
                       JOIN ROOM
                     </span>
                   </div>
-                  <div style={{height:2,marginBottom:10,backgroundImage:'repeating-linear-gradient(90deg,#2E3560 0px,#2E3560 6px,transparent 6px,transparent 10px)'}}/>
-                  <p style={{fontFamily:'var(--font-pixel),monospace',fontSize:6,color:'#4A5888',lineHeight:1.9,margin:0,whiteSpace:'pre-line' as const}}>
+                  <div style={{ height: 2, marginBottom: 10, backgroundImage: 'repeating-linear-gradient(90deg,#2E3560 0px,#2E3560 6px,transparent 6px,transparent 10px)' }} />
+                  <p style={{ fontFamily: 'var(--font-pixel),monospace', fontSize: 6, color: '#4A5888', lineHeight: 1.9, margin: 0, whiteSpace: 'pre-line' as const }}>
                     {'ENTER THE 6-CHAR CODE\nTO JUMP IN'}
                   </p>
                 </div>
 
                 {/* Form */}
-                <form onSubmit={handleJoin} style={{display:'flex',flexDirection:'column' as const,gap:10}}>
+                <form onSubmit={handleJoin} style={{ display: 'flex', flexDirection: 'column' as const, gap: 10 }}>
                   <input
                     type="text"
                     value={joinCode}
@@ -372,19 +372,19 @@ export default function LobbyPage() {
                     placeholder="_ _ _ _ _ _"
                     maxLength={6}
                     style={{
-                      background:'#0F1225',
-                      border:'2px solid #0D1020',
-                      boxShadow:'inset 2px 2px 0 0 #060810,inset -1px -1px 0 0 #2A3058',
-                      color:'#A8B8FF',
-                      fontFamily:'var(--font-pixel),monospace',
-                      fontSize:11,
-                      letterSpacing:'0.35em',
-                      textTransform:'uppercase' as const,
-                      padding:'11px 12px',
-                      outline:'none',
-                      width:'100%',
-                      boxSizing:'border-box' as const,
-                      textAlign:'center' as const,
+                      background: '#0F1225',
+                      border: '2px solid #0D1020',
+                      boxShadow: 'inset 2px 2px 0 0 #060810,inset -1px -1px 0 0 #2A3058',
+                      color: '#A8B8FF',
+                      fontFamily: 'var(--font-pixel),monospace',
+                      fontSize: 11,
+                      letterSpacing: '0.35em',
+                      textTransform: 'uppercase' as const,
+                      padding: '11px 12px',
+                      outline: 'none',
+                      width: '100%',
+                      boxSizing: 'border-box' as const,
+                      textAlign: 'center' as const,
                     }}
                   />
                   <button
@@ -392,20 +392,20 @@ export default function LobbyPage() {
                     disabled={loading === "join" || joinCode.trim().length !== 6}
                     style={{
                       background: loading === "join" || joinCode.trim().length !== 6 ? '#111525' : '#2A3578',
-                      border:'3px solid #0D1020',
+                      border: '3px solid #0D1020',
                       boxShadow: loading === "join" || joinCode.trim().length !== 6
                         ? 'inset 2px 2px 0 0 #060810'
                         : 'inset 2px 2px 0 0 #4A60CC,inset -2px -2px 0 0 #0F1840,3px 3px 0 0 #050810',
-                      padding:'11px 10px',
-                      fontFamily:'var(--font-pixel),monospace',
-                      fontSize:7,
+                      padding: '11px 10px',
+                      fontFamily: 'var(--font-pixel),monospace',
+                      fontSize: 7,
                       color: loading === "join" || joinCode.trim().length !== 6 ? '#2A3050' : '#A8B8FF',
-                      textShadow:'2px 2px 0 #0D1020',
+                      textShadow: '2px 2px 0 #0D1020',
                       cursor: loading === "join" || joinCode.trim().length !== 6 ? 'not-allowed' as const : 'pointer' as const,
                       transform: loading === "join" || joinCode.trim().length !== 6 ? 'translate(2px,2px)' : 'none',
-                      width:'100%',
-                      imageRendering:'pixelated' as const,
-                      letterSpacing:'0.04em',
+                      width: '100%',
+                      imageRendering: 'pixelated' as const,
+                      letterSpacing: '0.04em',
                     }}
                   >
                     {loading === "join" ? "JOINING..." : "JOIN ROOM  ▶"}
@@ -430,31 +430,31 @@ export default function LobbyPage() {
             imageRendering: 'pixelated' as const,
           }}>
             {/* Corner accents */}
-            <div style={{position:'absolute',top:6,left:6,width:12,height:2,background:'#8A4568'}}/>
-            <div style={{position:'absolute',top:6,left:6,width:2,height:12,background:'#8A4568'}}/>
-            <div style={{position:'absolute',top:6,right:6,width:12,height:2,background:'#8A4568'}}/>
-            <div style={{position:'absolute',top:6,right:6,width:2,height:12,background:'#8A4568'}}/>
-            <div style={{position:'absolute',bottom:6,left:6,width:12,height:2,background:'#8A4568'}}/>
-            <div style={{position:'absolute',bottom:6,left:6,width:2,height:12,background:'#8A4568'}}/>
-            <div style={{position:'absolute',bottom:6,right:6,width:12,height:2,background:'#8A4568'}}/>
-            <div style={{position:'absolute',bottom:6,right:6,width:2,height:12,background:'#8A4568'}}/>
+            <div style={{ position: 'absolute', top: 6, left: 6, width: 12, height: 2, background: '#8A4568' }} />
+            <div style={{ position: 'absolute', top: 6, left: 6, width: 2, height: 12, background: '#8A4568' }} />
+            <div style={{ position: 'absolute', top: 6, right: 6, width: 12, height: 2, background: '#8A4568' }} />
+            <div style={{ position: 'absolute', top: 6, right: 6, width: 2, height: 12, background: '#8A4568' }} />
+            <div style={{ position: 'absolute', bottom: 6, left: 6, width: 12, height: 2, background: '#8A4568' }} />
+            <div style={{ position: 'absolute', bottom: 6, left: 6, width: 2, height: 12, background: '#8A4568' }} />
+            <div style={{ position: 'absolute', bottom: 6, right: 6, width: 12, height: 2, background: '#8A4568' }} />
+            <div style={{ position: 'absolute', bottom: 6, right: 6, width: 2, height: 12, background: '#8A4568' }} />
 
             {/* Left: title + description */}
-            <div style={{flex:1,minWidth:0}}>
-              <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
-                <div style={{display:'flex',flexDirection:'column' as const,gap:2}}>
-                  <div style={{width:14,height:3,background:'#8A4568'}}/>
-                  <div style={{width:10,height:3,background:'#8A4568',opacity:0.6}}/>
-                  <div style={{width:6,height:3,background:'#8A4568',opacity:0.3}}/>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 2 }}>
+                  <div style={{ width: 14, height: 3, background: '#8A4568' }} />
+                  <div style={{ width: 10, height: 3, background: '#8A4568', opacity: 0.6 }} />
+                  <div style={{ width: 6, height: 3, background: '#8A4568', opacity: 0.3 }} />
                 </div>
                 <span style={{
-                  fontFamily:'var(--font-pixel),monospace',
-                  fontSize:9,
-                  color:'#FFCCE8',
-                  textShadow:'2px 2px 0 #170D14',
-                  letterSpacing:'0.05em',
-                  lineHeight:1,
-                  paddingTop:2,
+                  fontFamily: 'var(--font-pixel),monospace',
+                  fontSize: 9,
+                  color: '#FFCCE8',
+                  textShadow: '2px 2px 0 #170D14',
+                  letterSpacing: '0.05em',
+                  lineHeight: 1,
+                  paddingTop: 2,
                 }}>
                   GITHUB
                 </span>
@@ -462,18 +462,18 @@ export default function LobbyPage() {
 
               {/* Pixel dotted divider */}
               <div style={{
-                height:2,
-                marginBottom:10,
-                backgroundImage:'repeating-linear-gradient(90deg,#5A3050 0px,#5A3050 6px,transparent 6px,transparent 10px)',
-              }}/>
+                height: 2,
+                marginBottom: 10,
+                backgroundImage: 'repeating-linear-gradient(90deg,#5A3050 0px,#5A3050 6px,transparent 6px,transparent 10px)',
+              }} />
 
               <p style={{
-                fontFamily:'var(--font-pixel),monospace',
-                fontSize:6,
-                color:'#9A6080',
-                lineHeight:1.9,
-                margin:0,
-                whiteSpace:'pre-line' as const,
+                fontFamily: 'var(--font-pixel),monospace',
+                fontSize: 6,
+                color: '#9A6080',
+                lineHeight: 1.9,
+                margin: 0,
+                whiteSpace: 'pre-line' as const,
               }}>
                 {githubLogin
                   ? `CONNECTED AS @${githubLogin.toUpperCase()}\nCOMMITS ARE BEING TRACKED`
@@ -481,11 +481,11 @@ export default function LobbyPage() {
               </p>
               {githubError && (
                 <p style={{
-                  fontFamily:'var(--font-pixel),monospace',
-                  fontSize:6,
-                  color:'#FF6868',
-                  lineHeight:1.9,
-                  margin:'6px 0 0',
+                  fontFamily: 'var(--font-pixel),monospace',
+                  fontSize: 6,
+                  color: '#FF6868',
+                  lineHeight: 1.9,
+                  margin: '6px 0 0',
                 }}>
                   !! {githubError.toUpperCase()}
                 </p>
@@ -495,29 +495,29 @@ export default function LobbyPage() {
             {/* Right: connected badge or connect button */}
             {githubLogin ? (
               <div style={{
-                flexShrink:0,
-                display:'flex',
-                alignItems:'center',
-                gap:8,
-                background:'#1A2E1F',
-                border:'2px solid #0D1A10',
-                boxShadow:'inset 1px 1px 0 0 #2A5A35,inset -1px -1px 0 0 #0A1810,2px 2px 0 0 #050C08',
-                padding:'8px 12px',
+                flexShrink: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                background: '#1A2E1F',
+                border: '2px solid #0D1A10',
+                boxShadow: 'inset 1px 1px 0 0 #2A5A35,inset -1px -1px 0 0 #0A1810,2px 2px 0 0 #050C08',
+                padding: '8px 12px',
               }}>
                 {/* Pixel status dot */}
                 <div style={{
-                  width:8,height:8,flexShrink:0,
-                  background:'#66FF88',
-                  boxShadow:'inset 2px 2px 0 rgba(255,255,255,0.45),inset -2px -2px 0 #1A8A35,0 0 0 1px #0D1A10',
-                  imageRendering:'pixelated' as const,
-                }}/>
+                  width: 8, height: 8, flexShrink: 0,
+                  background: '#66FF88',
+                  boxShadow: 'inset 2px 2px 0 rgba(255,255,255,0.45),inset -2px -2px 0 #1A8A35,0 0 0 1px #0D1A10',
+                  imageRendering: 'pixelated' as const,
+                }} />
                 <span style={{
-                  fontFamily:'var(--font-pixel),monospace',
-                  fontSize:7,
-                  color:'#FFCCE8',
-                  textShadow:'1px 1px 0 #170D14',
-                  lineHeight:1,
-                  whiteSpace:'nowrap' as const,
+                  fontFamily: 'var(--font-pixel),monospace',
+                  fontSize: 7,
+                  color: '#FFCCE8',
+                  textShadow: '1px 1px 0 #170D14',
+                  lineHeight: 1,
+                  whiteSpace: 'nowrap' as const,
                 }}>
                   @{githubLogin}
                 </span>
@@ -527,25 +527,25 @@ export default function LobbyPage() {
                 onClick={handleConnectGithub}
                 disabled={githubLoading}
                 style={{
-                  flexShrink:0,
-                  display:'flex',
-                  alignItems:'center',
-                  gap:6,
+                  flexShrink: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
                   background: githubLoading ? '#3A1428' : '#6A2848',
-                  border:'3px solid #170D14',
+                  border: '3px solid #170D14',
                   boxShadow: githubLoading
                     ? 'inset 2px 2px 0 0 #350C20'
                     : 'inset 2px 2px 0 0 #9A3A68,inset -2px -2px 0 0 #350C20,3px 3px 0 0 #0A0508',
-                  padding:'9px 14px',
+                  padding: '9px 14px',
                   cursor: githubLoading ? 'not-allowed' as const : 'pointer' as const,
                   opacity: githubLoading ? 0.6 : 1,
                   transform: githubLoading ? 'translate(2px,2px)' : 'none',
-                  fontFamily:'var(--font-pixel),monospace',
-                  fontSize:7,
-                  color:'#FFCCE8',
-                  textShadow:'2px 2px 0 #170D14',
-                  lineHeight:1,
-                  imageRendering:'pixelated' as const,
+                  fontFamily: 'var(--font-pixel),monospace',
+                  fontSize: 7,
+                  color: '#FFCCE8',
+                  textShadow: '2px 2px 0 #170D14',
+                  lineHeight: 1,
+                  imageRendering: 'pixelated' as const,
                 }}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#FFCCE8">
@@ -566,31 +566,31 @@ export default function LobbyPage() {
             imageRendering: 'pixelated' as const,
           }}>
             {/* Corner accents */}
-            <div style={{position:'absolute',top:6,left:6,width:12,height:2,background:'#4A9898'}}/>
-            <div style={{position:'absolute',top:6,left:6,width:2,height:12,background:'#4A9898'}}/>
-            <div style={{position:'absolute',top:6,right:6,width:12,height:2,background:'#4A9898'}}/>
-            <div style={{position:'absolute',top:6,right:6,width:2,height:12,background:'#4A9898'}}/>
-            <div style={{position:'absolute',bottom:6,left:6,width:12,height:2,background:'#4A9898'}}/>
-            <div style={{position:'absolute',bottom:6,left:6,width:2,height:12,background:'#4A9898'}}/>
-            <div style={{position:'absolute',bottom:6,right:6,width:12,height:2,background:'#4A9898'}}/>
-            <div style={{position:'absolute',bottom:6,right:6,width:2,height:12,background:'#4A9898'}}/>
+            <div style={{ position: 'absolute', top: 6, left: 6, width: 12, height: 2, background: '#4A9898' }} />
+            <div style={{ position: 'absolute', top: 6, left: 6, width: 2, height: 12, background: '#4A9898' }} />
+            <div style={{ position: 'absolute', top: 6, right: 6, width: 12, height: 2, background: '#4A9898' }} />
+            <div style={{ position: 'absolute', top: 6, right: 6, width: 2, height: 12, background: '#4A9898' }} />
+            <div style={{ position: 'absolute', bottom: 6, left: 6, width: 12, height: 2, background: '#4A9898' }} />
+            <div style={{ position: 'absolute', bottom: 6, left: 6, width: 2, height: 12, background: '#4A9898' }} />
+            <div style={{ position: 'absolute', bottom: 6, right: 6, width: 12, height: 2, background: '#4A9898' }} />
+            <div style={{ position: 'absolute', bottom: 6, right: 6, width: 2, height: 12, background: '#4A9898' }} />
 
             {/* Header */}
-            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
-              <div style={{display:'flex',alignItems:'center',gap:8}}>
-                <div style={{display:'flex',flexDirection:'column' as const,gap:2}}>
-                  <div style={{width:14,height:3,background:'#4A9898'}}/>
-                  <div style={{width:10,height:3,background:'#4A9898',opacity:0.6}}/>
-                  <div style={{width:6,height:3,background:'#4A9898',opacity:0.3}}/>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 2 }}>
+                  <div style={{ width: 14, height: 3, background: '#4A9898' }} />
+                  <div style={{ width: 10, height: 3, background: '#4A9898', opacity: 0.6 }} />
+                  <div style={{ width: 6, height: 3, background: '#4A9898', opacity: 0.3 }} />
                 </div>
                 <span style={{
-                  fontFamily:'var(--font-pixel),monospace',
-                  fontSize:9,
-                  color:'#A8FFE8',
-                  textShadow:'2px 2px 0 #0D1F1F',
-                  letterSpacing:'0.05em',
-                  lineHeight:1,
-                  paddingTop:2,
+                  fontFamily: 'var(--font-pixel),monospace',
+                  fontSize: 9,
+                  color: '#A8FFE8',
+                  textShadow: '2px 2px 0 #0D1F1F',
+                  letterSpacing: '0.05em',
+                  lineHeight: 1,
+                  paddingTop: 2,
                 }}>
                   YOUR STATS
                 </span>
@@ -600,61 +600,61 @@ export default function LobbyPage() {
 
             {/* Pixel dotted divider */}
             <div style={{
-              height:2,
-              marginBottom:14,
-              backgroundImage:'repeating-linear-gradient(90deg,#2E6060 0px,#2E6060 6px,transparent 6px,transparent 10px)',
-            }}/>
+              height: 2,
+              marginBottom: 14,
+              backgroundImage: 'repeating-linear-gradient(90deg,#2E6060 0px,#2E6060 6px,transparent 6px,transparent 10px)',
+            }} />
 
             {/* Stat cards */}
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10}}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
               {[
-                {value:stats.leetcode_solved,label:'LEETCODE\nSOLVED',accent:'#FFD36E',gem:'#8B6200'},
-                {value:stats.commits,        label:'COMMITS\nPUSHED', accent:'#5BFFD8',gem:'#1A7060'},
-                {value:stats.jobs_applied,   label:'JOBS\nAPPLIED',   accent:'#C090FF',gem:'#5A2A9A'},
-              ].map(({value,label,accent,gem})=>(
+                { value: stats.leetcode_solved, label: 'LEETCODE\nSOLVED', accent: '#FFD36E', gem: '#8B6200' },
+                { value: stats.commits, label: 'COMMITS\nPUSHED', accent: '#5BFFD8', gem: '#1A7060' },
+                { value: stats.jobs_applied, label: 'JOBS\nAPPLIED', accent: '#C090FF', gem: '#5A2A9A' },
+              ].map(({ value, label, accent, gem }) => (
                 <div key={label} style={{
-                  background:'#0F2828',
-                  backgroundImage:'repeating-linear-gradient(0deg,rgba(0,0,0,0.12) 0px,rgba(0,0,0,0.12) 1px,transparent 1px,transparent 4px)',
-                  border:'2px solid #0D1F1F',
-                  boxShadow:'inset 2px 2px 0 0 #081818,inset -1px -1px 0 0 #2A5050',
-                  padding:'14px 6px 12px',
-                  textAlign:'center' as const,
-                  display:'flex',
-                  flexDirection:'column' as const,
-                  alignItems:'center',
-                  gap:7,
+                  background: '#0F2828',
+                  backgroundImage: 'repeating-linear-gradient(0deg,rgba(0,0,0,0.12) 0px,rgba(0,0,0,0.12) 1px,transparent 1px,transparent 4px)',
+                  border: '2px solid #0D1F1F',
+                  boxShadow: 'inset 2px 2px 0 0 #081818,inset -1px -1px 0 0 #2A5050',
+                  padding: '14px 6px 12px',
+                  textAlign: 'center' as const,
+                  display: 'flex',
+                  flexDirection: 'column' as const,
+                  alignItems: 'center',
+                  gap: 7,
                 }}>
                   {/* Gem indicator */}
                   <div style={{
-                    width:10,height:10,
-                    background:accent,
-                    boxShadow:`inset 2px 2px 0 rgba(255,255,255,0.45),inset -2px -2px 0 ${gem},0 0 0 1px #0D1F1F`,
-                    imageRendering:'pixelated' as const,
-                  }}/>
+                    width: 10, height: 10,
+                    background: accent,
+                    boxShadow: `inset 2px 2px 0 rgba(255,255,255,0.45),inset -2px -2px 0 ${gem},0 0 0 1px #0D1F1F`,
+                    imageRendering: 'pixelated' as const,
+                  }} />
                   {/* Value */}
                   <div style={{
-                    fontFamily:'var(--font-pixel),monospace',
-                    fontSize:16,
-                    color:accent,
-                    textShadow:'2px 2px 0 #0D1F1F',
-                    lineHeight:1,
+                    fontFamily: 'var(--font-pixel),monospace',
+                    fontSize: 16,
+                    color: accent,
+                    textShadow: '2px 2px 0 #0D1F1F',
+                    lineHeight: 1,
                   }}>
                     {value}
                   </div>
                   {/* Three-dot separator */}
-                  <div style={{display:'flex',gap:3}}>
-                    <div style={{width:2,height:2,background:accent,opacity:0.35}}/>
-                    <div style={{width:2,height:2,background:accent,opacity:0.7}}/>
-                    <div style={{width:2,height:2,background:accent,opacity:0.35}}/>
+                  <div style={{ display: 'flex', gap: 3 }}>
+                    <div style={{ width: 2, height: 2, background: accent, opacity: 0.35 }} />
+                    <div style={{ width: 2, height: 2, background: accent, opacity: 0.7 }} />
+                    <div style={{ width: 2, height: 2, background: accent, opacity: 0.35 }} />
                   </div>
                   {/* Label */}
                   <div style={{
-                    fontFamily:'var(--font-pixel),monospace',
-                    fontSize:6,
-                    color:'#3A8878',
-                    letterSpacing:'0.02em',
-                    lineHeight:1.8,
-                    whiteSpace:'pre-line' as const,
+                    fontFamily: 'var(--font-pixel),monospace',
+                    fontSize: 6,
+                    color: '#3A8878',
+                    letterSpacing: '0.02em',
+                    lineHeight: 1.8,
+                    whiteSpace: 'pre-line' as const,
                   }}>
                     {label}
                   </div>
