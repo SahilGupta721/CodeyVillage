@@ -73,7 +73,7 @@ export default function Home() {
 
           {/* Download button */}
           <div className="bg-[#111827] border border-indigo-700 rounded-2xl p-8 mb-6 text-center">
-            <p className="text-slate-400 text-sm mb-4">Step 1 — Get the extension</p>
+            <p className="text-slate-400 text-sm mb-4">Step 1: Get the extension</p>
             <a
               href="/extension"
               className="inline-flex items-center gap-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-8 py-4 rounded-xl transition-colors text-base"
@@ -90,7 +90,7 @@ export default function Home() {
 
           {/* Detailed instructions */}
           <div className="bg-[#111827] border border-slate-700 rounded-2xl p-8 mb-6">
-            <p className="text-slate-400 text-sm mb-6">Step 2 — Install in Chrome</p>
+            <p className="text-slate-400 text-sm mb-6">Step 2: Install in Chrome</p>
             <ol className="flex flex-col gap-5">
               <Instruction
                 number="1"
@@ -131,7 +131,7 @@ export default function Home() {
 
           {/* Sign in CTA */}
           <div className="bg-[#111827] border border-slate-700 rounded-2xl p-8 text-center">
-            <p className="text-slate-400 text-sm mb-2">Step 3 — Create your account</p>
+            <p className="text-slate-400 text-sm mb-2">Step 3: Create your account</p>
             <p className="text-slate-500 text-xs mb-5">Sign in with Google to start earning coins and building your island.</p>
             <button
               onClick={() => router.push("/auth")}

@@ -151,6 +151,16 @@ export default function LobbyPage() {
     }
   }
 
+  async function handleDisconnectGithub() {
+    if (!uid) return;
+    setGithubLogin(null);
+    await fetch(`${BACKEND_URL}/users/${uid}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ github_username: null }),
+    }).catch(() => { });
+  }
+
   async function handleSignOut() {
     await signOut(auth);
     router.push("/");
@@ -521,6 +531,28 @@ export default function LobbyPage() {
                 }}>
                   @{githubLogin}
                 </span>
+                {/* Disconnect button — INSIDE the same div as badge */}
+                <button
+                  onClick={handleDisconnectGithub}
+                  title="Disconnect GitHub"
+                  style={{
+                    background: '#3A1428',
+                    border: '2px solid #170D14',
+                    boxShadow: 'inset 1px 1px 0 0 #5A2040,inset -1px -1px 0 0 #1A0810,2px 2px 0 0 #0A0508',
+                    padding: '8px 9px',
+                    cursor: 'pointer' as const,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#FF6868',
+                    fontSize: 10,
+                    lineHeight: 1,
+                    fontFamily: 'monospace',
+                  }}
+                >
+                  ✕
+                </button>
+
               </div>
             ) : (
               <button
@@ -664,7 +696,7 @@ export default function LobbyPage() {
           </div>
 
         </div>
-      </main>
-    </div>
+      </main >
+    </div >
   );
 }
