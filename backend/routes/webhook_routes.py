@@ -10,6 +10,7 @@ COINS_PER_COMMIT = 25
 
 @router.post("/webhook/github")
 async def github_webhook(request: Request):
+    print("🔔 GitHub webhook received")  # add this
     payload = await request.json()
 
     pusher_name = payload.get("pusher", {}).get("name")
