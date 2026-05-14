@@ -1,4 +1,6 @@
+// Production Next.js app (sign-in + auth bridge). Keep in sync with Vercel.
 const WEB_APP_URL = "https://codey-village-six.vercel.app";
+const WEB_APP_URL_LOCAL = "http://localhost:3000";
 const BACKEND_URL = "https://gdg-hacks3.onrender.com";
 
 const COIN_VALUES = { leetcode_accepted: 50, github_commit: 25, job_application: 25 };
@@ -30,7 +32,7 @@ function playDing() {
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + 0.6);
-  } catch {}
+  } catch { }
 }
 
 async function init() {
@@ -81,9 +83,13 @@ function renderLoginGate() {
     <div class="brand">Codey Village</div>
     <p class="auth-sub">Code. Earn coins. Beat your friends.</p>
     <button id="loginBtn">Sign in with Google</button>
+    <button id="loginLocalBtn" class="btn-secondary">Sign in (localhost)</button>
   `;
   document.getElementById("loginBtn").addEventListener("click", () => {
     chrome.tabs.create({ url: WEB_APP_URL + "/auth" });
+  });
+  document.getElementById("loginLocalBtn").addEventListener("click", () => {
+    chrome.tabs.create({ url: WEB_APP_URL_LOCAL + "/auth" });
   });
 }
 
@@ -172,7 +178,7 @@ async function fetchCoinsFromBackend(uid) {
       await chrome.storage.local.set({ coins: data.coins });
       return data.coins;
     }
-  } catch {}
+  } catch { }
   const { coins = 0 } = await chrome.storage.local.get("coins");
   return coins;
 }
@@ -184,7 +190,7 @@ async function fetchGithubStatus(uid) {
       const data = await res.json();
       return data.github_username || null;
     }
-  } catch {}
+  } catch { }
   return null;
 }
 
@@ -252,7 +258,7 @@ async function renderWeeklySummary(uid) {
         </div>
       </div>
     `;
-  } catch {}
+  } catch { }
 }
 
 async function renderLeaderboard(uid) {
@@ -290,7 +296,7 @@ async function renderLeaderboard(uid) {
         ${rows}
       </div>
     `;
-  } catch {}
+  } catch { }
 }
 
 function buildEntryHTML(entry) {
@@ -341,7 +347,7 @@ async function renderLog(uid) {
     try {
       const res = await fetch(`${BACKEND_URL}/coins/${uid}/recent?limit=20`);
       if (res.ok) backendEntries = await res.json();
-    } catch {}
+    } catch { }
   }
 
   // Normalise backend entries to same shape as local entries

@@ -55,6 +55,24 @@ body {
   background: #4338ca;
 }
 
+.btn-secondary {
+  width: 100%;
+  padding: 8px 14px;
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.btn-secondary:hover {
+  border-color: #64748b;
+  color: #cbd5e1;
+}
+
 /* ── Logged-in header ── */
 .user-row {
   display: flex;
