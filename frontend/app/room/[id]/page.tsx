@@ -14,6 +14,8 @@ export default function RoomPage() {
     const [username, setUsername] = useState<string | null>(null);
     const [room, setRoom] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
+    const [memberNames, setMemberNames] = useState<Record<string, string>>({});
+
 
     useEffect(() => {
         if (!room_id) return;
@@ -43,6 +45,22 @@ export default function RoomPage() {
         const interval = setInterval(fetchRoom, 10000);
         return () => clearInterval(interval);
     }, [room_id]);
+
+    useEffect(() => {
+        if (!room?.members) return;
+        Promise.all(
+            room.members.map((id: string) =>
+                fetch(`${BACKEND_URL}/users/${id}`)
+                    .then((r) => r.ok ? r.json() : null)
+                    .then((data) => ({ id, name: data?.username || id.slice(0, 8) }))
+                    .catch(() => ({ id, name: id.slice(0, 8) }))
+            )
+        ).then((results) => {
+            const map: Record<string, string> = {};
+            results.forEach(({ id, name }) => { map[id] = name; });
+            setMemberNames(map);
+        });
+    }, [room]);
 
     function handleLeave() {
         fetch(`${BACKEND_URL}/rooms/${room_id}/leave?user_id=${uid}`, {
@@ -100,7 +118,9 @@ export default function RoomPage() {
                                 <div key={memberId} className="flex items-center gap-3 bg-[#0a0e1a] rounded-xl px-4 py-3">
                                     <div className="w-2 h-2 rounded-full bg-emerald-400" />
                                     <span className="text-white text-sm font-mono">
-                                        {memberId === uid ? `${username} (you)` : memberId}
+                                        {memberId === uid
+                                            ? `${username} (you)`
+                                            : memberNames[memberId] || memberId.slice(0, 8)}
                                     </span>
                                     {memberId === room.host_id && (
                                         <span className="ml-auto text-xs text-yellow-400">host</span>

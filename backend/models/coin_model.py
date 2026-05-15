@@ -10,3 +10,8 @@ class AddCoinsRequest(BaseModel):
 
 class LeaderboardRequest(BaseModel):
     uids: List[str]
+
+class SpendCoinsRequest(BaseModel):
+    uid: str
+    amount: int
+    item: Optional[str] = None

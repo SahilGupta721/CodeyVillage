@@ -2,6 +2,8 @@ from fastapi import APIRouter, Query
 from controllers.coin_controller import add_coins, get_coins, get_leaderboard, get_weekly_stats
 from models.coin_model import AddCoinsRequest, LeaderboardRequest
 from database.database import coin_ledger_collection
+from models.coin_model import AddCoinsRequest, LeaderboardRequest, SpendCoinsRequest
+from controllers.coin_controller import add_coins, get_coins, get_leaderboard, get_weekly_stats, spend_coins
 
 router = APIRouter()
 
@@ -12,6 +14,11 @@ def credit_coins(data: AddCoinsRequest):
 @router.post("/leaderboard")
 def leaderboard(data: LeaderboardRequest):
     return get_leaderboard(data.uids)
+
+
+@router.post("/spend")
+def deduct_coins(data: SpendCoinsRequest):
+    return spend_coins(data)
 
 @router.get("/{uid}/weekly")
 def weekly_stats(uid: str):

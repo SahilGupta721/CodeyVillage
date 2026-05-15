@@ -86,3 +86,25 @@ def get_weekly_stats(uid: str):
         "commits": counts.get("github_commit", 0),
         "jobs": counts.get("job_application", 0),
     }
+
+def spend_coins(data):
+    user = users_collection.find_one({"_id": data.uid}, {"coins": 1})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if user["coins"] < data.amount:
+        raise HTTPException(status_code=400, detail="Not enough coins")
+    
+    result = users_collection.find_one_and_update(
+        {"_id": data.uid},
+        {"$inc": {"coins": -data.amount}},
+        return_document=True,
+    )
+    coin_ledger_collection.insert_one({
+        "uid": data.uid,
+        "activity_type": "purchase",
+        "amount": -data.amount,
+        "details": {"item": data.item},
+        "balance_after": result["coins"],
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    })
+    return {"coins": result["coins"], "spent": data.amount}

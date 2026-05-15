@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import ShopPanel, { type ShopPanelHandle } from '../components/shop/ShopPanel';
 import type PhaserType from 'phaser';
 import { auth } from '../../lib/firebase';
+import { useRouter } from 'next/navigation';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
 
@@ -16,6 +17,7 @@ export default function PhaserGame({ roomId }: Props) {
   const shopRef = useRef<ShopPanelHandle>(null);
   const aliveRef = useRef(true);
   const [coins, setCoins] = useState<number | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const uid = auth.currentUser?.uid ?? localStorage.getItem('firebaseUid');
@@ -23,7 +25,7 @@ export default function PhaserGame({ roomId }: Props) {
     fetch(`${BACKEND_URL}/coins/${uid}`)
       .then((r) => r.ok ? r.json() : null)
       .then((data) => { if (data?.coins != null) setCoins(data.coins); })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   useEffect(() => {
@@ -146,12 +148,21 @@ export default function PhaserGame({ roomId }: Props) {
       />
       <button style={{ ...btnStyle, bottom: 16, right: 16 }} onClick={() => getGameScene()?.zoomIn()}>+</button>
       <button style={{ ...btnStyle, bottom: 16, right: 64 }} onClick={() => getGameScene()?.zoomOut()}>−</button>
-      <button
+
+      {/* <button
         style={{ ...btnStyle, bottom: 16, right: 112, fontSize: 18 }}
         onClick={() => getGameScene()?.toggleEraseMode()}
         title="Toggle erase mode"
       >
         ⌫
+      </button> */}
+
+      <button
+        style={{ ...btnStyle, bottom: 16, right: 112, fontSize: 18 }}
+        onClick={() => router.push('/lobby')}
+        title="Back to lobby"
+      >
+        ✕
       </button>
       <ShopPanel ref={shopRef} coins={coins ?? undefined} onBuy={handleBuy} />
     </div>

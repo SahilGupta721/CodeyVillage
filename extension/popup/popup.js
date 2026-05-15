@@ -11,6 +11,7 @@ const ENTRY_ICONS = {
   leetcode_accepted: "⚡",
   github_commit: "📦",
   job_application: "💼",
+  purchase: "🛒",
 };
 
 function formatSlug(slug) {
@@ -94,7 +95,7 @@ function renderLoginGate() {
 }
 
 async function renderMain(uid, username) {
-  const { coins: cachedCoins = 0 } = await chrome.storage.local.get("coins");
+  //const { coins: cachedCoins = 0 } = await chrome.storage.local.get("coins");
 
   document.getElementById("auth-section").innerHTML = `
     <div class="user-row">
@@ -115,7 +116,7 @@ async function renderMain(uid, username) {
           <rect x="44" y="24" width="4"  height="4"  fill="#f87171"/>
           <rect x="40" y="28" width="4"  height="4"  fill="#4ade80"/>
         </svg>${username || "Player"}</span>
-      <span class="coin-badge" id="coinCount">${COIN_SVG} ${cachedCoins}</span>
+      <span class="coin-badge" id="coinCount">${COIN_SVG} …</span>
       <button id="signoutBtn">Sign out</button>
     </div>
   `;
@@ -300,7 +301,11 @@ async function renderLeaderboard(uid) {
 }
 
 function buildEntryHTML(entry) {
-  const coins = COIN_VALUES[entry.type] ?? 0;
+  const coins = entry.type === "purchase"
+    ? Math.abs(entry.amount ?? 0)
+    : (COIN_VALUES[entry.type] ?? 0);
+
+  const coinsDisplay = entry.type === "purchase" ? `-${coins}` : `+${coins}`;
   const icon = ENTRY_ICONS[entry.type] ?? "•";
   const time = new Date(entry.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
@@ -319,6 +324,10 @@ function buildEntryHTML(entry) {
     const match = (entry.details?.url || "").match(/\/\/([^.]+)/);
     sub = match ? match[1] : "";
   }
+  else if (entry.type === "purchase") {
+    title = "Shop Purchase";
+    sub = entry.details?.item || "";
+  }
 
   return `
     <div class="entry">
@@ -328,7 +337,7 @@ function buildEntryHTML(entry) {
         ${sub ? `<span class="entry-sub">${sub}</span>` : ""}
       </div>
       <div class="entry-meta">
-        <span class="entry-coins">${COIN_SVG} +${coins}</span>
+        <span class="entry-coins">${COIN_SVG} ${coinsDisplay}</span>
         <span class="entry-time">${time}</span>
       </div>
     </div>
@@ -353,6 +362,7 @@ async function renderLog(uid) {
   // Normalise backend entries to same shape as local entries
   const backendNormalised = backendEntries.map((e) => ({
     type: e.activity_type,
+    amount: e.amount,
     timestamp: e.timestamp,
     details: e.details || {},
     source: "backend",
