@@ -4,6 +4,9 @@ from datetime import datetime, timezone
 from fastapi import HTTPException
 from database.database import rooms_collection
 from models.room_model import CreateRoomRequest, JoinRoomRequest
+from bson import ObjectId
+from datetime import datetime, timezone    
+
 
 def generate_code(length=6):
     chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
@@ -66,7 +69,6 @@ def join_room(data: JoinRoomRequest):
     return {"room_id": room_id, "name": room["name"], "code": room["code"], "already_member": False}
 
 def get_room(room_id: str):
-    from bson import ObjectId
     try:
         room = rooms_collection.find_one({"_id": ObjectId(room_id)})
     except Exception:
@@ -85,7 +87,7 @@ def get_room(room_id: str):
     }
 
 def leave_room(room_id: str, user_id: str):
-    from bson import ObjectId
+    
     try:
         room = rooms_collection.find_one({"_id": ObjectId(room_id)})
     except Exception:
@@ -100,3 +102,31 @@ def leave_room(room_id: str, user_id: str):
     )
 
     return {"message": "Left room successfully"}
+
+def ping_room(room_id: str, user_id: str):
+    try:
+        oid = ObjectId(room_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid room ID")
+
+    now = datetime.now(timezone.utc).timestamp()
+
+    # Update this user's last ping
+    rooms_collection.update_one(
+        {"_id": oid},
+        {"$set": {f"pings.{user_id}": now}}
+    )
+
+    # Get room and calculate who's active (pinged within last 30 seconds)
+    room = rooms_collection.find_one({"_id": oid})
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found")
+
+    pings = room.get("pings", {})
+    active_members = [
+        uid for uid in room.get("members", [])
+        if now - pings.get(uid, 0) <= 30
+    ]
+
+    return {"active_members": active_members}
+

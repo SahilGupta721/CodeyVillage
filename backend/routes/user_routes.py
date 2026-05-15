@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from models.user_model import User, UserUpsertRequest, ConnectGithubRequest
 from controllers.user_controller import (
     create_user, upsert_user, get_user, get_user_by_email,
-    update_user, delete_user, connect_github, get_stats,
+    update_user, delete_user, connect_github, get_stats, update_username,
 )
 from database.database import users_collection
 from services.github_service import create_webhooks_for_user
@@ -57,3 +57,7 @@ async def refresh_webhooks(uid: str):
         return {"ok": False, "error": "No GitHub token found — reconnect GitHub first"}
     updated = await create_webhooks_for_user(user["github_token"])
     return {"ok": True, "updated": updated}
+
+@router.patch("/{uid}/username")
+def update_username_route(uid: str, username: str):
+    return update_username(uid, username)

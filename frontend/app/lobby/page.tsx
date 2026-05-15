@@ -26,6 +26,10 @@ export default function LobbyPage() {
   const [error, setError] = useState<string | null>(null);
   const [activeRoom, setActiveRoom] = useState<{ room_id: string; name: string; code: string; host_id: string } | null>(null);
 
+  const [editingUsername, setEditingUsername] = useState(false);
+  const [newUsername, setNewUsername] = useState("");
+  const [usernameLoading, setUsernameLoading] = useState(false);
+
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
       if (!user) {
@@ -165,6 +169,24 @@ export default function LobbyPage() {
     await signOut(auth);
     router.push("/");
   }
+  async function handleUpdateUsername() {
+    const trimmed = newUsername.trim();
+    if (!trimmed || !uid) return;
+    setUsernameLoading(true);
+    try {
+      const res = await fetch(`${BACKEND_URL}/users/${uid}/username?username=${encodeURIComponent(trimmed)}`, {
+        method: "PATCH",
+      });
+      if (!res.ok) throw new Error("Failed to update");
+      localStorage.setItem(`username:${uid}`, trimmed);
+      setUsername(trimmed);
+      setEditingUsername(false);
+    } catch {
+      setError("Failed to update username.");
+    } finally {
+      setUsernameLoading(false);
+    }
+  }
 
   if (!username) {
     return (
@@ -184,9 +206,14 @@ export default function LobbyPage() {
         </div>
         <div className="flex items-center gap-4">
           <span className="text-slate-400 text-sm">
-            Hey, <span className="text-white font-medium">{username}</span>
-          </span>
-          <button
+            Hey,{" "}
+            <button
+              onClick={() => { setNewUsername(username ?? ""); setEditingUsername(true); }}
+              className="text-white font-medium hover:text-indigo-400 transition-colors underline underline-offset-2 cursor-pointer"
+            >
+              {username}
+            </button>
+          </span>  <button
             onClick={handleSignOut}
             className="text-slate-500 hover:text-slate-300 text-sm transition-colors"
           >
@@ -715,6 +742,36 @@ export default function LobbyPage() {
 
         </div>
       </main>
+      {editingUsername && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-[#111827] border border-slate-700 rounded-2xl p-6 w-full max-w-sm flex flex-col gap-4">
+            <h2 className="text-white font-semibold">Update Username</h2>
+            <input
+              type="text"
+              value={newUsername}
+              onChange={(e) => setNewUsername(e.target.value)}
+              maxLength={20}
+              placeholder="New username..."
+              className="bg-[#0a0e1a] border border-slate-700 text-white px-4 py-3 rounded-xl text-sm outline-none focus:border-indigo-500"
+            />
+            <div className="flex gap-3">
+              <button
+                onClick={handleUpdateUsername}
+                disabled={usernameLoading || !newUsername.trim()}
+                className="flex-1 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white font-medium py-3 rounded-xl text-sm transition-colors"
+              >
+                {usernameLoading ? "Saving..." : "Save"}
+              </button>
+              <button
+                onClick={() => setEditingUsername(false)}
+                className="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-300 font-medium py-3 rounded-xl text-sm transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -11,6 +11,11 @@ const pixelFont = Press_Start_2P({
 export const metadata: Metadata = {
   title: "Codey Village",
   description: "Code your way to a mansion. Earn coins. Build your village.",
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  },
 };
 
 export default function RootLayout({

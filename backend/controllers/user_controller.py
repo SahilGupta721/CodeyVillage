@@ -105,3 +105,12 @@ async def connect_github(data: ConnectGithubRequest):
     )
 
     return {"github_login": login, "webhooks_created": webhooks_created}
+
+def update_username(uid: str, username: str):
+    result = users_collection.update_one(
+        {"_id": uid},
+        {"$set": {"username": username}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"message": "Username updated successfully"}

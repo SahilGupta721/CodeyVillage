@@ -224,7 +224,7 @@ export class GameScene extends Phaser.Scene {
     for (const npc of this.npcs) npc.update(delta, this.col);
 
     if (this.leafEmitter) {
-      const cam   = this.cameras.main;
+      const cam = this.cameras.main;
       const viewW = cam.width / cam.zoom;
       this.leafEmitter.setPosition(cam.scrollX + viewW * 0.5, cam.scrollY - 12);
       this.leafEmitter.forEachAlive((p: Phaser.GameObjects.Particles.Particle) => {
@@ -393,6 +393,11 @@ export class GameScene extends Phaser.Scene {
       const rp = this.remotePlayers.get(uid)!;
       rp.targetX = x;
       rp.targetY = y;
+      // Update label if username changed or was missing
+      if (username) {
+        const label = rp.container.getAt(1) as Phaser.GameObjects.Text;
+        if (label && label.setText) label.setText(username);
+      }
     }
   }
 
@@ -775,9 +780,9 @@ export class GameScene extends Phaser.Scene {
         this.tweens.chain({
           targets: flower,
           tweens: [
-            { rotation: angle,         duration: 180, ease: 'Sine.easeOut'   },
+            { rotation: angle, duration: 180, ease: 'Sine.easeOut' },
             { rotation: angle * -0.35, duration: 140, ease: 'Sine.easeInOut' },
-            { rotation: 0,             duration: 220, ease: 'Sine.easeOut'   },
+            { rotation: 0, duration: 220, ease: 'Sine.easeOut' },
           ],
         });
       });
@@ -787,7 +792,7 @@ export class GameScene extends Phaser.Scene {
   // ─── Leaf ambient particles ───────────────────────────────────────────────
 
   private addLeafParticles(): void {
-    const cam   = this.cameras.main;
+    const cam = this.cameras.main;
     const viewW = cam.width / cam.zoom;
 
     this.leafEmitter = this.add.particles(

@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from models.room_model import CreateRoomRequest, JoinRoomRequest
-from controllers.room_controller import create_room, join_room, get_room, leave_room, get_user_room
+from controllers.room_controller import create_room, join_room, get_room, leave_room, get_user_room, ping_room
 
 router = APIRouter()
 
@@ -23,3 +23,7 @@ def get_room_route(room_id: str):
 @router.delete("/{room_id}/leave")
 def leave_room_route(room_id: str, user_id: str):
     return leave_room(room_id, user_id)
+
+@router.post("/{room_id}/ping")
+def ping_room_route(room_id: str, user_id: str):
+    return ping_room(room_id, user_id)

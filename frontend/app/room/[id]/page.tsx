@@ -15,7 +15,7 @@ export default function RoomPage() {
     const [room, setRoom] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
     const [memberNames, setMemberNames] = useState<Record<string, string>>({});
-
+    const [activeMembers, setActiveMembers] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         if (!room_id) return;
@@ -61,6 +61,18 @@ export default function RoomPage() {
             setMemberNames(map);
         });
     }, [room]);
+
+    // Ping to stay active + track who's active
+    useEffect(() => {
+        if (!uid || !room_id) return;
+        const ping = () => fetch(`${BACKEND_URL}/rooms/${room_id}/ping?user_id=${uid}`, { method: 'POST' })
+            .then(r => r.ok ? r.json() : null)
+            .then(data => { if (data?.active_members) setActiveMembers(new Set(data.active_members)); })
+            .catch(() => { });
+        ping();
+        const interval = setInterval(ping, 15000);
+        return () => clearInterval(interval);
+    }, [uid, room_id]);
 
     function handleLeave() {
         fetch(`${BACKEND_URL}/rooms/${room_id}/leave?user_id=${uid}`, {
@@ -114,19 +126,25 @@ export default function RoomPage() {
                             Players ({room.members?.length || 0})
                         </h2>
                         <div className="flex flex-col gap-2">
-                            {room.members?.map((memberId: string) => (
-                                <div key={memberId} className="flex items-center gap-3 bg-[#0a0e1a] rounded-xl px-4 py-3">
-                                    <div className="w-2 h-2 rounded-full bg-emerald-400" />
-                                    <span className="text-white text-sm font-mono">
-                                        {memberId === uid
-                                            ? `${username} (you)`
-                                            : memberNames[memberId] || memberId.slice(0, 8)}
-                                    </span>
-                                    {memberId === room.host_id && (
-                                        <span className="ml-auto text-xs text-yellow-400">host</span>
-                                    )}
-                                </div>
-                            ))}
+                            {[...(room.members || [])]
+                                .sort((a, b) => (activeMembers.has(b) ? 1 : 0) - (activeMembers.has(a) ? 1 : 0))
+                                .map((memberId: string) => {
+                                    const isActive = memberId === uid || activeMembers.has(memberId);
+                                    return (
+                                        <div key={memberId} className="flex items-center gap-3 bg-[#0a0e1a] rounded-xl px-4 py-3">
+                                            <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-emerald-400' : 'bg-slate-600'}`} />
+                                            <span className={`text-sm font-mono ${isActive ? 'text-white' : 'text-slate-500'}`}>
+                                                {memberId === uid
+                                                    ? `${username} (you)`
+                                                    : memberNames[memberId] || memberId.slice(0, 8)}
+                                                {!isActive && <span className="ml-2 text-xs text-slate-600">inactive</span>}
+                                            </span>
+                                            {memberId === room.host_id && (
+                                                <span className="ml-auto text-xs text-yellow-400">host</span>
+                                            )}
+                                        </div>
+                                    );
+                                })}
                         </div>
                     </div>
 
