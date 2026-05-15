@@ -714,7 +714,7 @@ export default function LobbyPage() {
           </div>
 
         </div>
-      </main >
-    </div >
+      </main>
+    </div>
   );
 }

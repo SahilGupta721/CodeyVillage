@@ -5,6 +5,72 @@ import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../lib/firebase";
 
+// ── colour schemes ────────────────────────────────────────────────────────────
+interface S {
+  bg: string; border: string; hi: string; lo: string;
+  drop: string; accent: string; text: string; dim: string;
+}
+const AMBER: S    = { bg:'#2D1F0A', border:'#180E04', hi:'#5A3A10', lo:'#110800', drop:'#080400', accent:'#7A5220', text:'#FFD88A', dim:'#4A2E08' };
+const SAPPHIRE: S = { bg:'#1A1E35', border:'#0D1020', hi:'#2E3560', lo:'#080A18', drop:'#050810', accent:'#4A5888', text:'#A8B8FF', dim:'#2E3560' };
+const PURPLE: S   = { bg:'#2E1A2A', border:'#170D14', hi:'#5A3050', lo:'#110810', drop:'#0A0508', accent:'#8A4568', text:'#FFCCE8', dim:'#5A3050' };
+
+// ── reusable pixel panel ──────────────────────────────────────────────────────
+function PixelCard({ s, step, heading, children }: { s: S; step: string; heading: string; children: React.ReactNode }) {
+  return (
+    <div style={{ background: s.bg, border: `3px solid ${s.border}`, boxShadow: `inset 2px 2px 0 0 ${s.hi},inset -2px -2px 0 0 ${s.lo},4px 4px 0 0 ${s.drop}`, padding: 20, position: 'relative', imageRendering: 'pixelated' as const }}>
+      {/* corner accents */}
+      <div style={{ position:'absolute', top:6, left:6,  width:12, height:2, background:s.accent }} />
+      <div style={{ position:'absolute', top:6, left:6,  width:2, height:12, background:s.accent }} />
+      <div style={{ position:'absolute', top:6, right:6, width:12, height:2, background:s.accent }} />
+      <div style={{ position:'absolute', top:6, right:6, width:2, height:12, background:s.accent }} />
+      <div style={{ position:'absolute', bottom:6, left:6,  width:12, height:2, background:s.accent }} />
+      <div style={{ position:'absolute', bottom:6, left:6,  width:2, height:12, background:s.accent }} />
+      <div style={{ position:'absolute', bottom:6, right:6, width:12, height:2, background:s.accent }} />
+      <div style={{ position:'absolute', bottom:6, right:6, width:2, height:12, background:s.accent }} />
+
+      {/* header */}
+      <div style={{ marginBottom: 14 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:8 }}>
+          <div style={{ display:'flex', flexDirection:'column' as const, gap:2 }}>
+            <div style={{ width:14, height:3, background:s.accent }} />
+            <div style={{ width:10, height:3, background:s.accent, opacity:0.6 }} />
+            <div style={{ width:6,  height:3, background:s.accent, opacity:0.3 }} />
+          </div>
+          <span style={{ fontFamily:'var(--font-pixel),monospace', fontSize:7, color:s.dim, letterSpacing:'0.05em', lineHeight:1, paddingTop:2 }}>
+            STEP {step}
+          </span>
+          <span style={{ fontFamily:'var(--font-pixel),monospace', fontSize:9, color:s.text, textShadow:`2px 2px 0 ${s.border}`, letterSpacing:'0.05em', lineHeight:1, paddingTop:2 }}>
+            {heading}
+          </span>
+        </div>
+        <div style={{ height:2, backgroundImage:`repeating-linear-gradient(90deg,${s.accent} 0px,${s.accent} 6px,transparent 6px,transparent 10px)` }} />
+      </div>
+
+      {children}
+    </div>
+  );
+}
+
+// ── numbered instruction row ──────────────────────────────────────────────────
+function PixelStep({ n, s, title, children }: { n: string; s: S; title: string; children: React.ReactNode }) {
+  return (
+    <div style={{ display:'flex', gap:12, alignItems:'flex-start' }}>
+      <div style={{ flexShrink:0, width:18, height:18, background:s.bg, border:`2px solid ${s.accent}`, boxShadow:`inset 1px 1px 0 0 ${s.hi}`, display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'var(--font-pixel),monospace', fontSize:7, color:s.text, lineHeight:1, marginTop:1 }}>
+        {n}
+      </div>
+      <div>
+        <div style={{ fontFamily:'var(--font-pixel),monospace', fontSize:7, color:s.text, letterSpacing:'0.03em', lineHeight:1, marginBottom:6 }}>
+          {title}
+        </div>
+        <div style={{ fontFamily:'var(--font-pixel),monospace', fontSize:6, color:s.dim, lineHeight:1.9, letterSpacing:'0.02em' }}>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── page ──────────────────────────────────────────────────────────────────────
 export default function Home() {
   const router = useRouter();
   const [checking, setChecking] = useState(true);
@@ -23,147 +89,128 @@ export default function Home() {
 
   if (checking) {
     return (
-      <div className="w-screen h-screen flex items-center justify-center bg-[#0a0e1a]">
-        <div className="text-slate-600 text-sm">Loading…</div>
+      <div style={{ width:'100vw', height:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'#0a0e1a' }}>
+        <div style={{ fontFamily:'var(--font-pixel),monospace', fontSize:8, color:'#5A6888' }}>LOADING...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0e1a] flex flex-col">
+    <div style={{ minHeight:'100vh', background:'#0a0e1a', display:'flex', flexDirection:'column' as const }}>
 
-      {/* Nav */}
-      <header className="border-b border-slate-800 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <img src="/logo.svg" width={28} height={28} alt="Codey Village" className="rounded" />
-          <span className="text-white font-bold text-lg tracking-tight">Codey Village</span>
+      {/* ── nav ── */}
+      <header style={{ borderBottom:'1px solid #1A2030', padding:'16px 24px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+          <img src="/logo.svg" width={28} height={28} alt="Codey Village" style={{ imageRendering:'pixelated' as const }} />
+          <span style={{ fontFamily:'var(--font-pixel),monospace', fontSize:10, color:'#FFD88A', textShadow:'2px 2px 0 #080400', letterSpacing:'0.05em' }}>
+            CODEY VILLAGE
+          </span>
         </div>
         <button
           onClick={() => router.push("/auth")}
-          className="text-slate-400 hover:text-white text-sm transition-colors"
+          style={{ fontFamily:'var(--font-pixel),monospace', fontSize:7, color:'#A8B8FF', background:'transparent', border:'none', cursor:'pointer', letterSpacing:'0.05em', textShadow:'1px 1px 0 #0D1020' }}
         >
-          Sign in →
+          SIGN IN  ▶
         </button>
       </header>
 
-      <main className="flex-1 flex flex-col items-center px-6 py-16">
+      <main style={{ flex:1, display:'flex', flexDirection:'column' as const, alignItems:'center', padding:'48px 24px' }}>
 
-        {/* Hero */}
-        <div className="text-center mb-16">
-          <div className="flex justify-center mb-6">
-            <img src="/logo.svg" width={80} height={80} alt="Codey Village" className="rounded-2xl shadow-lg shadow-indigo-900/40" />
+        {/* ── hero ── */}
+        <div style={{ textAlign:'center' as const, marginBottom:48, maxWidth:600 }}>
+          <div style={{ display:'flex', justifyContent:'center', marginBottom:20 }}>
+            <img src="/logo.svg" width={72} height={72} alt="Codey Village" style={{ imageRendering:'pixelated' as const }} />
           </div>
-          <h1 className="text-4xl font-bold text-white tracking-tight mb-4">
-            Code your way to a mansion.
+          <h1 style={{ fontFamily:'var(--font-pixel),monospace', fontSize:18, color:'#FFD88A', textShadow:'3px 3px 0 #080400', letterSpacing:'0.08em', lineHeight:1.5, textTransform:'uppercase' as const, margin:'0 0 16px', imageRendering:'pixelated' as const }}>
+            CODE YOUR WAY<br />TO A MANSION.
           </h1>
-          <p className="text-slate-400 text-lg max-w-lg mx-auto mb-8">
-            Solve LeetCode, push commits, and apply to jobs. Earn coins and build your island with friends.
+          <p style={{ fontFamily:'var(--font-pixel),monospace', fontSize:7, color:'#5A6888', lineHeight:1.9, letterSpacing:'0.03em', marginBottom:28 }}>
+            SOLVE LEETCODE, PUSH COMMITS, AND APPLY TO JOBS.<br />
+            EARN COINS AND BUILD YOUR DREAM VILLAGE WITH FRIENDS.
           </p>
-          <div className="flex items-center justify-center gap-6 text-sm">
-            <span className="text-yellow-400 font-semibold">⚡ +50 🪙 per LeetCode solve</span>
-            <span className="text-slate-700">·</span>
-            <span className="text-yellow-400 font-semibold">📦 +25 🪙 per commit</span>
-            <span className="text-slate-700">·</span>
-            <span className="text-yellow-400 font-semibold">💼 +25 🪙 per job app</span>
+          {/* coin stat chips */}
+          <div style={{ display:'flex', justifyContent:'center', gap:10, flexWrap:'wrap' as const }}>
+            {([
+              ['+50 COINS / LEETCODE', '#FFD36E', '#1A1500', '#3A2D00'],
+              ['+25 COINS / COMMIT',   '#5BFFD8', '#001A14', '#003A28'],
+              ['+25 COINS / JOB APP',  '#C090FF', '#10091A', '#2A1A40'],
+            ] as const).map(([label, color, bg, border]) => (
+              <div key={label} style={{ background:bg, border:`2px solid ${border}`, boxShadow:`inset 1px 1px 0 0 ${color}22`, padding:'7px 10px', fontFamily:'var(--font-pixel),monospace', fontSize:6, color, letterSpacing:'0.03em', lineHeight:1 }}>
+                ◆ {label}
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Install section */}
-        <div className="w-full max-w-2xl">
+        {/* ── step cards ── */}
+        <div style={{ width:'100%', maxWidth:680, display:'flex', flexDirection:'column' as const, gap:20 }}>
 
-          {/* Download button */}
-          <div className="bg-[#111827] border border-indigo-700 rounded-2xl p-8 mb-6 text-center">
-            <p className="text-slate-400 text-sm mb-4">Step 1: Get the extension</p>
+          {/* step 1 — download */}
+          <PixelCard s={AMBER} step="01" heading="GET THE EXTENSION">
+            <p style={{ fontFamily:'var(--font-pixel),monospace', fontSize:6, color:AMBER.dim, lineHeight:1.9, margin:'0 0 16px' }}>
+              DOWNLOAD THE CHROME EXTENSION TO START TRACKING<br />
+              YOUR PROGRESS AND EARNING COINS.
+            </p>
             <a
               href="/extension"
-              className="inline-flex items-center gap-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-8 py-4 rounded-xl transition-colors text-base"
+              style={{ display:'inline-flex', alignItems:'center', gap:8, background:'#7A4A10', border:'3px solid #180E04', boxShadow:'inset 2px 2px 0 0 #C07A20,inset -2px -2px 0 0 #3A1A00,3px 3px 0 0 #080400', padding:'11px 16px', fontFamily:'var(--font-pixel),monospace', fontSize:7, color:'#FFD88A', textShadow:'2px 2px 0 #180E04', textDecoration:'none', letterSpacing:'0.04em', imageRendering:'pixelated' as const }}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
-              Download Extension (.zip)
+              ↓ DOWNLOAD EXTENSION (.ZIP)  ▶
             </a>
-            <p className="text-slate-600 text-xs mt-3">Chrome only · ~50 KB</p>
-          </div>
+            <div style={{ fontFamily:'var(--font-pixel),monospace', fontSize:6, color:AMBER.accent, marginTop:10, letterSpacing:'0.03em' }}>
+              CHROME ONLY · ~50 KB
+            </div>
+          </PixelCard>
 
-          {/* Detailed instructions */}
-          <div className="bg-[#111827] border border-slate-700 rounded-2xl p-8 mb-6">
-            <p className="text-slate-400 text-sm mb-6">Step 2: Install in Chrome</p>
-            <ol className="flex flex-col gap-5">
-              <Instruction
-                number="1"
-                title="Unzip the downloaded file"
-                detail='Find "codey-village-extension.zip" in your Downloads folder and double-click it to unzip. You will get a folder called "extension".'
+          {/* step 2 — install */}
+          <PixelCard s={SAPPHIRE} step="02" heading="INSTALL IN CHROME">
+            <div style={{ display:'flex', flexDirection:'column' as const, gap:14 }}>
+              <PixelStep n="1" s={SAPPHIRE} title="UNZIP THE DOWNLOADED FILE">
+                FIND THE ZIP IN YOUR DOWNLOADS AND DOUBLE-CLICK TO UNZIP. YOU WILL GET A FOLDER CALLED "EXTENSION".
+              </PixelStep>
+              <PixelStep n="2" s={SAPPHIRE} title="OPEN CHROME EXTENSIONS">
+                <>
+                  PASTE{' '}
+                  <span style={{ fontFamily:'var(--font-pixel),monospace', fontSize:6, color:'#A8B8FF', background:'#0D1020', padding:'1px 5px', border:'1px solid #4A5888' }}>
+                    chrome://extensions
+                  </span>
+                  {' '}INTO YOUR ADDRESS BAR AND PRESS ENTER.
+                </>
+              </PixelStep>
+              <PixelStep n="3" s={SAPPHIRE} title="ENABLE DEVELOPER MODE">
+                TOGGLE ON "DEVELOPER MODE" IN THE TOP-RIGHT CORNER OF THE EXTENSIONS PAGE.
+              </PixelStep>
+              <PixelStep n="4" s={SAPPHIRE} title='CLICK "LOAD UNPACKED"'>
+                CLICK "LOAD UNPACKED" AND SELECT THE "EXTENSION" FOLDER YOU UNZIPPED IN STEP 1.
+              </PixelStep>
+              <PixelStep n="5" s={SAPPHIRE} title="PIN THE EXTENSION (OPTIONAL)">
+                CLICK 🧩 IN YOUR TOOLBAR AND PIN "CODEY VILLAGE" SO IT STAYS VISIBLE.
+              </PixelStep>
+            </div>
+          </PixelCard>
 
-              />
-              <Instruction
-                number="2"
-                title='Open Chrome and go to chrome://extensions'
-                detail={
-                  <>
-                    Paste{" "}
-                    <code className="bg-[#0a0e1a] border border-slate-700 text-indigo-400 text-xs px-1.5 py-0.5 rounded">
-                      chrome://extensions
-                    </code>{" "}
-                    into your address bar and press Enter.
-                  </>
-                }
-              />
-              <Instruction
-                number="3"
-                title="Enable Developer Mode"
-                detail='In the top-right corner of the Extensions page, toggle on "Developer mode". This unlocks the ability to load extensions from your computer.'
-              />
-              <Instruction
-                number="4"
-                title='Click "Load unpacked"'
-                detail='A new button will appear in the top-left — click "Load unpacked", then navigate to and select the "extension" folder you unzipped in step 1.'
-              />
-              <Instruction
-                number="5"
-                title="Pin the extension (optional but recommended)"
-                detail='Click the puzzle icon 🧩 in your Chrome toolbar and click the pin icon next to "Codey Village" so it stays visible in your toolbar.'
-              />
-            </ol>
-          </div>
-
-          {/* Sign in CTA */}
-          <div className="bg-[#111827] border border-slate-700 rounded-2xl p-8 text-center">
-            <p className="text-slate-400 text-sm mb-2">Step 3: Create your account</p>
-            <p className="text-slate-500 text-xs mb-5">Sign in with Google to start earning coins and building your island.</p>
+          {/* step 3 — sign in */}
+          <PixelCard s={PURPLE} step="03" heading="CREATE YOUR ACCOUNT">
+            <p style={{ fontFamily:'var(--font-pixel),monospace', fontSize:6, color:PURPLE.dim, lineHeight:1.9, margin:'0 0 16px' }}>
+              SIGN IN WITH GOOGLE TO START EARNING COINS<br />
+              AND BUILDING YOUR DREAM VILLAGE.
+            </p>
             <button
               onClick={() => router.push("/auth")}
-              className="inline-flex items-center gap-3 bg-white hover:bg-slate-100 text-slate-800 font-semibold px-6 py-3 rounded-xl transition-colors text-sm"
+              style={{ display:'inline-flex', alignItems:'center', gap:10, background:'#6A2848', border:'3px solid #170D14', boxShadow:'inset 2px 2px 0 0 #9A3A68,inset -2px -2px 0 0 #350C20,3px 3px 0 0 #0A0508', padding:'11px 16px', fontFamily:'var(--font-pixel),monospace', fontSize:7, color:'#FFCCE8', textShadow:'2px 2px 0 #170D14', cursor:'pointer', letterSpacing:'0.04em', imageRendering:'pixelated' as const }}
             >
-              <svg width="18" height="18" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+              <svg width="12" height="12" viewBox="0 0 24 24" style={{ flexShrink:0 }}>
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
-              Continue with Google
+              CONTINUE WITH GOOGLE  ▶
             </button>
-          </div>
+          </PixelCard>
 
         </div>
       </main>
-
     </div>
-  );
-}
-
-function Instruction({ number, title, detail }: { number: string; title: string; detail: React.ReactNode }) {
-  return (
-    <li className="flex gap-4">
-      <div className="w-6 h-6 rounded-full bg-indigo-600/20 border border-indigo-600/40 text-indigo-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
-        {number}
-      </div>
-      <div>
-        <div className="text-white text-sm font-semibold mb-1">{title}</div>
-        <div className="text-slate-500 text-xs leading-relaxed">{detail}</div>
-      </div>
-    </li>
   );
 }
