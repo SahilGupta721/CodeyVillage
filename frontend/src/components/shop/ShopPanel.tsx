@@ -236,8 +236,8 @@ const ShopPanel = forwardRef<ShopPanelHandle, ShopPanelProps>(
                       onClick={() => toggleCategory(cat.id)}
                       aria-expanded={isExpanded}
                     >
-                      <span>{cat.emoji}&nbsp;&nbsp;{cat.label}</span>
-                      <span className={styles.chevron}>›</span>
+                      <span>{cat.label}</span>
+                      <span className={styles.chevron}>▶</span>
                     </button>
 
                     <div className={`${styles.categoryContent} ${isExpanded ? styles.expanded : ''}`}>
@@ -249,13 +249,13 @@ const ShopPanel = forwardRef<ShopPanelHandle, ShopPanelProps>(
                               <div key={item.id} className={styles.itemCard}>
                                 <span className={styles.itemEmoji}>{item.emoji}</span>
                                 <span className={styles.itemName}>{item.name}</span>
-                                <span className={styles.itemPrice}>🪙 {item.price}</span>
+                                <span className={styles.itemPrice}>◆ {item.price}</span>
                                 <button
                                   className={styles.buyBtn}
                                   disabled={!canAfford}
                                   onClick={() => handleBuy(item)}
                                 >
-                                  {canAfford ? 'Buy' : "Can't Afford"}
+                                  {canAfford ? 'BUY ▶' : 'LOCKED'}
                                 </button>
                               </div>
                             );
