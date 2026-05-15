@@ -77,7 +77,7 @@ export default function AuthPage() {
             letterSpacing: '0.03em',
             imageRendering: 'pixelated' as const,
           }}>
-            CODE YOUR WAY TO A MANSION.<br />COMPETE WITH FRIENDS.
+            CODE YOUR WAY TO A MANSION.<br />BUILD YOUR DREAM VILLAGE WITH FRIENDS.
           </div>
         </div>
 
@@ -191,7 +191,7 @@ export default function AuthPage() {
             textAlign: 'center' as const,
             margin: 0,
           }}>
-            BY SIGNING IN YOU AGREE TO GRIND HARDER THAN YOUR FRIENDS.
+            ** BY SIGNING IN YOU AGREE TO GRIND HARDER THAN YOUR FRIENDS.
           </p>
         </div>
 
