@@ -200,9 +200,27 @@ export default function LobbyPage() {
         <div className="w-full max-w-2xl flex flex-col gap-8">
 
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-white tracking-tight">Game Lobby</h1>
-            <p className="text-slate-400 mt-2 text-sm">
-              Create a room or join an existing one to start competing.
+            <h1 style={{
+              fontFamily: 'var(--font-pixel),monospace',
+              fontSize: 18,
+              color: '#FFD88A',
+              textShadow: '3px 3px 0 #080400',
+              letterSpacing: '0.08em',
+              lineHeight: 1,
+              textTransform: 'uppercase' as const,
+              margin: 0,
+              imageRendering: 'pixelated' as const,
+            }}>GAME LOBBY</h1>
+            <p style={{
+              fontFamily: 'var(--font-pixel),monospace',
+              fontSize: 7,
+              color: '#5A6888',
+              lineHeight: 1.9,
+              marginTop: 14,
+              letterSpacing: '0.03em',
+              imageRendering: 'pixelated' as const,
+            }}>
+              CREATE A NEW VILLAGE OR JOIN AN EXISTING ONE TO START BUILDING.
             </p>
           </div>
 
