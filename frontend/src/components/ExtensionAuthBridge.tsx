@@ -10,6 +10,7 @@ export default function ExtensionAuthBridge() {
         try {
           const idToken = await user.getIdToken();
           const username =
+            localStorage.getItem(`username:${user.uid}`) ||
             user.displayName ||
             user.email?.split('@')[0] ||
             user.uid.slice(0, 8);

@@ -19,6 +19,33 @@ function formatSlug(slug) {
   return slug.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 }
 
+function formatActivityType(type) {
+  if (!type) return "Activity";
+  return type.split("_").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+}
+
+function resolveEntryAmount(entry) {
+  const type = entry.type || entry.activity_type;
+  if (typeof entry.amount === "number") return entry.amount;
+  if (type === "purchase") return -(entry.details?.price ?? entry.details?.amount ?? 0);
+  return COIN_VALUES[type] ?? 0;
+}
+
+function formatCoinDelta(amount, { weekly = false } = {}) {
+  const n = Number(amount);
+  if (!Number.isFinite(n)) return { text: "0", kind: "neutral", value: 0 };
+  if (n > 0) {
+    const text = weekly ? String(n) : `+${n}`;
+    return { text, kind: "credited", value: n };
+  }
+  if (n < 0) {
+    // Weekly card: show "5" + label "spent" — no "-" next to coin icon (reads as "+-5")
+    const text = weekly ? String(Math.abs(n)) : `-${Math.abs(n)}`;
+    return { text, kind: "deducted", value: n };
+  }
+  return { text: "0", kind: "neutral", value: 0 };
+}
+
 function playDing() {
   try {
     const ctx = new AudioContext();
@@ -83,14 +110,15 @@ function renderLoginGate() {
     </svg>
     <div class="brand">Codey Village</div>
     <p class="auth-sub">Code. Earn coins. Beat your friends.</p>
+    <p class="auth-hint">Already signed in on the site? Open the lobby tab, then reopen this popup.</p>
     <button id="loginBtn">Sign in with Google</button>
-    <button id="loginLocalBtn" class="btn-secondary">Sign in (localhost)</button>
+    <button id="loginLocalBtn" class="btn-secondary">Open lobby to sync</button>
   `;
   document.getElementById("loginBtn").addEventListener("click", () => {
     chrome.tabs.create({ url: WEB_APP_URL + "/auth" });
   });
   document.getElementById("loginLocalBtn").addEventListener("click", () => {
-    chrome.tabs.create({ url: WEB_APP_URL_LOCAL + "/auth" });
+    chrome.tabs.create({ url: WEB_APP_URL_LOCAL + "/lobby" });
   });
 }
 
@@ -232,6 +260,7 @@ async function renderWeeklySummary(uid) {
     const res = await fetch(`${BACKEND_URL}/coins/${uid}/weekly`);
     if (!res.ok) return;
     const { leetcode, commits, jobs, total_coins } = await res.json();
+    const weekCoins = formatCoinDelta(total_coins, { weekly: true });
     el.innerHTML = `
       <div class="weekly-card">
         <div class="section-header">This Week</div>
@@ -251,10 +280,10 @@ async function renderWeeklySummary(uid) {
             <span class="stat-val">${jobs}</span>
             <span class="stat-label">applied</span>
           </div>
-          <div class="stat-item stat-coins">
-            <span class="stat-icon">${COIN_SVG}</span>
-            <span class="stat-val">+${total_coins}</span>
-            <span class="stat-label">coins</span>
+          <div class="stat-item stat-coins" title="Net coins this week (earned minus spent)">
+            <span class="stat-icon">🪙</span>
+            <span class="stat-val stat-coins-${weekCoins.kind}">${weekCoins.text}</span>
+            <span class="stat-label">${weekCoins.kind === "deducted" ? "coins spent" : weekCoins.kind === "credited" ? "coins earned" : "net"}</span>
           </div>
         </div>
       </div>
@@ -301,33 +330,32 @@ async function renderLeaderboard(uid) {
 }
 
 function buildEntryHTML(entry) {
-  const coins = entry.type === "purchase"
-    ? Math.abs(entry.amount ?? 0)
-    : (COIN_VALUES[entry.type] ?? 0);
-
-  const coinsDisplay = entry.type === "purchase" ? `-${coins}` : `+${coins}`;
-  const icon = ENTRY_ICONS[entry.type] ?? "•";
+  const type = entry.type || entry.activity_type;
+  const amount = resolveEntryAmount(entry);
+  const delta = formatCoinDelta(amount);
+  const icon = ENTRY_ICONS[type] ?? (amount < 0 ? "🛒" : "🪙");
   const time = new Date(entry.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
   let title = "";
   let sub = "";
 
-  if (entry.type === "leetcode_accepted") {
+  if (type === "leetcode_accepted") {
     title = formatSlug(entry.details?.problem_slug);
     const parts = [entry.details?.lang, entry.details?.runtime].filter(Boolean);
     sub = parts.join(" · ");
-  } else if (entry.type === "github_commit") {
+  } else if (type === "github_commit") {
     title = "GitHub Commit";
-    sub = entry.details?.repo || "";
-  } else if (entry.type === "job_application") {
+    sub = entry.details?.repo || entry.details?.repository || "";
+  } else if (type === "job_application") {
     title = "Job Applied";
     const match = (entry.details?.url || "").match(/\/\/([^.]+)/);
     sub = match ? match[1] : "";
-  }
-  else if (entry.type === "purchase") {
+  } else if (type === "purchase" || amount < 0) {
     title = "Shop Purchase";
     sub = entry.details?.item || "";
   }
+
+  if (!title) title = formatActivityType(type);
 
   return `
     <div class="entry">
@@ -337,7 +365,7 @@ function buildEntryHTML(entry) {
         ${sub ? `<span class="entry-sub">${sub}</span>` : ""}
       </div>
       <div class="entry-meta">
-        <span class="entry-coins">${COIN_SVG} ${coinsDisplay}</span>
+        <span class="entry-coins entry-coins-${delta.kind}">${delta.kind === "credited" ? `${COIN_SVG} ${delta.text}` : delta.text}</span>
         <span class="entry-time">${time}</span>
       </div>
     </div>

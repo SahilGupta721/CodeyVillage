@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Press_Start_2P } from "next/font/google";
+import ExtensionAuthBridge from "@/src/components/ExtensionAuthBridge";
 import "./globals.css";
 
 const pixelFont = Press_Start_2P({
@@ -26,6 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={pixelFont.variable}>
+        <ExtensionAuthBridge />
         {children}
       </body>
     </html>

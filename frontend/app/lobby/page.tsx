@@ -148,6 +148,10 @@ export default function LobbyPage() {
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
       setGithubLogin(data.github_login);
+      window.postMessage(
+        { type: "codey-village-github-connected", githubUsername: data.github_login },
+        "*",
+      );
     } catch (err: any) {
       setGithubError("Failed to connect GitHub. Try again.");
     } finally {
@@ -163,6 +167,24 @@ export default function LobbyPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ github_username: null }),
     }).catch(() => { });
+  }
+
+  async function handleRefreshWebhooks() {
+    if (!uid) return;
+    setGithubLoading(true);
+    setGithubError(null);
+    try {
+      const res = await fetch(`${BACKEND_URL}/users/${uid}/refresh-webhooks`, { method: "POST" });
+      if (!res.ok) throw new Error(await res.text());
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || "Sync failed");
+      setGithubError(null);
+      alert(`Synced webhooks on ${data.updated ?? 0} repos. Push a commit to earn coins.`);
+    } catch {
+      setGithubError("Failed to sync repos. Reconnect GitHub.");
+    } finally {
+      setGithubLoading(false);
+    }
   }
 
   async function handleSignOut() {
@@ -531,7 +553,7 @@ export default function LobbyPage() {
                 whiteSpace: 'pre-line' as const,
               }}>
                 {githubLogin
-                  ? `CONNECTED AS @${githubLogin.toUpperCase()}\nCOMMITS ARE BEING TRACKED`
+                  ? `CONNECTED AS @${githubLogin.toUpperCase()}\nCOMMITS ARE BEING TRACKED\nNEW REPOS? CLICK SYNC REPOS →`
                   : 'LINK YOUR ACCOUNT TO TRACK\nCOMMITS AND EARN COINS'}
               </p>
               {githubError && (
@@ -576,7 +598,25 @@ export default function LobbyPage() {
                 }}>
                   @{githubLogin}
                 </span>
-                {/* Disconnect button — INSIDE the same div as badge */}
+                <button
+                  onClick={handleRefreshWebhooks}
+                  disabled={githubLoading}
+                  title="Register webhooks on new repos"
+                  style={{
+                    background: '#2A2848',
+                    border: '2px solid #170D14',
+                    boxShadow: 'inset 1px 1px 0 0 #4A4070,inset -1px -1px 0 0 #1A1028,2px 2px 0 0 #0A0508',
+                    padding: '8px 9px',
+                    cursor: githubLoading ? 'not-allowed' as const : 'pointer' as const,
+                    fontFamily: 'var(--font-pixel),monospace',
+                    fontSize: 5,
+                    color: '#C4B5FD',
+                    lineHeight: 1.2,
+                    whiteSpace: 'nowrap' as const,
+                  }}
+                >
+                  {githubLoading ? '...' : 'SYNC'}
+                </button>
                 <button
                   onClick={handleDisconnectGithub}
                   title="Disconnect GitHub"
