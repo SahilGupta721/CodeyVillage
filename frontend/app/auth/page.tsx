@@ -69,10 +69,11 @@ export default function AuthPage() {
           }}>
             CODEY VILLAGE
           </div>
+          {/* FIXED: was fontSize 7 — too small to read */}
           <div style={{
             fontFamily: 'var(--font-pixel),monospace',
-            fontSize: 7,
-            color: '#5A6888',
+            fontSize: 11,
+            color: '#7A8AAA',
             lineHeight: 1.9,
             letterSpacing: '0.03em',
             imageRendering: 'pixelated' as const,
@@ -112,9 +113,10 @@ export default function AuthPage() {
                 <div style={{ width: 10, height: 3, background: '#4A5888', opacity: 0.6 }} />
                 <div style={{ width: 6, height: 3, background: '#4A5888', opacity: 0.3 }} />
               </div>
+              {/* FIXED: was fontSize 9 */}
               <span style={{
                 fontFamily: 'var(--font-pixel),monospace',
-                fontSize: 9,
+                fontSize: 13,
                 color: '#A8B8FF',
                 textShadow: '2px 2px 0 #0D1020',
                 letterSpacing: '0.05em',
@@ -125,7 +127,8 @@ export default function AuthPage() {
               </span>
             </div>
             <div style={{ height: 2, marginBottom: 10, backgroundImage: 'repeating-linear-gradient(90deg,#2E3560 0px,#2E3560 6px,transparent 6px,transparent 10px)' }} />
-            <p style={{ fontFamily: 'var(--font-pixel),monospace', fontSize: 6, color: '#4A5888', lineHeight: 1.9, margin: 0 }}>
+            {/* FIXED: was fontSize 6, color too dark */}
+            <p style={{ fontFamily: 'var(--font-pixel),monospace', fontSize: 11, color: '#6A7AAA', lineHeight: 1.9, margin: 0 }}>
               WELCOME BACK, CODER. CONTINUE YOUR VILLAGE.
             </p>
           </div>
@@ -137,7 +140,7 @@ export default function AuthPage() {
               boxShadow: 'inset 1px 1px 0 0 #3A0808',
               padding: '10px 12px',
               fontFamily: 'var(--font-pixel),monospace',
-              fontSize: 6,
+              fontSize: 11, // FIXED: was 6
               color: '#FF6868',
               lineHeight: 1.9,
               textAlign: 'center' as const,
@@ -162,7 +165,7 @@ export default function AuthPage() {
                 : 'inset 2px 2px 0 0 #4A60CC, inset -2px -2px 0 0 #0F1840, 3px 3px 0 0 #050810',
               padding: '13px 16px',
               fontFamily: 'var(--font-pixel),monospace',
-              fontSize: 7,
+              fontSize: 12, // FIXED: was 7
               color: loading ? '#2A3050' : '#A8B8FF',
               textShadow: '2px 2px 0 #0D1020',
               cursor: loading ? 'not-allowed' as const : 'pointer' as const,
@@ -183,10 +186,11 @@ export default function AuthPage() {
             {loading ? "SIGNING IN..." : "CONTINUE WITH GOOGLE  ▶"}
           </button>
 
+          {/* FIXED: was fontSize 6, color #2E3560 (invisible against dark bg) */}
           <p style={{
             fontFamily: 'var(--font-pixel),monospace',
-            fontSize: 6,
-            color: '#2E3560',
+            fontSize: 10,
+            color: '#4A5888',
             lineHeight: 1.9,
             textAlign: 'center' as const,
             margin: 0,
