@@ -467,73 +467,161 @@ export class BootScene extends Phaser.Scene {
   }
 
   private makePineTable(): void {
+    // Pine palette: light golden-yellow wood, clearly distinct from dark hardwoods.
     const c = this.textures.createCanvas('pine-table', 32, 32)!;
     const ctx = c.getContext();
+
+    // Shadow
     ctx.fillStyle = 'rgba(0,0,0,0.22)';
     ctx.fillRect(4, 28, 24, 4);
-    // Tabletop (wider than legs) — shifted down 2 px so legs meet the shadow
-    ctx.fillStyle = '#5A3818';
-    ctx.fillRect(2, 10, 28, 5);
-    ctx.fillStyle = '#9A7040';
-    ctx.fillRect(2, 7, 28, 8);
-    ctx.fillStyle = '#C8A060';
-    ctx.fillRect(3, 8, 14, 3);
-    // Front lip
-    ctx.fillStyle = '#7A5530';
-    ctx.fillRect(3, 14, 26, 2);
-    // Legs — bottoms now reach y=27, adjacent to shadow at y=28
-    ctx.fillStyle = '#5A3818';
-    ctx.fillRect(5, 16, 6, 12);
-    ctx.fillRect(21, 16, 6, 12);
-    ctx.fillStyle = '#9A7040';
-    ctx.fillRect(6, 17, 4, 11);
-    ctx.fillRect(22, 17, 4, 11);
-    ctx.fillStyle = '#C8A060';
-    ctx.fillRect(7, 17, 2, 5);
-    ctx.fillRect(23, 17, 2, 5);
+
+    // Legs — drawn before tabletop so apron overlaps their tops
+    ctx.fillStyle = '#4A3010';          // pine dark outline
+    ctx.fillRect(4, 16, 6, 12);
+    ctx.fillRect(22, 16, 6, 12);
+    ctx.fillStyle = '#B08828';          // pine mid
+    ctx.fillRect(5, 17, 4, 10);
+    ctx.fillRect(23, 17, 4, 10);
+    ctx.fillStyle = '#DEB84C';          // pine light
+    ctx.fillRect(5, 17, 2, 6);
+    ctx.fillRect(23, 17, 2, 6);
+
     // Cross stretcher
-    ctx.fillStyle = '#7A5530';
-    ctx.fillRect(9, 24, 14, 3);
-    ctx.fillStyle = '#9A7040';
-    ctx.fillRect(10, 25, 12, 1);
+    ctx.fillStyle = '#4A3010';
+    ctx.fillRect(9, 22, 14, 4);
+    ctx.fillStyle = '#B08828';
+    ctx.fillRect(10, 23, 12, 2);
+    ctx.fillStyle = '#DEB84C';
+    ctx.fillRect(11, 23, 5, 1);
+
+    // Apron — front face visible below the tabletop edge
+    ctx.fillStyle = '#2A1C08';
+    ctx.fillRect(2, 13, 28, 4);
+    ctx.fillStyle = '#6A4C18';
+    ctx.fillRect(3, 14, 26, 3);
+    ctx.fillStyle = '#A07828';
+    ctx.fillRect(4, 14, 14, 1);
+
+    // Tabletop dark border
+    ctx.fillStyle = '#2A1C08';
+    ctx.fillRect(1, 6, 30, 8);
+
+    // Tabletop pine surface (golden honey tone)
+    ctx.fillStyle = '#C49038';
+    ctx.fillRect(2, 7, 28, 6);
+
+    // Lighter lit area (top-left light source)
+    ctx.fillStyle = '#DEB84C';
+    ctx.fillRect(3, 7, 22, 5);
+
+    // Highlight band
+    ctx.fillStyle = '#EED068';
+    ctx.fillRect(4, 7, 12, 3);
+
+    // Horizontal wood grain lines
+    ctx.fillStyle = '#9A7228';
+    ctx.fillRect(4,  9, 24, 1);
+    ctx.fillRect(6, 11, 20, 1);
+
+    // Pine knot
+    ctx.fillStyle = '#7A5018';
+    ctx.fillRect(21, 8, 3, 2);
+    ctx.fillRect(22, 9, 1, 1);
+
+    // Brightest top edge
+    ctx.fillStyle = '#F4DC80';
+    ctx.fillRect(2, 7, 28, 1);
+
     c.refresh();
   }
 
   private makeRockingChair(): void {
     const c = this.textures.createCanvas('rocking-chair', 32, 32)!;
     const ctx = c.getContext();
+
+    // Shadow
     ctx.fillStyle = 'rgba(0,0,0,0.22)';
-    ctx.fillRect(4, 28, 24, 3);
-    // Backrest
+    ctx.fillRect(3, 28, 26, 3);
+
+    // ROCKERS — arched U-shapes, the defining feature of the chair.
+    // Each rocker has two raised ends connected by a bottom bar.
+    // The open arch between the ends makes the curve legible.
+    // Left rocker (under left leg, extends outward to the left)
     ctx.fillStyle = '#3D2010';
-    ctx.fillRect(8, 4, 16, 13);
+    ctx.fillRect(2, 22, 3, 6);     // left raised end
+    ctx.fillRect(2, 26, 13, 2);    // bottom bar spanning full rocker width
+    ctx.fillRect(12, 22, 3, 6);    // right raised end (sits under the leg)
     ctx.fillStyle = '#8B5E3C';
-    ctx.fillRect(9, 5, 14, 11);
-    // Vertical slats
+    ctx.fillRect(3, 23, 1, 4);     // lit face — left end
+    ctx.fillRect(3, 27, 10, 1);    // lit face — bottom bar
+    ctx.fillRect(13, 23, 1, 4);    // lit face — right end
+
+    // Right rocker (under right leg, extends outward to the right)
     ctx.fillStyle = '#3D2010';
-    ctx.fillRect(11, 6, 2, 9);
-    ctx.fillRect(16, 6, 2, 9);
-    ctx.fillRect(21, 6, 2, 9);
-    ctx.fillStyle = '#B07040';
-    ctx.fillRect(9, 6, 5, 2);
-    // Seat
-    ctx.fillStyle = '#3D2010';
-    ctx.fillRect(6, 16, 20, 8);
+    ctx.fillRect(17, 22, 3, 6);    // left raised end (sits under the leg)
+    ctx.fillRect(17, 26, 13, 2);   // bottom bar
+    ctx.fillRect(27, 22, 3, 6);    // right raised end
     ctx.fillStyle = '#8B5E3C';
-    ctx.fillRect(7, 17, 18, 6);
-    ctx.fillStyle = '#B07040';
-    ctx.fillRect(8, 18, 8, 2);
-    // Legs
-    ctx.fillStyle = '#5C3C20';
-    ctx.fillRect(8, 23, 3, 4);
-    ctx.fillRect(21, 23, 3, 4);
-    // Rockers (curved base)
-    ctx.fillStyle = '#3D2010';
-    ctx.fillRect(3, 27, 12, 2);
-    ctx.fillRect(17, 27, 12, 2);
-    ctx.fillStyle = '#7A4A22';
-    ctx.fillRect(4, 27, 10, 1);
+    ctx.fillRect(18, 23, 1, 4);
     ctx.fillRect(18, 27, 10, 1);
+    ctx.fillRect(28, 23, 1, 4);
+
+    // LEGS — connect seat base to the rockers
+    ctx.fillStyle = '#3D2010';
+    ctx.fillRect(8, 18, 4, 9);     // left leg
+    ctx.fillRect(20, 18, 4, 9);    // right leg
+    ctx.fillStyle = '#8B5E3C';
+    ctx.fillRect(9, 19, 2, 7);
+    ctx.fillRect(21, 19, 2, 7);
+    ctx.fillStyle = '#B07040';
+    ctx.fillRect(9, 19, 1, 3);
+    ctx.fillRect(21, 19, 1, 3);
+
+    // SEAT
+    ctx.fillStyle = '#3D2010';
+    ctx.fillRect(5, 13, 22, 7);    // seat frame
+    ctx.fillStyle = '#8B5E3C';
+    ctx.fillRect(6, 13, 20, 5);    // seat top surface
+    ctx.fillStyle = '#B07040';
+    ctx.fillRect(7, 14, 9, 2);     // seat highlight
+    ctx.fillStyle = '#5C3C20';
+    ctx.fillRect(5, 17, 22, 3);    // seat front edge
+
+    // ARMRESTS — short horizontal boards on each side
+    ctx.fillStyle = '#3D2010';
+    ctx.fillRect(4, 11, 5, 5);
+    ctx.fillRect(23, 11, 5, 5);
+    ctx.fillStyle = '#8B5E3C';
+    ctx.fillRect(5, 11, 3, 3);
+    ctx.fillRect(24, 11, 3, 3);
+    ctx.fillStyle = '#B07040';
+    ctx.fillRect(5, 11, 2, 1);
+    ctx.fillRect(24, 11, 2, 1);
+
+    // BACKREST — tall frame with three vertical slats
+    ctx.fillStyle = '#3D2010';
+    ctx.fillRect(7, 2, 18, 12);    // outer frame
+    ctx.fillStyle = '#4A2A14';
+    ctx.fillRect(8, 3, 16, 9);     // dark space between slats
+
+    // Three slats
+    ctx.fillStyle = '#8B5E3C';
+    ctx.fillRect(10, 4, 3, 8);
+    ctx.fillRect(15, 4, 3, 8);
+    ctx.fillRect(20, 4, 3, 8);
+    ctx.fillStyle = '#B07040';
+    ctx.fillRect(11, 4, 1, 8);
+    ctx.fillRect(16, 4, 1, 8);
+    ctx.fillRect(21, 4, 1, 8);
+
+    // Top rail
+    ctx.fillStyle = '#3D2010';
+    ctx.fillRect(7, 2, 18, 3);
+    ctx.fillStyle = '#8B5E3C';
+    ctx.fillRect(8, 2, 16, 2);
+    ctx.fillStyle = '#B07040';
+    ctx.fillRect(9, 2, 9, 1);
+
     c.refresh();
   }
 
