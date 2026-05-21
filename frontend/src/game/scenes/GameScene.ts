@@ -929,13 +929,28 @@ export class GameScene extends Phaser.Scene {
       return;
     }
 
-    const snapped = this.snapToTileCentre(world.x, world.y);
-    this.placement.ghost.setPosition(snapped.x, snapped.y);
-    this.placement.ghost.setScale(1, 1);
-    const valid = this.col.isTileWalkable(snapped.tx, snapped.ty);
-    this.placement.valid = valid;
-    this.placement.ghost.setTint(valid ? 0xffffff : 0xff5050);
-    this.placement.ghost.setAlpha(valid ? 0.7 : 0.45);
+    const building = this.findBuildingAt(world.x, world.y);
+    if (building) {
+      // Inside a building: snap to a half-tile (16 px) grid for finer control,
+      // then verify the sprite's pixel bounds stay inside the visible wall edges.
+      const HALF = TILE_SIZE / 2;
+      const sx = Math.round(world.x / HALF) * HALF;
+      const sy = Math.round(world.y / HALF) * HALF;
+      this.placement.ghost.setPosition(sx, sy);
+      this.placement.ghost.setScale(1, 1);
+      const valid = this.canPlaceInsideBuilding(sx, sy, building);
+      this.placement.valid = valid;
+      this.placement.ghost.setTint(valid ? 0xffffff : 0xff5050);
+      this.placement.ghost.setAlpha(valid ? 0.7 : 0.45);
+    } else {
+      const snapped = this.snapToTileCentre(world.x, world.y);
+      this.placement.ghost.setPosition(snapped.x, snapped.y);
+      this.placement.ghost.setScale(1, 1);
+      const valid = this.col.isTileWalkable(snapped.tx, snapped.ty);
+      this.placement.valid = valid;
+      this.placement.ghost.setTint(valid ? 0xffffff : 0xff5050);
+      this.placement.ghost.setAlpha(valid ? 0.7 : 0.45);
+    }
   }
 
   private handlePlacementClick(pointer: Phaser.Input.Pointer): void {
@@ -956,7 +971,9 @@ export class GameScene extends Phaser.Scene {
       x = entrance.x;
       y = entrance.y;
     } else {
-      ({ x, y } = this.snapToTileCentre(pointer.worldX, pointer.worldY));
+      // Ghost is already snapped correctly (tile-centre outdoors, half-tile indoors).
+      x = this.placement.ghost.x;
+      y = this.placement.ghost.y;
     }
     const itemId = this.placement.itemId;
     const pricePaid = this.placement.pricePaid;
@@ -1124,6 +1141,42 @@ export class GameScene extends Phaser.Scene {
     } catch (e) {
       console.warn('Failed to erase placed item', e);
     }
+  }
+
+  // ─── Building placement helpers ──────────────────────────────────────────
+
+  /** Returns the building whose tile footprint contains (wx, wy), or null. */
+  private findBuildingAt(wx: number, wy: number): BuildingData | null {
+    for (const b of this.island.buildings) {
+      if (
+        wx >= b.tileX * TILE_SIZE && wx < (b.tileX + b.tileW) * TILE_SIZE &&
+        wy >= b.tileY * TILE_SIZE && wy < (b.tileY + b.tileH) * TILE_SIZE
+      ) return b;
+    }
+    return null;
+  }
+
+  /**
+   * Returns true when a 32×32 sprite (origin 0.5, 0.7) centred at (wx, wy)
+   * fits entirely within the building's interior — i.e. no pixel of the sprite
+   * overlaps the visible wall frame (WALL = 6 px on each side).
+   */
+  private canPlaceInsideBuilding(wx: number, wy: number, b: BuildingData): boolean {
+    const WALL = 6;
+    const intLeft   = b.tileX * TILE_SIZE + WALL;
+    const intRight  = (b.tileX + b.tileW) * TILE_SIZE - WALL;
+    const intTop    = b.tileY * TILE_SIZE + WALL;
+    // South visual wall starts at (tileY+tileH)*TS - WALL; sprite bottom must not reach it.
+    const intBottom = (b.tileY + b.tileH) * TILE_SIZE - WALL;
+    const halfW  = TILE_SIZE / 2;       // 16 px — sprite half-width
+    const above  = Math.round(TILE_SIZE * 0.7); // 22 px above anchor
+    const below  = TILE_SIZE - above;          // 10 px below anchor
+    return (
+      wx - halfW >= intLeft  &&
+      wx + halfW <= intRight &&
+      wy - above >= intTop   &&
+      wy + below <= intBottom
+    );
   }
 
   // ─── Carved door animation ────────────────────────────────────────────────
