@@ -13,11 +13,15 @@ import {
   WALKABLE_TILES, BuildingData,
 } from '../map/TileTypes';
 
+const WALL = 6; // visual wall thickness in pixels (matches drawBuilding)
+
 export class CollisionSystem {
   private grid: Uint8Array; // flat row-major: grid[y * MAP_WIDTH + x]
   private entranceTiles: Set<number> = new Set(); // encoded as ty * MAP_WIDTH + tx
+  private buildings: BuildingData[];
 
   constructor(tiles: TileType[][], buildings: BuildingData[]) {
+    this.buildings = buildings;
     this.grid = new Uint8Array(MAP_WIDTH * MAP_HEIGHT);
 
     for (let y = 0; y < MAP_HEIGHT; y++) {
@@ -74,14 +78,50 @@ export class CollisionSystem {
    * Returns true when an entity whose centre would be at (wx, wy)
    * fits entirely on walkable tiles.  halfSize is reduced by 1 px to
    * allow smooth sliding along walls without hard stops.
+   *
+   * Inside buildings the four hitbox corners are tested against the
+   * pixel-level interior bounds instead of the tile grid, so characters
+   * can reach the walls as closely as their sprite allows.
    */
   canMoveTo(wx: number, wy: number, halfSize = 10): boolean {
     const h = halfSize - 1;
     return (
-      this.isWorldWalkable(wx - h, wy - h) &&
-      this.isWorldWalkable(wx + h, wy - h) &&
-      this.isWorldWalkable(wx - h, wy + h) &&
-      this.isWorldWalkable(wx + h, wy + h)
+      this.isWalkableAt(wx - h, wy - h) &&
+      this.isWalkableAt(wx + h, wy - h) &&
+      this.isWalkableAt(wx - h, wy + h) &&
+      this.isWalkableAt(wx + h, wy + h)
     );
+  }
+
+  private isWalkableAt(cx: number, cy: number): boolean {
+    const b = this.findBuildingContaining(cx, cy);
+    return b ? this.isCornerAllowedInBuilding(cx, cy, b) : this.isWorldWalkable(cx, cy);
+  }
+
+  private findBuildingContaining(cx: number, cy: number): BuildingData | null {
+    for (const b of this.buildings) {
+      if (
+        cx >= b.tileX * TILE_SIZE && cx < (b.tileX + b.tileW) * TILE_SIZE &&
+        cy >= b.tileY * TILE_SIZE && cy < (b.tileY + b.tileH) * TILE_SIZE
+      ) return b;
+    }
+    return null;
+  }
+
+  private isCornerAllowedInBuilding(cx: number, cy: number, b: BuildingData): boolean {
+    const intLeft   = b.tileX * TILE_SIZE + WALL;
+    const intRight  = (b.tileX + b.tileW) * TILE_SIZE - WALL;
+    const intTop    = b.tileY * TILE_SIZE + WALL;
+    const intBottom = (b.tileY + b.tileH) * TILE_SIZE - WALL;
+
+    if (cx < intLeft || cx >= intRight) return false;
+    if (cy < intTop) return false;
+    if (cy >= intBottom) {
+      // South wall area — only passable through the entrance gap
+      const entranceLeft  = (b.tileX + b.doorOffset) * TILE_SIZE;
+      const entranceRight = (b.tileX + b.doorOffset + 2) * TILE_SIZE;
+      return cx >= entranceLeft && cx < entranceRight;
+    }
+    return true;
   }
 }
