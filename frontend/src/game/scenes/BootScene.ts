@@ -471,31 +471,31 @@ export class BootScene extends Phaser.Scene {
     const ctx = c.getContext();
     ctx.fillStyle = 'rgba(0,0,0,0.22)';
     ctx.fillRect(4, 28, 24, 4);
-    // Tabletop (wider than legs)
+    // Tabletop (wider than legs) — shifted down 2 px so legs meet the shadow
     ctx.fillStyle = '#5A3818';
-    ctx.fillRect(2, 8, 28, 5);
+    ctx.fillRect(2, 10, 28, 5);
     ctx.fillStyle = '#9A7040';
-    ctx.fillRect(2, 5, 28, 8);
+    ctx.fillRect(2, 7, 28, 8);
     ctx.fillStyle = '#C8A060';
-    ctx.fillRect(3, 6, 14, 3);
+    ctx.fillRect(3, 8, 14, 3);
     // Front lip
     ctx.fillStyle = '#7A5530';
-    ctx.fillRect(3, 12, 26, 2);
-    // Legs
+    ctx.fillRect(3, 14, 26, 2);
+    // Legs — bottoms now reach y=27, adjacent to shadow at y=28
     ctx.fillStyle = '#5A3818';
-    ctx.fillRect(5, 14, 6, 13);
-    ctx.fillRect(21, 14, 6, 13);
+    ctx.fillRect(5, 16, 6, 12);
+    ctx.fillRect(21, 16, 6, 12);
     ctx.fillStyle = '#9A7040';
-    ctx.fillRect(6, 15, 4, 11);
-    ctx.fillRect(22, 15, 4, 11);
+    ctx.fillRect(6, 17, 4, 11);
+    ctx.fillRect(22, 17, 4, 11);
     ctx.fillStyle = '#C8A060';
-    ctx.fillRect(7, 15, 2, 5);
-    ctx.fillRect(23, 15, 2, 5);
+    ctx.fillRect(7, 17, 2, 5);
+    ctx.fillRect(23, 17, 2, 5);
     // Cross stretcher
     ctx.fillStyle = '#7A5530';
-    ctx.fillRect(9, 22, 14, 3);
+    ctx.fillRect(9, 24, 14, 3);
     ctx.fillStyle = '#9A7040';
-    ctx.fillRect(10, 23, 12, 1);
+    ctx.fillRect(10, 25, 12, 1);
     c.refresh();
   }
 
