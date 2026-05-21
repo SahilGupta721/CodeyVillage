@@ -836,41 +836,49 @@ export class BootScene extends Phaser.Scene {
   }
 
   private makeCarvedDoor(): void {
+    // Each door covers exactly one entrance half-tile (32 px wide).
+    // The frame must fill the full 32 px — no transparent side margins — so that
+    // left (scaleX 1) and right (scaleX -1) doors tile together with zero gap.
+    // Doorknob is on the RIGHT side of the sprite so that:
+    //   left door  (scaleX  1) → knob on right, faces the entrance centre ✓
+    //   right door (scaleX -1) → knob mirrors to left, faces the entrance centre ✓
     const c = this.textures.createCanvas('carved-door', 32, 32)!;
     const ctx = c.getContext();
+    // Drop shadow
     ctx.fillStyle = 'rgba(0,0,0,0.25)';
-    ctx.fillRect(5, 29, 22, 3);
-    // Door frame
+    ctx.fillRect(0, 29, 32, 3);
+    // Outer frame — full width, no side gaps
     ctx.fillStyle = '#2A1408';
-    ctx.fillRect(6, 2, 20, 28);
+    ctx.fillRect(0, 1, 32, 30);
+    // Inner frame
     ctx.fillStyle = '#5A3018';
-    ctx.fillRect(7, 3, 18, 26);
+    ctx.fillRect(1, 2, 30, 27);
     // Door face
     ctx.fillStyle = '#7A4A22';
-    ctx.fillRect(9, 5, 14, 22);
-    // Wood grain lines
+    ctx.fillRect(2, 3, 28, 25);
+    // Horizontal wood grain
     ctx.fillStyle = '#5A3018';
-    ctx.fillRect(9, 10, 14, 1);
-    ctx.fillRect(9, 15, 14, 1);
-    ctx.fillRect(9, 20, 14, 1);
-    // Inset panels
+    ctx.fillRect(2,  9, 28, 1);
+    ctx.fillRect(2, 16, 28, 1);
+    ctx.fillRect(2, 23, 28, 1);
+    // Upper inset panel
     ctx.fillStyle = '#5A3018';
-    ctx.fillRect(10, 7, 12, 8);
-    ctx.fillRect(10, 17, 12, 9);
+    ctx.fillRect(3, 4, 26, 10);
     ctx.fillStyle = '#8A5A2A';
-    ctx.fillRect(11, 8, 10, 6);
-    ctx.fillRect(11, 18, 10, 7);
+    ctx.fillRect(4, 5, 24, 8);
+    // Lower inset panel
+    ctx.fillStyle = '#5A3018';
+    ctx.fillRect(3, 17, 26, 10);
+    ctx.fillStyle = '#8A5A2A';
+    ctx.fillRect(4, 18, 24, 8);
+    // Left edge hinge highlight (stays on left for both orientations after flip)
     ctx.fillStyle = '#B07840';
-    ctx.fillRect(12, 9, 4, 2);
-    ctx.fillRect(12, 19, 4, 2);
-    // Left edge highlight
-    ctx.fillStyle = '#B07840';
-    ctx.fillRect(9, 5, 2, 22);
-    // Doorknob
+    ctx.fillRect(2, 3, 2, 25);
+    // Doorknob on right side
     ctx.fillStyle = '#E8C040';
-    ctx.fillRect(20, 15, 3, 3);
+    ctx.fillRect(25, 14, 3, 3);
     ctx.fillStyle = '#FFF090';
-    ctx.fillRect(21, 15, 2, 2);
+    ctx.fillRect(26, 14, 2, 2);
     c.refresh();
   }
 

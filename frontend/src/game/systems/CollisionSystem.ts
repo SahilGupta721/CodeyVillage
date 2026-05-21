@@ -15,6 +15,7 @@ import {
 
 export class CollisionSystem {
   private grid: Uint8Array; // flat row-major: grid[y * MAP_WIDTH + x]
+  private entranceTiles: Set<number> = new Set(); // encoded as ty * MAP_WIDTH + tx
 
   constructor(tiles: TileType[][], buildings: BuildingData[]) {
     this.grid = new Uint8Array(MAP_WIDTH * MAP_HEIGHT);
@@ -29,6 +30,7 @@ export class CollisionSystem {
     for (const b of buildings) {
       const doorC0 = b.tileX + b.doorOffset;
       const doorC1 = doorC0 + 1;
+      const doorRow = b.tileY + b.tileH - 1;
       for (let ty = b.tileY; ty < b.tileY + b.tileH; ty++) {
         for (let tx = b.tileX; tx < b.tileX + b.tileW; tx++) {
           const isPerimeter =
@@ -37,14 +39,20 @@ export class CollisionSystem {
             tx === b.tileX ||
             tx === b.tileX + b.tileW - 1;
           const isEntrance =
-            ty === b.tileY + b.tileH - 1 &&
+            ty === doorRow &&
             (tx === doorC0 || tx === doorC1);
           if (isPerimeter && !isEntrance) {
             this.grid[ty * MAP_WIDTH + tx] = 0;
           }
         }
       }
+      this.entranceTiles.add(doorRow * MAP_WIDTH + doorC0);
+      this.entranceTiles.add(doorRow * MAP_WIDTH + doorC1);
     }
+  }
+
+  isEntranceTile(tx: number, ty: number): boolean {
+    return this.entranceTiles.has(ty * MAP_WIDTH + tx);
   }
 
   blockTile(tx: number, ty: number): void {

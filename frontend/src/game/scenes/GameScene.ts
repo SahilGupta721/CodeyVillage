@@ -128,6 +128,13 @@ export class GameScene extends Phaser.Scene {
   } | null = null;
   private eraseMode = false;
   private placedItems = new Map<string, { sprite: Phaser.GameObjects.Image; itemId: string; pricePaid: number }>();
+  private carvedDoors = new Map<string, {
+    sprite: Phaser.GameObjects.Image;
+    entranceTiles: Array<{ tx: number; ty: number }>;
+    baseScaleX: number;
+    isOpen: boolean;
+    tween: Phaser.Tweens.Tween | null;
+  }>();
   // Tracks already-rendered placed items so we never double-spawn (e.g. when our
   // own HTTP POST response races with the WS broadcast echo).
   private placedItemIds: Set<string> = new Set();
@@ -247,6 +254,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.updatePlacementGhost();
+    this.updateDoorAnimations();
     if (this.placement && this.escKey && Phaser.Input.Keyboard.JustDown(this.escKey)) {
       this.cancelPlacement();
     }
@@ -901,11 +909,29 @@ export class GameScene extends Phaser.Scene {
 
     const pointer = this.input.activePointer;
     const world = pointer.positionToCamera(this.cameras.main) as Phaser.Math.Vector2;
+
+    if (this.placement.itemId === 'carved-door') {
+      const entrance = this.findNearestEntrance(world.x, world.y);
+      if (entrance) {
+        this.placement.ghost.setPosition(entrance.x, entrance.y);
+        // Mirror for right-half (baseScaleX -1) so knob preview faces inward.
+        this.placement.ghost.setScale(entrance.baseScaleX, 14 / TILE_SIZE);
+        this.placement.valid = true;
+        this.placement.ghost.clearTint();
+        this.placement.ghost.setAlpha(0.7);
+      } else {
+        this.placement.ghost.setPosition(world.x, world.y);
+        this.placement.ghost.setScale(1, 14 / TILE_SIZE);
+        this.placement.valid = false;
+        this.placement.ghost.setTint(0xff5050);
+        this.placement.ghost.setAlpha(0.45);
+      }
+      return;
+    }
+
     const snapped = this.snapToTileCentre(world.x, world.y);
-
     this.placement.ghost.setPosition(snapped.x, snapped.y);
-
-    // Valid only on a walkable, in-bounds, non-building tile.
+    this.placement.ghost.setScale(1, 1);
     const valid = this.col.isTileWalkable(snapped.tx, snapped.ty);
     this.placement.valid = valid;
     this.placement.ghost.setTint(valid ? 0xffffff : 0xff5050);
@@ -923,7 +949,15 @@ export class GameScene extends Phaser.Scene {
 
     if (!this.placement.valid) return;
 
-    const { x, y } = this.snapToTileCentre(pointer.worldX, pointer.worldY);
+    let x: number, y: number;
+    if (this.placement.itemId === 'carved-door') {
+      const entrance = this.findNearestEntrance(pointer.worldX, pointer.worldY);
+      if (!entrance) { this.cancelPlacement(); return; }
+      x = entrance.x;
+      y = entrance.y;
+    } else {
+      ({ x, y } = this.snapToTileCentre(pointer.worldX, pointer.worldY));
+    }
     const itemId = this.placement.itemId;
     const pricePaid = this.placement.pricePaid;
 
@@ -945,6 +979,20 @@ export class GameScene extends Phaser.Scene {
     const sprite = this.add.image(x, y, tex)
       .setOrigin(0.5, 0.7)
       .setDepth(PLACED_ITEM_DEPTH_BASE + y * 0.001);
+    if (itemId === 'carved-door') {
+      // Determine which entrance half this door is on by checking whether its tile
+      // is the right tile (c1) of any building entrance — if so, flip it so the
+      // doorknob (at x=20 in the 32px sprite) faces inward toward the centre.
+      const dtx = Math.floor(x / TILE_SIZE);
+      const dty = Math.floor(y / TILE_SIZE);
+      const eTiles = this.getEntranceTilesForDoor(dtx, dty);
+      const isRight = eTiles.length >= 2 && dtx === eTiles[1].tx;
+      const doorScaleX: 1 | -1 = isRight ? -1 : 1;
+      // Each half covers one tile wide × 14px tall (WALL=6 + FACE=8).
+      // Depth sits above gSouth so the door is visible in the opening.
+      sprite.setScale(doorScaleX, 14 / TILE_SIZE);
+      sprite.setDepth(100 + (y + 9) * 0.01);
+    }
     if (id) sprite.setData('placedId', id);
     sprite.setInteractive({ useHandCursor: true });
     sprite.on('pointerdown', () => {
@@ -957,6 +1005,19 @@ export class GameScene extends Phaser.Scene {
     if (id) {
       this.placedItemIds.add(id);
       this.placedItems.set(id, { sprite, itemId, pricePaid });
+      if (itemId === 'carved-door') {
+        const dtx = Math.floor(x / TILE_SIZE);
+        const dty = Math.floor(y / TILE_SIZE);
+        const eTiles = this.getEntranceTilesForDoor(dtx, dty);
+        const isRight = eTiles.length >= 2 && dtx === eTiles[1].tx;
+        this.carvedDoors.set(id, {
+          sprite,
+          entranceTiles: eTiles,
+          baseScaleX: isRight ? -1 : 1,
+          isOpen: false,
+          tween: null,
+        });
+      }
     }
   }
 
@@ -1008,6 +1069,11 @@ export class GameScene extends Phaser.Scene {
             this.placedItems.delete(tempId);
             this.placedItems.set(serverId, local);
           }
+          const door = this.carvedDoors.get(tempId);
+          if (door) {
+            this.carvedDoors.delete(tempId);
+            this.carvedDoors.set(serverId, door);
+          }
         }
       }
     } catch (e) {
@@ -1033,6 +1099,7 @@ export class GameScene extends Phaser.Scene {
     item.sprite.destroy();
     this.placedItems.delete(id);
     this.placedItemIds.delete(id);
+    this.carvedDoors.delete(id);
   }
 
   private async erasePlacedItem(id: string): Promise<void> {
@@ -1056,6 +1123,123 @@ export class GameScene extends Phaser.Scene {
       }
     } catch (e) {
       console.warn('Failed to erase placed item', e);
+    }
+  }
+
+  // ─── Carved door animation ────────────────────────────────────────────────
+
+  /**
+   * Finds the building entrance whose 2-tile center is within 1.5 tiles of (wx, wy).
+   * Returns the world-space snap point and entrance tiles, or null if none found.
+   */
+  /**
+   * Finds the nearest entrance half-tile within 1.5 tiles of (wx, wy).
+   * Each entrance has a LEFT half (tile c0, normal knob-right orientation) and a
+   * RIGHT half (tile c1, knob-left = flipped with baseScaleX -1).
+   * Returns the snap position, the flip sign, and both entrance tiles for animation.
+   */
+  private findNearestEntrance(wx: number, wy: number): {
+    x: number; y: number;   // tile-centre x stored in DB; visual y
+    hingeX: number;         // world x of the hinge edge (where origin is pinned)
+    originX: 0 | 1;         // sprite origin x: 0 = left hinge, 1 = right hinge
+    baseScaleX: 1 | -1;
+    entranceTiles: Array<{ tx: number; ty: number }>;
+  } | null {
+    const SNAP_DIST = TILE_SIZE * 1.5;
+    let best: {
+      dist: number; x: number; y: number;
+      hingeX: number; originX: 0 | 1;
+      baseScaleX: 1 | -1;
+      entranceTiles: Array<{ tx: number; ty: number }>;
+    } | null = null;
+
+    for (const b of this.island.buildings) {
+      const c0 = b.tileX + b.doorOffset;
+      const c1 = c0 + 1;
+      const row = b.tileY + b.tileH - 1;
+      const ey = (b.tileY + b.tileH) * TILE_SIZE + 3.8;
+      const entranceTiles = [{ tx: c0, ty: row }, { tx: c1, ty: row }];
+
+      // Left half — hinge on left wall edge, knob on right faces centre
+      const lx = c0 * TILE_SIZE + TILE_SIZE / 2;
+      const ld = Math.hypot(wx - lx, wy - ey);
+      if (ld <= SNAP_DIST && (!best || ld < best.dist)) {
+        best = {
+          dist: ld, x: lx, y: ey,
+          hingeX: c0 * TILE_SIZE,   // left edge of tile c0
+          originX: 0,
+          baseScaleX: 1, entranceTiles,
+        };
+      }
+
+      // Right half — hinge on right wall edge, knob on left faces centre
+      const rx = c1 * TILE_SIZE + TILE_SIZE / 2;
+      const rd = Math.hypot(wx - rx, wy - ey);
+      if (rd <= SNAP_DIST && (!best || rd < best.dist)) {
+        best = {
+          dist: rd, x: rx, y: ey,
+          hingeX: c1 * TILE_SIZE + TILE_SIZE, // right edge of tile c1
+          originX: 1,
+          baseScaleX: -1, entranceTiles,
+        };
+      }
+    }
+
+    return best;
+  }
+
+  /** Returns the two entrance tiles for the building whose doorway contains (doorTx, doorTy). */
+  private getEntranceTilesForDoor(doorTx: number, doorTy: number): Array<{ tx: number; ty: number }> {
+    for (const b of this.island.buildings) {
+      const c0 = b.tileX + b.doorOffset;
+      const c1 = c0 + 1;
+      const row = b.tileY + b.tileH - 1;
+      // doorTy may be row (entrance tile) or row+1 (visual anchor is below the tile boundary)
+      if ((doorTy === row || doorTy === row + 1) && (doorTx === c0 || doorTx === c1)) {
+        return [{ tx: c0, ty: row }, { tx: c1, ty: row }];
+      }
+    }
+    return [{ tx: doorTx, ty: doorTy }];
+  }
+
+  /**
+   * Each frame: if any character (player or NPC) occupies a carved door's entrance
+   * tiles, tween the door sprite open (scaleX → 0.12); close it when they leave.
+   */
+  private updateDoorAnimations(): void {
+    if (this.carvedDoors.size === 0) return;
+
+    const playerTx = Math.floor(this.player.x / TILE_SIZE);
+    const playerTy = Math.floor(this.player.y / TILE_SIZE);
+    const charTiles: Array<{ tx: number; ty: number }> = [{ tx: playerTx, ty: playerTy }];
+    for (const npc of this.npcs) {
+      charTiles.push({ tx: Math.floor(npc.x / TILE_SIZE), ty: Math.floor(npc.y / TILE_SIZE) });
+    }
+
+    for (const door of this.carvedDoors.values()) {
+      const occupied = charTiles.some(ct =>
+        door.entranceTiles.some(et => et.tx === ct.tx && et.ty === ct.ty),
+      );
+
+      if (occupied && !door.isOpen) {
+        door.isOpen = true;
+        door.tween?.stop();
+        door.tween = this.tweens.add({
+          targets: door.sprite,
+          scaleX: door.baseScaleX * 0.06,
+          duration: 150,
+          ease: 'Quad.Out',
+        });
+      } else if (!occupied && door.isOpen) {
+        door.isOpen = false;
+        door.tween?.stop();
+        door.tween = this.tweens.add({
+          targets: door.sprite,
+          scaleX: door.baseScaleX,
+          duration: 200,
+          ease: 'Quad.Out',
+        });
+      }
     }
   }
 }

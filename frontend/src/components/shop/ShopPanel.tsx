@@ -186,9 +186,17 @@ const ShopPanel = forwardRef<ShopPanelHandle, ShopPanelProps>(
     const handleBuy = async (item: ShopItem) => {
       if (coins < item.price) return;
 
+      // Optimistic update: deduct immediately and enter placement mode so
+      // buying works even when the backend is unreachable or the user is a guest.
+      setCoinsState(prev => prev - item.price);
+      onBuy?.(item.id, item.price);
+      setIsOpen(false);
+
+      // Best-effort backend sync — reconcile balance if the server responds.
       try {
         const uid = localStorage.getItem('firebaseUid') ||
           Object.keys(localStorage).find(k => k.startsWith('username:'))?.split(':')[1];
+        if (!uid) return;
 
         const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
@@ -198,14 +206,12 @@ const ShopPanel = forwardRef<ShopPanelHandle, ShopPanelProps>(
           body: JSON.stringify({ uid, amount: item.price, item: item.id }),
         });
 
-        if (!res.ok) return; // don't deduct if backend failed
-
-        const data = await res.json();
-        setCoinsState(data.coins); // use backend's authoritative balance
-        onBuy?.(item.id, item.price);
-        setIsOpen(false);
+        if (res.ok) {
+          const data = await res.json();
+          setCoinsState(data.coins); // reconcile with authoritative balance
+        }
       } catch {
-        // optionally show error
+        // backend unreachable — local deduction stands
       }
     };
 
