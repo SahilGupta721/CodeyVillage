@@ -373,7 +373,6 @@ const BASE_CATEGORIES: ShopCategory[] = [
       { id: 'potted-fern', name: 'Potted Fern', emoji: '🌱', price: 40 },
       { id: 'candle-set', name: 'Candle Set', emoji: '🕯️', price: 60 },
       { id: 'hanging-vine', name: 'Hanging Vine', emoji: '🪴', price: 90 },
-      { id: 'landscape-print', name: 'Landscape Print', emoji: '🖼️', price: 120 },
       { id: 'woven-rug', name: 'Woven Rug', emoji: '🧶', price: 75 },
       { id: 'flower-basket', name: 'Flower Basket', emoji: '🌸', price: 55 },
     ],

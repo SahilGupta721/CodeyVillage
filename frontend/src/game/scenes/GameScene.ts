@@ -52,7 +52,6 @@ const SHOP_ITEM_TEXTURES: Record<string, string> = {
   'potted-fern': 'potted-fern',
   'candle-set': 'candle-set',
   'hanging-vine': 'hanging-vine',
-  'landscape-print': 'landscape-print',
   'woven-rug': 'woven-rug',
   'flower-basket': 'flower-basket',
   'stone-window': 'stone-window',

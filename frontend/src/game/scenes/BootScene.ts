@@ -277,7 +277,6 @@ export class BootScene extends Phaser.Scene {
     this.makePottedFern();
     this.makeCandleSet();
     this.makeHangingVine();
-    this.makeLandscapePrint();
     this.makeWovenRug();
     this.makeFlowerBasket();
 
@@ -753,47 +752,6 @@ export class BootScene extends Phaser.Scene {
     ctx.fillRect(14, 11, 4, 2);
     ctx.fillRect(14, 17, 4, 2);
     ctx.fillRect(14, 23, 4, 2);
-    c.refresh();
-  }
-
-  private makeLandscapePrint(): void {
-    const c = this.textures.createCanvas('landscape-print', 32, 32)!;
-    const ctx = c.getContext();
-    ctx.fillStyle = 'rgba(0,0,0,0.22)';
-    ctx.fillRect(5, 29, 22, 3);
-    // Outer frame
-    ctx.fillStyle = '#6A4A28';
-    ctx.fillRect(4, 3, 24, 26);
-    ctx.fillStyle = '#9A6A40';
-    ctx.fillRect(5, 4, 22, 24);
-    // Inner matte
-    ctx.fillStyle = '#F0E8D8';
-    ctx.fillRect(7, 6, 18, 18);
-    // Sky
-    ctx.fillStyle = '#6090D8';
-    ctx.fillRect(8, 7, 16, 8);
-    // Clouds
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(9, 8, 6, 3);
-    ctx.fillRect(17, 9, 5, 2);
-    // Hills
-    ctx.fillStyle = '#508030';
-    ctx.fillRect(8, 14, 16, 4);
-    ctx.fillStyle = '#6AAA40';
-    ctx.fillRect(8, 13, 10, 2);
-    ctx.fillRect(18, 12, 6, 3);
-    // Small tree
-    ctx.fillStyle = '#2A5010';
-    ctx.fillRect(12, 10, 3, 4);
-    ctx.fillStyle = '#408020';
-    ctx.fillRect(11, 9, 5, 3);
-    // Foreground
-    ctx.fillStyle = '#4A7020';
-    ctx.fillRect(8, 18, 16, 3);
-    // Frame inner shadow
-    ctx.fillStyle = 'rgba(0,0,0,0.12)';
-    ctx.fillRect(7, 6, 18, 2);
-    ctx.fillRect(7, 6, 2, 18);
     c.refresh();
   }
 
