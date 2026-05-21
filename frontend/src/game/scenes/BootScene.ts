@@ -1051,8 +1051,10 @@ export class BootScene extends Phaser.Scene {
   private makeFencePost(): void {
     const c = this.textures.createCanvas('fence-post', 32, 32)!;
     const ctx = c.getContext();
+    // Shadow — thin rail line + five post pillars directly below each picket
     ctx.fillStyle = 'rgba(0,0,0,0.20)';
-    ctx.fillRect(4, 28, 24, 4);
+    ctx.fillRect(2, 26, 28, 1);
+    for (let i = 0; i < 5; i++) ctx.fillRect(4 + i * 6, 26, 4, 4);
     // Horizontal rails
     ctx.fillStyle = '#3D2010';
     ctx.fillRect(2, 12, 28, 4);
