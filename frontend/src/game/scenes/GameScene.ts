@@ -54,7 +54,6 @@ const SHOP_ITEM_TEXTURES: Record<string, string> = {
   'hanging-vine': 'hanging-vine',
   'woven-rug': 'woven-rug',
   'flower-basket': 'flower-basket',
-  'stone-window': 'stone-window',
   'carved-door': 'carved-door',
   'cobble-wall': 'cobble-wall',
   'wooden-arch': 'wooden-arch',

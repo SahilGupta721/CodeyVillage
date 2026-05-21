@@ -281,7 +281,6 @@ export class BootScene extends Phaser.Scene {
     this.makeFlowerBasket();
 
     // Structures
-    this.makeStoneWindow();
     this.makeCarvedDoor();
     this.makeCobbleWall();
     this.makeWoodenArch();
@@ -918,44 +917,6 @@ export class BootScene extends Phaser.Scene {
   }
 
   // ── Structures ───────────────────────────────────────────────────────────────
-
-  private makeStoneWindow(): void {
-    const c = this.textures.createCanvas('stone-window', 32, 32)!;
-    const ctx = c.getContext();
-    ctx.fillStyle = 'rgba(0,0,0,0.22)';
-    ctx.fillRect(4, 29, 24, 3);
-    // Frame
-    ctx.fillStyle = '#5A6060';
-    ctx.fillRect(4, 3, 24, 26);
-    ctx.fillStyle = '#8A9090';
-    ctx.fillRect(5, 4, 22, 24);
-    ctx.fillStyle = '#B0BCBC';
-    ctx.fillRect(5, 4, 12, 4);
-    // Glass area
-    ctx.fillStyle = '#2050A0';
-    ctx.fillRect(8, 7, 16, 18);
-    ctx.fillStyle = '#5888D8';
-    ctx.fillRect(9, 8, 14, 16);
-    // Pane dividers (cross)
-    ctx.fillStyle = '#6A7878';
-    ctx.fillRect(8, 15, 16, 3);
-    ctx.fillRect(15, 7, 3, 18);
-    ctx.fillStyle = '#8A9090';
-    ctx.fillRect(9, 16, 14, 1);
-    ctx.fillRect(16, 8, 1, 16);
-    // Glass reflections (each pane)
-    ctx.fillStyle = 'rgba(255,255,255,0.40)';
-    ctx.fillRect(10, 9, 4, 5);
-    ctx.fillRect(17, 9, 4, 5);
-    ctx.fillRect(10, 19, 4, 4);
-    ctx.fillRect(17, 19, 4, 4);
-    // Sill
-    ctx.fillStyle = '#6A7878';
-    ctx.fillRect(5, 25, 22, 3);
-    ctx.fillStyle = '#A0ACAC';
-    ctx.fillRect(6, 25, 20, 2);
-    c.refresh();
-  }
 
   private makeCarvedDoor(): void {
     // Each door covers exactly one entrance half-tile (32 px wide).

@@ -626,7 +626,6 @@ const BASE_CATEGORIES: ShopCategory[] = [
     label: 'Structures',
     emoji: '🪟',
     items: [
-      { id: 'stone-window', name: 'Stone Window', emoji: '🪟', price: 200 },
       { id: 'carved-door', name: 'Carved Door', emoji: '🚪', price: 280 },
       { id: 'cobble-wall', name: 'Cobble Wall', emoji: '🧱', price: 160 },
       { id: 'wooden-arch', name: 'Wooden Arch', emoji: '🌉', price: 320 },
