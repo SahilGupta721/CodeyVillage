@@ -582,8 +582,12 @@ export class BootScene extends Phaser.Scene {
   private makeCandleSet(): void {
     const c = this.textures.createCanvas('candle-set', 32, 32)!;
     const ctx = c.getContext();
+    // Three pillar shadows — start right at holder bottom (y=25).
+    // Heights reflect candle heights: left=4, center=6 (tallest), right=3.
     ctx.fillStyle = 'rgba(0,0,0,0.22)';
-    ctx.fillRect(6, 28, 20, 3);
+    ctx.fillRect(9,  25, 2, 4);  // left candle shadow
+    ctx.fillRect(15, 25, 2, 6);  // center candle shadow (longest)
+    ctx.fillRect(21, 25, 2, 3);  // right candle shadow
     // Holder plate
     ctx.fillStyle = '#8A6A30';
     ctx.fillRect(6, 22, 20, 4);
