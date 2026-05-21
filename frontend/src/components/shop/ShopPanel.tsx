@@ -246,26 +246,82 @@ function CozySofaIcon() {
     <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
       style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
       <rect x="3" y="29" width="26" height="3" fill="rgba(0,0,0,0.22)" />
-      {/* sofa back */}
-      <rect x="3" y="4" width="26" height="16" fill="#1E2F6A" />
-      <rect x="4" y="5" width="24" height="14" fill="#3558A0" />
-      <rect x="5" y="6" width="12" height="5" fill="#6890D8" />
-      {/* armrests */}
-      <rect x="3" y="18" width="6" height="9" fill="#1E2F6A" />
-      <rect x="23" y="18" width="6" height="9" fill="#1E2F6A" />
-      <rect x="4" y="19" width="4" height="7" fill="#3558A0" />
-      <rect x="24" y="19" width="4" height="7" fill="#3558A0" />
-      <rect x="5" y="19" width="2" height="3" fill="#6890D8" />
-      <rect x="25" y="19" width="2" height="3" fill="#6890D8" />
-      {/* seat cushions */}
-      <rect x="9" y="20" width="14" height="7" fill="#1E2F6A" />
-      <rect x="9" y="20" width="6" height="7" fill="#3558A0" />
-      <rect x="17" y="20" width="6" height="7" fill="#3558A0" />
-      <rect x="15" y="20" width="2" height="7" fill="#1E2F6A" />
-      <rect x="10" y="21" width="3" height="2" fill="#6890D8" />
-      <rect x="18" y="21" width="3" height="2" fill="#6890D8" />
       {/* base */}
-      <rect x="9" y="27" width="14" height="2" fill="#152248" />
+      <rect x="3" y="26" width="26" height="3" fill="#2A1C10" />
+      <rect x="4" y="27" width="24" height="1" fill="#7A5C3C" />
+      {/* left armrest */}
+      <rect x="0" y="8" width="5" height="18" fill="#2A1C10" />
+      <rect x="1" y="9" width="3" height="16" fill="#7A5C3C" />
+      <rect x="1" y="9" width="2" height="10" fill="#AA8458" />
+      <rect x="0" y="5" width="6" height="4" fill="#2A1C10" />
+      <rect x="1" y="6" width="4" height="2" fill="#D0A870" />
+      <rect x="1" y="6" width="3" height="1" fill="#F8E0C0" />
+      {/* right armrest */}
+      <rect x="27" y="8" width="5" height="18" fill="#2A1C10" />
+      <rect x="28" y="9" width="3" height="16" fill="#7A5C3C" />
+      <rect x="29" y="9" width="2" height="10" fill="#AA8458" />
+      <rect x="26" y="5" width="6" height="4" fill="#2A1C10" />
+      <rect x="27" y="6" width="4" height="2" fill="#D0A870" />
+      <rect x="28" y="6" width="3" height="1" fill="#F8E0C0" />
+      {/* back cushion block */}
+      <rect x="5" y="2" width="22" height="13" fill="#2A1C10" />
+      <rect x="12" y="2" width="1" height="13" fill="#2A1C10" />
+      <rect x="19" y="2" width="1" height="13" fill="#2A1C10" />
+      {/* headrest top roll */}
+      <rect x="6" y="2" width="6" height="1" fill="#E8C090" />
+      <rect x="13" y="2" width="6" height="1" fill="#E8C090" />
+      <rect x="20" y="2" width="6" height="1" fill="#E8C090" />
+      <rect x="6" y="3" width="6" height="1" fill="#7A5C3C" />
+      <rect x="13" y="3" width="6" height="1" fill="#7A5C3C" />
+      <rect x="20" y="3" width="6" height="1" fill="#7A5C3C" />
+      {/* left back cushion */}
+      <rect x="6" y="4" width="6" height="9" fill="#D0A870" />
+      <rect x="6" y="4" width="5" height="5" fill="#E8C090" />
+      <rect x="6" y="4" width="4" height="2" fill="#F8E0C0" />
+      <rect x="6" y="12" width="6" height="2" fill="#AA8458" />
+      {/* center back cushion */}
+      <rect x="13" y="4" width="6" height="9" fill="#D0A870" />
+      <rect x="13" y="4" width="5" height="5" fill="#E8C090" />
+      <rect x="13" y="4" width="4" height="2" fill="#F8E0C0" />
+      <rect x="13" y="12" width="6" height="2" fill="#AA8458" />
+      {/* right back cushion */}
+      <rect x="20" y="4" width="6" height="9" fill="#D0A870" />
+      <rect x="20" y="4" width="5" height="5" fill="#E8C090" />
+      <rect x="20" y="4" width="4" height="2" fill="#F8E0C0" />
+      <rect x="20" y="12" width="6" height="2" fill="#AA8458" />
+      {/* back-seat welt */}
+      <rect x="6" y="14" width="20" height="1" fill="#7A5C3C" />
+      {/* seat cushion block */}
+      <rect x="5" y="15" width="22" height="8" fill="#2A1C10" />
+      <rect x="12" y="15" width="1" height="8" fill="#2A1C10" />
+      <rect x="19" y="15" width="1" height="8" fill="#2A1C10" />
+      {/* left seat */}
+      <rect x="6" y="16" width="6" height="6" fill="#D0A870" />
+      <rect x="6" y="16" width="5" height="3" fill="#E8C090" />
+      <rect x="6" y="16" width="4" height="1" fill="#F8E0C0" />
+      <rect x="6" y="21" width="6" height="2" fill="#AA8458" />
+      {/* center seat */}
+      <rect x="13" y="16" width="6" height="6" fill="#D0A870" />
+      <rect x="13" y="16" width="5" height="3" fill="#E8C090" />
+      <rect x="13" y="16" width="4" height="1" fill="#F8E0C0" />
+      <rect x="13" y="21" width="6" height="2" fill="#AA8458" />
+      {/* right seat */}
+      <rect x="20" y="16" width="6" height="6" fill="#D0A870" />
+      <rect x="20" y="16" width="5" height="3" fill="#E8C090" />
+      <rect x="20" y="16" width="4" height="1" fill="#F8E0C0" />
+      <rect x="20" y="21" width="6" height="2" fill="#AA8458" />
+      {/* seat front welt */}
+      <rect x="6" y="22" width="20" height="1" fill="#7A5C3C" />
+      {/* lower recliner panels */}
+      <rect x="5" y="23" width="22" height="3" fill="#2A1C10" />
+      <rect x="12" y="23" width="1" height="3" fill="#2A1C10" />
+      <rect x="19" y="23" width="1" height="3" fill="#2A1C10" />
+      <rect x="6" y="23" width="6" height="3" fill="#AA8458" />
+      <rect x="13" y="23" width="6" height="3" fill="#AA8458" />
+      <rect x="20" y="23" width="6" height="3" fill="#AA8458" />
+      <rect x="6" y="23" width="5" height="2" fill="#D0A870" />
+      <rect x="13" y="23" width="5" height="2" fill="#D0A870" />
+      <rect x="20" y="23" width="5" height="2" fill="#D0A870" />
     </svg>
   );
 }
@@ -341,6 +397,194 @@ function FeatherBedIcon() {
   );
 }
 
+// ── potted fern icon ─────────────────────────────────────────────────────────
+
+function PottedFernIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
+      <rect x="9" y="29" width="14" height="3" fill="rgba(0,0,0,0.22)" />
+      {/* pot */}
+      <rect x="10" y="21" width="12" height="8" fill="#7A4A22" />
+      <rect x="11" y="22" width="10" height="6" fill="#C06030" />
+      <rect x="12" y="22" width="4" height="2" fill="#E08050" />
+      {/* rim */}
+      <rect x="9" y="19" width="14" height="3" fill="#7A4A22" />
+      <rect x="10" y="20" width="12" height="2" fill="#C06030" />
+      {/* stems */}
+      <rect x="10" y="7" width="3" height="13" fill="#1A5008" />
+      <rect x="19" y="5" width="3" height="15" fill="#1A5008" />
+      <rect x="15" y="9" width="2" height="11" fill="#1A5008" />
+      {/* fronds */}
+      <rect x="5" y="9" width="7" height="3" fill="#368A14" />
+      <rect x="3" y="13" width="9" height="3" fill="#368A14" />
+      <rect x="5" y="17" width="6" height="3" fill="#368A14" />
+      <rect x="21" y="7" width="7" height="3" fill="#368A14" />
+      <rect x="21" y="11" width="8" height="3" fill="#368A14" />
+      <rect x="22" y="15" width="6" height="3" fill="#368A14" />
+      <rect x="12" y="4" width="8" height="4" fill="#368A14" />
+      {/* highlights */}
+      <rect x="6" y="10" width="3" height="1" fill="#54B42A" />
+      <rect x="4" y="14" width="4" height="1" fill="#54B42A" />
+      <rect x="22" y="8" width="3" height="1" fill="#54B42A" />
+      <rect x="22" y="12" width="4" height="1" fill="#54B42A" />
+      <rect x="13" y="5" width="5" height="1" fill="#54B42A" />
+    </svg>
+  );
+}
+
+// ── candle set icon ───────────────────────────────────────────────────────────
+
+function CandleSetIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
+      {/* pillar shadows */}
+      <rect x="9" y="25" width="2" height="4" fill="rgba(0,0,0,0.22)" />
+      <rect x="15" y="25" width="2" height="6" fill="rgba(0,0,0,0.22)" />
+      <rect x="21" y="25" width="2" height="3" fill="rgba(0,0,0,0.22)" />
+      {/* holder */}
+      <rect x="6" y="22" width="20" height="4" fill="#8A6A30" />
+      <rect x="7" y="23" width="18" height="2" fill="#C89A50" />
+      {/* center candle */}
+      <rect x="14" y="8" width="4" height="14" fill="#E8E0D0" />
+      <rect x="15" y="9" width="2" height="12" fill="#F8F0E0" />
+      {/* left candle */}
+      <rect x="8" y="13" width="4" height="9" fill="#D0E8E0" />
+      <rect x="9" y="14" width="2" height="7" fill="#E8F8F0" />
+      {/* right candle */}
+      <rect x="20" y="15" width="4" height="7" fill="#E8D0D0" />
+      <rect x="21" y="16" width="2" height="5" fill="#F8E8E8" />
+      {/* flames */}
+      <rect x="15" y="5" width="2" height="3" fill="#FF8820" />
+      <rect x="9" y="10" width="2" height="3" fill="#FF8820" />
+      <rect x="21" y="12" width="2" height="3" fill="#FF8820" />
+      <rect x="15" y="5" width="2" height="2" fill="#FFCC00" />
+      <rect x="9" y="10" width="2" height="2" fill="#FFCC00" />
+      <rect x="21" y="12" width="2" height="2" fill="#FFCC00" />
+      <rect x="15" y="5" width="2" height="1" fill="#FFFFFF" />
+      <rect x="9" y="10" width="2" height="1" fill="#FFFFFF" />
+      <rect x="21" y="12" width="2" height="1" fill="#FFFFFF" />
+      {/* wicks */}
+      <rect x="15" y="8" width="2" height="1" fill="#3A2010" />
+      <rect x="9" y="13" width="2" height="1" fill="#3A2010" />
+      <rect x="21" y="15" width="2" height="1" fill="#3A2010" />
+    </svg>
+  );
+}
+
+// ── hanging vine icon ─────────────────────────────────────────────────────────
+
+function HangingVineIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
+      <rect x="10" y="29" width="12" height="3" fill="rgba(0,0,0,0.15)" />
+      {/* hook */}
+      <rect x="14" y="2" width="4" height="3" fill="#6A4820" />
+      {/* main stem */}
+      <rect x="15" y="4" width="2" height="22" fill="#3A7A20" />
+      {/* branch stems */}
+      <rect x="10" y="9" width="6" height="2" fill="#3A7A20" />
+      <rect x="17" y="14" width="6" height="2" fill="#3A7A20" />
+      <rect x="9" y="20" width="7" height="2" fill="#3A7A20" />
+      <rect x="17" y="24" width="6" height="2" fill="#3A7A20" />
+      {/* leaf clusters */}
+      <rect x="5" y="8" width="6" height="4" fill="#4AAA28" />
+      <rect x="21" y="13" width="6" height="4" fill="#4AAA28" />
+      <rect x="4" y="19" width="6" height="4" fill="#4AAA28" />
+      <rect x="21" y="23" width="6" height="4" fill="#4AAA28" />
+      <rect x="13" y="25" width="6" height="4" fill="#4AAA28" />
+      {/* highlights */}
+      <rect x="6" y="9" width="2" height="2" fill="#70CC40" />
+      <rect x="22" y="14" width="2" height="2" fill="#70CC40" />
+      <rect x="5" y="20" width="2" height="2" fill="#70CC40" />
+      <rect x="22" y="24" width="2" height="2" fill="#70CC40" />
+      <rect x="14" y="26" width="2" height="2" fill="#70CC40" />
+      {/* stem nodes */}
+      <rect x="14" y="11" width="4" height="2" fill="#2A6018" />
+      <rect x="14" y="17" width="4" height="2" fill="#2A6018" />
+      <rect x="14" y="23" width="4" height="2" fill="#2A6018" />
+    </svg>
+  );
+}
+
+// ── woven rug icon ────────────────────────────────────────────────────────────
+
+function WovenRugIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
+      <rect x="2" y="29" width="28" height="3" fill="rgba(0,0,0,0.18)" />
+      {/* rug base */}
+      <rect x="2" y="6" width="28" height="22" fill="#C04820" />
+      {/* border */}
+      <rect x="2" y="6" width="28" height="3" fill="#8A3010" />
+      <rect x="2" y="25" width="28" height="3" fill="#8A3010" />
+      <rect x="2" y="6" width="3" height="22" fill="#8A3010" />
+      <rect x="27" y="6" width="3" height="22" fill="#8A3010" />
+      {/* gold inner stripe */}
+      <rect x="4" y="9" width="24" height="2" fill="#E8C040" />
+      <rect x="4" y="23" width="24" height="2" fill="#E8C040" />
+      <rect x="4" y="9" width="2" height="16" fill="#E8C040" />
+      <rect x="26" y="9" width="2" height="16" fill="#E8C040" />
+      {/* center medallion */}
+      <rect x="12" y="14" width="8" height="6" fill="#8A3010" />
+      <rect x="10" y="15" width="12" height="4" fill="#8A3010" />
+      <rect x="13" y="15" width="6" height="4" fill="#E8C040" />
+      <rect x="12" y="16" width="8" height="2" fill="#E8C040" />
+      <rect x="15" y="16" width="2" height="2" fill="#FFFFFF" />
+      {/* fringe top & bottom */}
+      {[4,7,10,13,16,19,22,25].map(x => (
+        <g key={x}>
+          <rect x={x} y={5} width={2} height={2} fill="#D06030" />
+          <rect x={x} y={28} width={2} height={2} fill="#D06030" />
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+// ── flower basket icon ────────────────────────────────────────────────────────
+
+function FlowerBasketIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
+      <rect x="8" y="28" width="16" height="3" fill="rgba(0,0,0,0.22)" />
+      {/* basket body */}
+      <rect x="9" y="18" width="14" height="10" fill="#8B5E2A" />
+      <rect x="10" y="19" width="12" height="8" fill="#C89048" />
+      {/* weave */}
+      <rect x="10" y="21" width="12" height="2" fill="#A07030" />
+      <rect x="10" y="24" width="12" height="2" fill="#A07030" />
+      <rect x="12" y="19" width="2" height="8" fill="#A07030" />
+      <rect x="17" y="19" width="2" height="8" fill="#A07030" />
+      {/* rim */}
+      <rect x="9" y="16" width="14" height="3" fill="#8B5E2A" />
+      <rect x="10" y="17" width="12" height="2" fill="#C89048" />
+      {/* red flower */}
+      <rect x="9" y="10" width="5" height="5" fill="#E02020" />
+      <rect x="10" y="11" width="3" height="3" fill="#FF5050" />
+      <rect x="11" y="12" width="2" height="2" fill="#FFD040" />
+      {/* pink flower */}
+      <rect x="14" y="8" width="5" height="5" fill="#D050A0" />
+      <rect x="15" y="9" width="3" height="3" fill="#FF90C0" />
+      <rect x="16" y="10" width="2" height="2" fill="#FFEE60" />
+      {/* yellow flower */}
+      <rect x="19" y="11" width="5" height="5" fill="#D0B010" />
+      <rect x="20" y="12" width="3" height="3" fill="#FFE060" />
+      <rect x="21" y="13" width="2" height="2" fill="#FFFFFF" />
+      {/* stems & leaves */}
+      <rect x="11" y="14" width="2" height="4" fill="#3A8A18" />
+      <rect x="16" y="12" width="2" height="6" fill="#3A8A18" />
+      <rect x="21" y="15" width="2" height="3" fill="#3A8A18" />
+      <rect x="8" y="13" width="4" height="2" fill="#3A8A18" />
+      <rect x="22" y="14" width="5" height="2" fill="#3A8A18" />
+    </svg>
+  );
+}
+
 // ── shop catalogue ───────────────────────────────────────────────────────────
 
 const BASE_CATEGORIES: ShopCategory[] = [
@@ -370,11 +614,11 @@ const BASE_CATEGORIES: ShopCategory[] = [
     label: 'Decor',
     emoji: '🌿',
     items: [
-      { id: 'potted-fern', name: 'Potted Fern', emoji: '🌱', price: 40 },
-      { id: 'candle-set', name: 'Candle Set', emoji: '🕯️', price: 60 },
-      { id: 'hanging-vine', name: 'Hanging Vine', emoji: '🪴', price: 90 },
-      { id: 'woven-rug', name: 'Woven Rug', emoji: '🧶', price: 75 },
-      { id: 'flower-basket', name: 'Flower Basket', emoji: '🌸', price: 55 },
+      { id: 'potted-fern', name: 'Potted Fern', emoji: '🌱', icon: <PottedFernIcon />, price: 40 },
+      { id: 'candle-set', name: 'Candle Set', emoji: '🕯️', icon: <CandleSetIcon />, price: 60 },
+      { id: 'hanging-vine', name: 'Hanging Vine', emoji: '🪴', icon: <HangingVineIcon />, price: 90 },
+      { id: 'woven-rug', name: 'Woven Rug', emoji: '🧶', icon: <WovenRugIcon />, price: 75 },
+      { id: 'flower-basket', name: 'Flower Basket', emoji: '🌸', icon: <FlowerBasketIcon />, price: 55 },
     ],
   },
   {

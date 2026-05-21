@@ -342,39 +342,111 @@ export class BootScene extends Phaser.Scene {
   private makeCozySofa(): void {
     const c = this.textures.createCanvas('cozy-sofa', 32, 32)!;
     const ctx = c.getContext();
+
+    // Soft warm-beige leather palette
+    const D = '#2A1C10'; // darkest — outline, deep seams
+    const K = '#7A5C3C'; // dark — shaded sides, welt lines
+    const M = '#AA8458'; // mid — shadow body
+    const L = '#D0A870'; // light — main surface
+    const H = '#E8C090'; // highlight — lit face
+    const B = '#F8E0C0'; // brightest — specular
+
+    // Drop shadow
     ctx.fillStyle = 'rgba(0,0,0,0.22)';
     ctx.fillRect(3, 29, 26, 3);
-    // Sofa back
-    ctx.fillStyle = '#1E2F6A';
-    ctx.fillRect(3, 4, 26, 16);
-    ctx.fillStyle = '#3558A0';
-    ctx.fillRect(4, 5, 24, 14);
-    ctx.fillStyle = '#6890D8';
-    ctx.fillRect(5, 6, 12, 5);
-    // Armrests
-    ctx.fillStyle = '#1E2F6A';
-    ctx.fillRect(3, 18, 6, 9);
-    ctx.fillRect(23, 18, 6, 9);
-    ctx.fillStyle = '#3558A0';
-    ctx.fillRect(4, 19, 4, 7);
-    ctx.fillRect(24, 19, 4, 7);
-    ctx.fillStyle = '#6890D8';
-    ctx.fillRect(5, 19, 2, 3);
-    ctx.fillRect(25, 19, 2, 3);
-    // Seat cushions
-    ctx.fillStyle = '#1E2F6A';
-    ctx.fillRect(9, 20, 14, 7);
-    ctx.fillStyle = '#3558A0';
-    ctx.fillRect(9, 20, 6, 7);
-    ctx.fillRect(17, 20, 6, 7);
-    ctx.fillStyle = '#1E2F6A';
-    ctx.fillRect(15, 20, 2, 7);
-    ctx.fillStyle = '#6890D8';
-    ctx.fillRect(10, 21, 3, 2);
-    ctx.fillRect(18, 21, 3, 2);
-    // Base
-    ctx.fillStyle = '#152248';
-    ctx.fillRect(9, 27, 14, 2);
+
+    // Base plinth
+    ctx.fillStyle = D;  ctx.fillRect(3, 26, 26, 3);
+    ctx.fillStyle = K;  ctx.fillRect(4, 27, 24, 1);
+
+    // LEFT ARMREST — side face
+    ctx.fillStyle = D;  ctx.fillRect(0, 8, 5, 18);
+    ctx.fillStyle = K;  ctx.fillRect(1, 9, 3, 16);
+    ctx.fillStyle = M;  ctx.fillRect(1, 9, 2, 10);
+    // Left armrest — top cap
+    ctx.fillStyle = D;  ctx.fillRect(0, 5, 6, 4);
+    ctx.fillStyle = L;  ctx.fillRect(1, 6, 4, 2);
+    ctx.fillStyle = B;  ctx.fillRect(1, 6, 3, 1);
+
+    // RIGHT ARMREST — side face
+    ctx.fillStyle = D;  ctx.fillRect(27, 8, 5, 18);
+    ctx.fillStyle = K;  ctx.fillRect(28, 9, 3, 16);
+    ctx.fillStyle = M;  ctx.fillRect(29, 9, 2, 10);
+    // Right armrest — top cap
+    ctx.fillStyle = D;  ctx.fillRect(26, 5, 6, 4);
+    ctx.fillStyle = L;  ctx.fillRect(27, 6, 4, 2);
+    ctx.fillStyle = B;  ctx.fillRect(28, 6, 3, 1);
+
+    // BACK CUSHIONS — 3 × 6 px, symmetric (x=5-26)
+    ctx.fillStyle = D;
+    ctx.fillRect(5, 2, 22, 13);  // outer block
+    ctx.fillRect(12, 2, 1, 13);  // left seam
+    ctx.fillRect(19, 2, 1, 13);  // right seam
+
+    // Headrest top roll — bright top edge + dark fold
+    ctx.fillStyle = H;
+    ctx.fillRect(6, 2, 6, 1);  ctx.fillRect(13, 2, 6, 1);  ctx.fillRect(20, 2, 6, 1);
+    ctx.fillStyle = K;
+    ctx.fillRect(6, 3, 6, 1);  ctx.fillRect(13, 3, 6, 1);  ctx.fillRect(20, 3, 6, 1);
+
+    // Left back cushion
+    ctx.fillStyle = L;  ctx.fillRect(6,  4, 6, 9);
+    ctx.fillStyle = H;  ctx.fillRect(6,  4, 5, 5);
+    ctx.fillStyle = B;  ctx.fillRect(6,  4, 4, 2);
+    ctx.fillStyle = M;  ctx.fillRect(6, 12, 6, 2);  // bottom shadow
+
+    // Center back cushion
+    ctx.fillStyle = L;  ctx.fillRect(13,  4, 6, 9);
+    ctx.fillStyle = H;  ctx.fillRect(13,  4, 5, 5);
+    ctx.fillStyle = B;  ctx.fillRect(13,  4, 4, 2);
+    ctx.fillStyle = M;  ctx.fillRect(13, 12, 6, 2);
+
+    // Right back cushion
+    ctx.fillStyle = L;  ctx.fillRect(20,  4, 6, 9);
+    ctx.fillStyle = H;  ctx.fillRect(20,  4, 5, 5);
+    ctx.fillStyle = B;  ctx.fillRect(20,  4, 4, 2);
+    ctx.fillStyle = M;  ctx.fillRect(20, 12, 6, 2);
+
+    // Back-seat welt seam
+    ctx.fillStyle = K;  ctx.fillRect(6, 14, 20, 1);
+
+    // SEAT CUSHIONS — 3 × 6 px
+    ctx.fillStyle = D;
+    ctx.fillRect(5, 15, 22, 8);
+    ctx.fillRect(12, 15, 1, 8);
+    ctx.fillRect(19, 15, 1, 8);
+
+    // Left seat
+    ctx.fillStyle = L;  ctx.fillRect(6, 16, 6, 6);
+    ctx.fillStyle = H;  ctx.fillRect(6, 16, 5, 3);
+    ctx.fillStyle = B;  ctx.fillRect(6, 16, 4, 1);
+    ctx.fillStyle = M;  ctx.fillRect(6, 21, 6, 2);
+
+    // Center seat
+    ctx.fillStyle = L;  ctx.fillRect(13, 16, 6, 6);
+    ctx.fillStyle = H;  ctx.fillRect(13, 16, 5, 3);
+    ctx.fillStyle = B;  ctx.fillRect(13, 16, 4, 1);
+    ctx.fillStyle = M;  ctx.fillRect(13, 21, 6, 2);
+
+    // Right seat
+    ctx.fillStyle = L;  ctx.fillRect(20, 16, 6, 6);
+    ctx.fillStyle = H;  ctx.fillRect(20, 16, 5, 3);
+    ctx.fillStyle = B;  ctx.fillRect(20, 16, 4, 1);
+    ctx.fillStyle = M;  ctx.fillRect(20, 21, 6, 2);
+
+    // Seat front welt
+    ctx.fillStyle = K;  ctx.fillRect(6, 22, 20, 1);
+
+    // LOWER RECLINER PANELS (footrest area)
+    ctx.fillStyle = D;
+    ctx.fillRect(5, 23, 22, 3);
+    ctx.fillRect(12, 23, 1, 3);
+    ctx.fillRect(19, 23, 1, 3);
+    ctx.fillStyle = M;
+    ctx.fillRect(6, 23, 6, 3);  ctx.fillRect(13, 23, 6, 3);  ctx.fillRect(20, 23, 6, 3);
+    ctx.fillStyle = L;
+    ctx.fillRect(6, 23, 5, 2);  ctx.fillRect(13, 23, 5, 2);  ctx.fillRect(20, 23, 5, 2);
+
     c.refresh();
   }
 
