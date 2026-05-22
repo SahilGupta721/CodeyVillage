@@ -585,6 +585,138 @@ function FlowerBasketIcon() {
   );
 }
 
+// ── structure icons ──────────────────────────────────────────────────────────
+
+function CarvedDoorIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
+      <rect x="0" y="29" width="32" height="3" fill="rgba(0,0,0,0.25)" />
+      <rect x="0" y="1" width="32" height="30" fill="#2A1408" />
+      <rect x="1" y="2" width="30" height="27" fill="#5A3018" />
+      <rect x="2" y="3" width="28" height="25" fill="#7A4A22" />
+      <rect x="2" y="9" width="28" height="1" fill="#5A3018" />
+      <rect x="2" y="16" width="28" height="1" fill="#5A3018" />
+      <rect x="2" y="23" width="28" height="1" fill="#5A3018" />
+      <rect x="3" y="4" width="26" height="10" fill="#5A3018" />
+      <rect x="4" y="5" width="24" height="8" fill="#8A5A2A" />
+      <rect x="3" y="17" width="26" height="10" fill="#5A3018" />
+      <rect x="4" y="18" width="24" height="8" fill="#8A5A2A" />
+      <rect x="2" y="3" width="2" height="25" fill="#B07840" />
+      <rect x="25" y="14" width="3" height="3" fill="#E8C040" />
+      <rect x="26" y="14" width="2" height="2" fill="#FFF090" />
+    </svg>
+  );
+}
+
+function CobbleWallIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
+      <rect x="2" y="6" width="28" height="22" fill="#5A5450" />
+      <rect x="3" y="7" width="12" height="6" fill="#8A8078" />
+      <rect x="16" y="7" width="13" height="6" fill="#8A8078" />
+      <rect x="4" y="8" width="10" height="4" fill="#A09890" />
+      <rect x="17" y="8" width="11" height="4" fill="#A09890" />
+      <rect x="3" y="14" width="7" height="6" fill="#8A8078" />
+      <rect x="11" y="14" width="11" height="6" fill="#8A8078" />
+      <rect x="23" y="14" width="6" height="6" fill="#8A8078" />
+      <rect x="4" y="15" width="5" height="4" fill="#A09890" />
+      <rect x="12" y="15" width="9" height="4" fill="#A09890" />
+      <rect x="24" y="15" width="4" height="4" fill="#A09890" />
+      <rect x="3" y="21" width="12" height="6" fill="#8A8078" />
+      <rect x="16" y="21" width="13" height="6" fill="#8A8078" />
+      <rect x="4" y="22" width="10" height="4" fill="#A09890" />
+      <rect x="17" y="22" width="11" height="4" fill="#A09890" />
+      <rect x="4" y="8" width="4" height="2" fill="#C0B8B0" />
+      <rect x="17" y="8" width="4" height="2" fill="#C0B8B0" />
+      <rect x="4" y="15" width="3" height="2" fill="#C0B8B0" />
+      <rect x="12" y="15" width="4" height="2" fill="#C0B8B0" />
+      <rect x="24" y="15" width="3" height="2" fill="#C0B8B0" />
+      <rect x="4" y="22" width="4" height="2" fill="#C0B8B0" />
+      <rect x="17" y="22" width="4" height="2" fill="#C0B8B0" />
+      <rect x="2" y="26" width="28" height="3" fill="rgba(0,0,0,0.22)" />
+    </svg>
+  );
+}
+
+function WoodenArchIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
+      <rect x="3" y="28" width="26" height="4" fill="rgba(0,0,0,0.22)" />
+      <rect x="4" y="8" width="7" height="20" fill="#3D2010" />
+      <rect x="5" y="9" width="5" height="18" fill="#8B5E3C" />
+      <rect x="6" y="9" width="2" height="10" fill="#B07040" />
+      <rect x="21" y="8" width="7" height="20" fill="#3D2010" />
+      <rect x="22" y="9" width="5" height="18" fill="#8B5E3C" />
+      <rect x="23" y="9" width="2" height="10" fill="#B07040" />
+      <rect x="4" y="4" width="24" height="7" fill="#3D2010" />
+      <rect x="5" y="5" width="22" height="5" fill="#8B5E3C" />
+      <rect x="6" y="6" width="12" height="2" fill="#B07040" />
+      <rect x="5" y="11" width="5" height="2" fill="#3D2010" />
+      <rect x="22" y="11" width="5" height="2" fill="#3D2010" />
+      <rect x="10" y="19" width="12" height="5" fill="#3D2010" />
+      <rect x="11" y="20" width="10" height="3" fill="#8B5E3C" />
+      <rect x="12" y="20" width="5" height="1" fill="#B07040" />
+    </svg>
+  );
+}
+
+function FencePostIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
+      <rect x="2" y="26" width="28" height="1" fill="rgba(0,0,0,0.20)" />
+      {[0,1,2,3,4].map(i => (
+        <rect key={i} x={4 + i * 6} y="26" width="4" height="4" fill="rgba(0,0,0,0.20)" />
+      ))}
+      {[0,1,2,3,4].map(i => {
+        const bx = 4 + i * 6;
+        return (
+          <g key={i}>
+            <rect x={bx} y="6" width="4" height="20" fill="#3D2010" />
+            <rect x={bx + 1} y="7" width="2" height="18" fill="#8B5E3C" />
+            <rect x={bx + 1} y="4" width="2" height="3" fill="#3D2010" />
+            <rect x={bx + 1} y="5" width="2" height="2" fill="#8B5E3C" />
+          </g>
+        );
+      })}
+      <rect x="2" y="12" width="28" height="4" fill="#3D2010" />
+      <rect x="2" y="20" width="28" height="4" fill="#3D2010" />
+      <rect x="3" y="13" width="26" height="2" fill="#8B5E3C" />
+      <rect x="3" y="21" width="26" height="2" fill="#8B5E3C" />
+      <rect x="3" y="13" width="14" height="1" fill="#B07040" />
+      <rect x="3" y="21" width="14" height="1" fill="#B07040" />
+    </svg>
+  );
+}
+
+function GardenGateIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
+      <rect x="3" y="28" width="26" height="4" fill="rgba(0,0,0,0.22)" />
+      <rect x="3" y="4" width="5" height="24" fill="#3D2010" />
+      <rect x="24" y="4" width="5" height="24" fill="#3D2010" />
+      <rect x="4" y="5" width="3" height="22" fill="#8B5E3C" />
+      <rect x="25" y="5" width="3" height="22" fill="#8B5E3C" />
+      <rect x="3" y="4" width="26" height="5" fill="#3D2010" />
+      <rect x="4" y="5" width="24" height="3" fill="#8B5E3C" />
+      {[9, 12, 15, 18, 21].map(x => (
+        <g key={x}>
+          <rect x={x} y="9" width="2" height="18" fill="#5A3018" />
+          <rect x={x} y="9" width="1" height="18" fill="#8B5E3C" />
+        </g>
+      ))}
+      <rect x="8" y="18" width="16" height="3" fill="#5A3018" />
+      <rect x="9" y="19" width="14" height="1" fill="#8B5E3C" />
+      <rect x="22" y="13" width="3" height="3" fill="#D8A030" />
+      <rect x="23" y="14" width="2" height="1" fill="#FFD060" />
+    </svg>
+  );
+}
+
 // ── shop catalogue ───────────────────────────────────────────────────────────
 
 const BASE_CATEGORIES: ShopCategory[] = [
@@ -626,11 +758,11 @@ const BASE_CATEGORIES: ShopCategory[] = [
     label: 'Structures',
     emoji: '🪟',
     items: [
-      { id: 'carved-door', name: 'Carved Door', emoji: '🚪', price: 280 },
-      { id: 'cobble-wall', name: 'Cobble Wall', emoji: '🧱', price: 160 },
-      { id: 'wooden-arch', name: 'Wooden Arch', emoji: '🌉', price: 320 },
-      { id: 'fence-post', name: 'Fence Post', emoji: '🪵', price: 80 },
-      { id: 'garden-gate', name: 'Garden Gate', emoji: '⛩️', price: 240 },
+      { id: 'carved-door', name: 'Carved Door', emoji: '🚪', icon: <CarvedDoorIcon />, price: 280 },
+      { id: 'cobble-wall', name: 'Cobble Wall', emoji: '🧱', icon: <CobbleWallIcon />, price: 160 },
+      { id: 'wooden-arch', name: 'Wooden Arch', emoji: '🌉', icon: <WoodenArchIcon />, price: 320 },
+      { id: 'fence-post', name: 'Fence Post', emoji: '🪵', icon: <FencePostIcon />, price: 80 },
+      { id: 'garden-gate', name: 'Garden Gate', emoji: '⛩️', icon: <GardenGateIcon />, price: 240 },
     ],
   },
   {
