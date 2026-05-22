@@ -1027,6 +1027,9 @@ export class GameScene extends Phaser.Scene {
     const sprite = this.add.image(x, y, tex)
       .setOrigin(0.5, 0.7)
       .setDepth(PLACED_ITEM_DEPTH_BASE + y * 0.001);
+    if (itemId === 'cobble-wall') {
+      sprite.postFX.addShadow(1, 5, 0.005, 1.2, 0x000000, 10, 0.85);
+    }
     if (itemId === 'carved-door') {
       // Determine which entrance half this door is on by checking whether its tile
       // is the right tile (c1) of any building entrance — if so, flip it so the

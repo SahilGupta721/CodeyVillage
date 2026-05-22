@@ -1040,6 +1040,17 @@ export class BootScene extends Phaser.Scene {
     ctx.fillRect(2,  23, 4, 2);
     ctx.fillRect(17, 23, 4, 2);
 
+    // South-face shadow — bottom 6 px progressively darkened to give the wall
+    // visible depth. Applied as solid colours so it survives pixelArt rendering.
+    ctx.fillStyle = '#3A3836';
+    ctx.fillRect(0, 26, 32, 2);
+    ctx.fillStyle = '#2E2C2A';
+    ctx.fillRect(0, 28, 32, 2);
+    ctx.fillStyle = '#222020';
+    ctx.fillRect(0, 30, 32, 1);
+    ctx.fillStyle = '#141212';
+    ctx.fillRect(0, 31, 32, 1);
+
     c.refresh();
   }
 
