@@ -637,7 +637,6 @@ export class GameScene extends Phaser.Scene {
     for (let row = 0; row * 8 < floorH; row++) {
       gBase.fillRect(px + WALL, py + WALL + row * 8 + 7, pw - WALL * 2, 1);
     }
-    this.drawFurniture(gBase, b, px, py, pw, ph, WALL, pal);
     gBase.lineStyle(1, 0x000000, 0.50);
     gBase.strokeRect(px, py, pw, ph);
     gBase.lineStyle(1, 0x000000, 0.08);
