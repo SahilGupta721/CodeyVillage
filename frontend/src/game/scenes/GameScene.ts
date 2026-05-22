@@ -307,7 +307,8 @@ export class GameScene extends Phaser.Scene {
 
     this.socket.onclose = () => {
       console.log('[multiplayer] WebSocket disconnected');
-      if (this.onlineHud) this.onlineHud.setText('Online: disconnected');
+      if (this.onlineHud?.active) this.onlineHud.setText('Online: disconnected');
+
     };
 
     this.socket.onerror = (e) => {
@@ -1199,18 +1200,18 @@ export class GameScene extends Phaser.Scene {
    */
   private canPlaceInsideBuilding(wx: number, wy: number, b: BuildingData): boolean {
     const WALL = 6;
-    const intLeft   = b.tileX * TILE_SIZE + WALL;
-    const intRight  = (b.tileX + b.tileW) * TILE_SIZE - WALL;
-    const intTop    = b.tileY * TILE_SIZE + WALL;
+    const intLeft = b.tileX * TILE_SIZE + WALL;
+    const intRight = (b.tileX + b.tileW) * TILE_SIZE - WALL;
+    const intTop = b.tileY * TILE_SIZE + WALL;
     // South visual wall starts at (tileY+tileH)*TS - WALL; sprite bottom must not reach it.
     const intBottom = (b.tileY + b.tileH) * TILE_SIZE - WALL;
-    const halfW  = TILE_SIZE / 2;       // 16 px — sprite half-width
-    const above  = Math.round(TILE_SIZE * 0.7); // 22 px above anchor
-    const below  = TILE_SIZE - above;          // 10 px below anchor
+    const halfW = TILE_SIZE / 2;       // 16 px — sprite half-width
+    const above = Math.round(TILE_SIZE * 0.7); // 22 px above anchor
+    const below = TILE_SIZE - above;          // 10 px below anchor
     return (
-      wx - halfW >= intLeft  &&
+      wx - halfW >= intLeft &&
       wx + halfW <= intRight &&
-      wy - above >= intTop   &&
+      wy - above >= intTop &&
       wy + below <= intBottom
     );
   }
