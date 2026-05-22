@@ -968,43 +968,53 @@ export class BootScene extends Phaser.Scene {
   private makeCobbleWall(): void {
     const c = this.textures.createCanvas('cobble-wall', 32, 32)!;
     const ctx = c.getContext();
-    // Wall base (grout)
+
+    // Full grout fill — covers every edge pixel so adjacent walls leave no gap.
+    // Grout lines between stones are implicit (background shows through the 1 px
+    // margins left on each side of every stone).
     ctx.fillStyle = '#5A5450';
-    ctx.fillRect(2, 6, 28, 22);
-    // Row 1 stones
+    ctx.fillRect(0, 0, 32, 32);
+
+    // Row 1  (y = 0 .. 9)  — two stones, 1 px left/right edge + 1 px seam at x=15
     ctx.fillStyle = '#8A8078';
-    ctx.fillRect(3, 7, 12, 6);
-    ctx.fillRect(16, 7, 13, 6);
+    ctx.fillRect(1,  0, 14, 10);  // left stone  x=1..14
+    ctx.fillRect(16, 0, 15, 10);  // right stone x=16..30
     ctx.fillStyle = '#A09890';
-    ctx.fillRect(4, 8, 10, 4);
-    ctx.fillRect(17, 8, 11, 4);
-    // Row 2 (offset)
-    ctx.fillStyle = '#8A8078';
-    ctx.fillRect(3, 14, 7, 6);
-    ctx.fillRect(11, 14, 11, 6);
-    ctx.fillRect(23, 14, 6, 6);
-    ctx.fillStyle = '#A09890';
-    ctx.fillRect(4, 15, 5, 4);
-    ctx.fillRect(12, 15, 9, 4);
-    ctx.fillRect(24, 15, 4, 4);
-    // Row 3
-    ctx.fillStyle = '#8A8078';
-    ctx.fillRect(3, 21, 12, 6);
-    ctx.fillRect(16, 21, 13, 6);
-    ctx.fillStyle = '#A09890';
-    ctx.fillRect(4, 22, 10, 4);
-    ctx.fillRect(17, 22, 11, 4);
-    // Stone highlights
+    ctx.fillRect(2,  1, 12, 8);
+    ctx.fillRect(17, 1, 13, 8);
     ctx.fillStyle = '#C0B8B0';
-    ctx.fillRect(4, 8, 4, 2);
-    ctx.fillRect(17, 8, 4, 2);
-    ctx.fillRect(4, 15, 3, 2);
-    ctx.fillRect(12, 15, 4, 2);
-    ctx.fillRect(24, 15, 3, 2);
-    ctx.fillRect(4, 22, 4, 2);
-    ctx.fillRect(17, 22, 4, 2);
-    ctx.fillStyle = 'rgba(0,0,0,0.22)';
-    ctx.fillRect(2, 26, 28, 3);
+    ctx.fillRect(2,  1, 4, 2);
+    ctx.fillRect(17, 1, 4, 2);
+
+    // y=10 is the horizontal mortar course between rows 1 and 2.
+
+    // Row 2  (y = 11 .. 20)  — offset: left-half + centre + right-half
+    ctx.fillStyle = '#8A8078';
+    ctx.fillRect(1,  11, 7,  10); // left half   x=1..7
+    ctx.fillRect(9,  11, 14, 10); // centre      x=9..22
+    ctx.fillRect(24, 11, 7,  10); // right half  x=24..30
+    ctx.fillStyle = '#A09890';
+    ctx.fillRect(2,  12, 5, 8);
+    ctx.fillRect(10, 12, 12, 8);
+    ctx.fillRect(25, 12, 5, 8);
+    ctx.fillStyle = '#C0B8B0';
+    ctx.fillRect(2,  12, 3, 2);
+    ctx.fillRect(10, 12, 4, 2);
+    ctx.fillRect(25, 12, 3, 2);
+
+    // y=21 is the horizontal mortar course between rows 2 and 3.
+
+    // Row 3  (y = 22 .. 31)  — same pattern as row 1
+    ctx.fillStyle = '#8A8078';
+    ctx.fillRect(1,  22, 14, 10);
+    ctx.fillRect(16, 22, 15, 10);
+    ctx.fillStyle = '#A09890';
+    ctx.fillRect(2,  23, 12, 8);
+    ctx.fillRect(17, 23, 13, 8);
+    ctx.fillStyle = '#C0B8B0';
+    ctx.fillRect(2,  23, 4, 2);
+    ctx.fillRect(17, 23, 4, 2);
+
     c.refresh();
   }
 
