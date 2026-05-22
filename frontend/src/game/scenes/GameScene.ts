@@ -137,6 +137,7 @@ export class GameScene extends Phaser.Scene {
   // own HTTP POST response races with the WS broadcast echo).
   private placedItemIds: Set<string> = new Set();
   private escKey: Phaser.Input.Keyboard.Key | null = null;
+  private nightOverlay: Phaser.GameObjects.Rectangle | null = null;
 
   constructor() { super({ key: 'GameScene' }); }
 
@@ -176,6 +177,7 @@ export class GameScene extends Phaser.Scene {
       .setBackgroundColor('#3898d8');
 
     this.addLeafParticles();
+    this.setupNightCycle();
 
     this.cursors = this.input.keyboard!.createCursorKeys();
     this.wasd = {
@@ -672,76 +674,6 @@ export class GameScene extends Phaser.Scene {
     gSouth.lineStyle(1, 0x000000, 0.35);
     gSouth.strokeRect(px, py + ph - WALL, pw, WALL + FACE);
     gSouth.setDepth(100 + (py + ph + FACE) * 0.01);
-  }
-
-  private drawFurniture(
-    g: Phaser.GameObjects.Graphics,
-    b: BuildingData,
-    px: number, py: number, pw: number, ph: number,
-    WALL: number,
-    pal: Palette,
-  ): void {
-    const ix = px + WALL + 4;
-    const iy = py + WALL + 4;
-    const iw = pw - WALL * 2 - 8;
-    const ih = ph - WALL * 2 - 8;
-
-    switch (b.style % 5) {
-      case 0: {
-        g.fillStyle(pal.accent, 0.30);
-        g.fillRect(ix + Math.floor(iw * 0.20), iy + Math.floor(ih * 0.20), Math.floor(iw * 0.60), Math.floor(ih * 0.55));
-        g.fillStyle(0x8a5c2a);
-        g.fillRect(ix + Math.floor(iw * 0.28), iy + Math.floor(ih * 0.28), Math.floor(iw * 0.44), Math.floor(ih * 0.38));
-        g.fillStyle(0x6a4a20);
-        g.fillRect(ix + Math.floor(iw * 0.12), iy + Math.floor(ih * 0.35), 5, 5);
-        g.fillRect(ix + Math.floor(iw * 0.78), iy + Math.floor(ih * 0.35), 5, 5);
-        break;
-      }
-      case 1: {
-        g.fillStyle(0x8090c0);
-        g.fillRect(ix, iy, Math.floor(iw * 0.50), Math.floor(ih * 0.55));
-        g.fillStyle(0xf0e8d8);
-        g.fillRect(ix + 2, iy + 2, Math.floor(iw * 0.42), Math.floor(ih * 0.18));
-        g.fillStyle(0x7a5030);
-        g.fillRect(ix + Math.floor(iw * 0.60), iy, Math.floor(iw * 0.38), Math.floor(ih * 0.35));
-        break;
-      }
-      case 2: {
-        g.fillStyle(0x9a7040);
-        g.fillRect(ix, iy, iw, Math.floor(ih * 0.28));
-        g.fillStyle(0xc0a060);
-        g.fillRect(ix, iy, iw, 3);
-        const itemColors = [0xc03020, 0x208030, 0x2040c0, 0xa06020];
-        for (let i = 0; i < 4; i++) {
-          g.fillStyle(itemColors[i]);
-          g.fillRect(ix + 5 + i * Math.floor(iw / 4.5), iy + 5, 8, 6);
-        }
-        break;
-      }
-      case 3: {
-        g.fillStyle(0x6a4a20);
-        g.fillRect(ix, iy, Math.floor(iw * 0.22), ih);
-        const bookColors = [0xc03020, 0x2060a0, 0x208040, 0xa08020, 0x8020a0, 0xc06020];
-        for (let i = 0; i < 6; i++) {
-          g.fillStyle(bookColors[i % bookColors.length]);
-          g.fillRect(ix + 2, iy + 2 + i * Math.floor(ih / 6.5), Math.floor(iw * 0.18), Math.max(4, Math.floor(ih / 7) - 1));
-        }
-        g.fillStyle(pal.accent, 0.80);
-        g.fillRect(ix + Math.floor(iw * 0.50), iy + Math.floor(ih * 0.40), Math.floor(iw * 0.40), Math.floor(ih * 0.40));
-        break;
-      }
-      case 4: {
-        g.fillStyle(0x8a5c2a);
-        g.fillRect(ix + Math.floor(iw * 0.15), iy + Math.floor(ih * 0.28), Math.floor(iw * 0.70), Math.floor(ih * 0.44));
-        g.fillStyle(0x6a4a20);
-        for (let i = 0; i < 3; i++) {
-          const cx = ix + Math.floor(iw * 0.20) + i * Math.floor(iw * 0.22);
-          g.fillRect(cx, iy + Math.floor(ih * 0.08), 5, 5);
-          g.fillRect(cx, iy + Math.floor(ih * 0.78), 5, 5);
-        }
-        break;
-      }
-    }
   }
 
   // ─── NPC spawning ─────────────────────────────────────────────────────────
@@ -1330,5 +1262,58 @@ export class GameScene extends Phaser.Scene {
         });
       }
     }
+  }
+
+  // ─── Day / night cycle ────────────────────────────────────────────────────
+
+  private setupNightCycle(): void {
+    const { width, height } = this.scale;
+    this.nightOverlay = this.add.rectangle(0, 0, width, height, 0x080c24)
+      .setOrigin(0, 0)
+      .setScrollFactor(0)
+      .setDepth(190)
+      .setAlpha(this.getNightAlpha());
+
+    this.scale.on('resize', (size: Phaser.Structs.Size) => {
+      this.nightOverlay?.setSize(size.width, size.height);
+    });
+
+    // Re-evaluate every 30 s and tween smoothly to the new target alpha.
+    this.time.addEvent({
+      delay: 30_000,
+      loop: true,
+      callback: () => {
+        this.tweens.add({
+          targets: this.nightOverlay,
+          alpha: this.getNightAlpha(),
+          duration: 8_000,
+          ease: 'Linear',
+        });
+      },
+    });
+  }
+
+  /**
+   * Returns the overlay alpha for the current EST clock time.
+   *   0          = full day  (7:30 am – 6:30 pm)
+   *   NIGHT_ALPHA = full night (7:30 pm – 6:30 am)
+   * A 30-minute linear fade is applied around each threshold.
+   */
+  private getNightAlpha(): number {
+    const NIGHT_ALPHA = 0.74;
+    const TRANS = 0.5; // half-hour fade window
+
+    const now = new Date();
+    const est = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+    const t = est.getHours() + est.getMinutes() / 60; // 0 – 24
+
+    // Full day
+    if (t >= 7 + TRANS && t < 19 - TRANS) return 0;
+    // Full night
+    if (t < 7 - TRANS || t >= 19 + TRANS) return NIGHT_ALPHA;
+    // Sunrise: fade night → day
+    if (t < 7 + TRANS) return NIGHT_ALPHA * (1 - (t - (7 - TRANS)) / (TRANS * 2));
+    // Sunset: fade day → night
+    return NIGHT_ALPHA * ((t - (19 - TRANS)) / (TRANS * 2));
   }
 }
