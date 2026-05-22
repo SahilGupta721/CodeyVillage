@@ -20,6 +20,8 @@ export class BootScene extends Phaser.Scene {
     this.makeFlower('flower_y', '#f0c010', '#ff9900');
     this.makeRock();
     this.makeLeaf();
+    this.makeSparkle();
+    this.makeSmokePuff();
     this.makeShopItemTextures();
     this.scene.start('GameScene');
   }
@@ -259,6 +261,29 @@ export class BootScene extends Phaser.Scene {
     // Centre vein (subtle darkening)
     ctx.fillStyle = '#dddddd';
     ctx.fillRect(3, 0, 1, 6);
+    c.refresh();
+  }
+
+  // ─── Sparkle particle texture (5 × 5) ──────────────────────────────────────
+
+  private makeSparkle(): void {
+    const c   = this.textures.createCanvas('sparkle', 5, 5)!;
+    const ctx = c.getContext();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(2, 0, 1, 5); // vertical arm
+    ctx.fillRect(0, 2, 5, 1); // horizontal arm
+    c.refresh();
+  }
+
+  // ─── Smoke-puff particle texture (6 × 6) ────────────────────────────────────
+
+  private makeSmokePuff(): void {
+    const c   = this.textures.createCanvas('smoke-puff', 6, 6)!;
+    const ctx = c.getContext();
+    ctx.fillStyle = '#C8C8D8';
+    ctx.fillRect(0, 0, 6, 6);
+    ctx.fillStyle = '#E0E0EC';
+    ctx.fillRect(1, 1, 4, 4);
     c.refresh();
   }
 

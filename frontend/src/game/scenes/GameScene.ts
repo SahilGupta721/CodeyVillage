@@ -296,7 +296,7 @@ export class GameScene extends Phaser.Scene {
           console.log('[multiplayer] player_joined:', msg.uid, msg.username);
           this.updateRemotePlayer(msg.uid, msg.x, msg.y, msg.username);
         } else if (msg.type === 'place_item') {
-          this.spawnPlacedItem(msg.id, msg.item_id, msg.x, msg.y, msg.price_paid ?? 0);
+          this.spawnPlacedItem(msg.id, msg.item_id, msg.x, msg.y, msg.price_paid ?? 0, true);
         } else if (msg.type === 'remove_item') {
           this.removePlacedItemVisual(msg.id);
         }
@@ -980,14 +980,46 @@ export class GameScene extends Phaser.Scene {
     // Render immediately for instant feedback, then persist + broadcast.
     // Use a temporary local id; the server will assign the canonical one.
     const tempId = `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    this.spawnPlacedItem(tempId, itemId, x, y, pricePaid);
+    this.spawnPlacedItem(tempId, itemId, x, y, pricePaid, true);
 
     this.cancelPlacement();
     void this.persistPlacedItem(tempId, itemId, x, y, pricePaid);
   }
 
+  /** Brief sparkle burst + rising smoke puff at (x, y) when an item is placed. */
+  private playPlacementEffects(x: number, y: number): void {
+    const depth = PLACED_ITEM_DEPTH_BASE + y * 0.001 + 1;
+
+    const sparkle = this.add.particles(x, y, 'sparkle', {
+      emitting: false,
+      quantity: 8,
+      speed: { min: 30, max: 75 },
+      angle: { min: 0, max: 360 },
+      scale: { start: 1.1, end: 0 },
+      alpha: { start: 1.0, end: 0 },
+      lifespan: 400,
+      tint: [0xFFFFFF, 0xFFEE88, 0xFFDDFF, 0xAAEEFF],
+      blendMode: Phaser.BlendModes.ADD,
+    }).setDepth(depth);
+    sparkle.explode(8);
+    this.time.delayedCall(480, () => sparkle.destroy());
+
+    const smoke = this.add.particles(x, y + 8, 'smoke-puff', {
+      emitting: false,
+      quantity: 5,
+      speedX: { min: -14, max: 14 },
+      speedY: { min: -32, max: -12 },
+      scale: { start: 0.5, end: 1.5 },
+      alpha: { start: 0.50, end: 0 },
+      lifespan: 580,
+      tint: [0xC8C8D8, 0xB8B8D0, 0xE0E0EC],
+    }).setDepth(depth - 0.5);
+    smoke.explode(5);
+    this.time.delayedCall(660, () => smoke.destroy());
+  }
+
   /** Spawn a placed item sprite. Idempotent — duplicate ids are ignored. */
-  private spawnPlacedItem(id: string | undefined, itemId: string, x: number, y: number, pricePaid: number): void {
+  private spawnPlacedItem(id: string | undefined, itemId: string, x: number, y: number, pricePaid: number, showEffect = false): void {
     if (id && this.placedItemIds.has(id)) return;
     const tex = SHOP_ITEM_TEXTURES[itemId];
     if (!tex) return;
@@ -1035,6 +1067,8 @@ export class GameScene extends Phaser.Scene {
         });
       }
     }
+
+    if (showEffect) this.playPlacementEffects(x, y);
   }
 
   private async loadPlacedItems(): Promise<void> {
