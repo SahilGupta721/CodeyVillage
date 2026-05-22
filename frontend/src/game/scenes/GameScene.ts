@@ -598,7 +598,8 @@ export class GameScene extends Phaser.Scene {
         else if (p < 10) this.redFlowers.push(this.add.image(wx, wy, 'flower_r').setOrigin(0.5, 1.00).setDepth(20));
         else if (p < 14) this.add.image(wx, wy, 'flower_y').setOrigin(0.5, 1.00).setDepth(20);
         else if (p < 18) {
-          this.col.blockTile(x, y);
+          // Rock visual center is ~8px above the anchor; radius matches the stone mass (~10px).
+          this.col.addRockObstacle(wx, wy - 8, 10);
           this.add.image(wx, wy, 'rock_sm').setOrigin(0.5, 0.78).setDepth(50 + wy * 0.001);
         }
       }
