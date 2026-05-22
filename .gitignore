@@ -144,6 +144,8 @@ __pycache__/
 *.pyc
 
 *.docx
+*.png
+*.jpg
 
 /video
 /pics
