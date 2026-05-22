@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <!-- Popup-specific styling for the extension UI. -->
+  <link rel="stylesheet" href="popup.css?v=2">
+</head>
+<body>
+  <!-- Injected by popup.js when the user is not signed in yet. -->
+  <div id="auth-section"></div>
+  <!-- Main content area shown after authentication succeeds. -->
+  <div id="main-section" style="display:none">
+    <div id="quick-launch"></div>
+    <!-- GitHub connection action is wired up by popup.js. -->
+    <button id="connectGithub"></button>
+    <div id="weekly-summary"></div>
+    <div id="leaderboard"></div>
+    <!-- Recent activity feed rendered by the extension runtime. -->
+    <div class="feed-header">Recent Activity</div>
+    <div id="log"></div>
+  </div>
+  <!-- Popup behavior and dynamic rendering logic. -->
+  <script src="popup.js?v=2"></script>
+</body>
+</html>

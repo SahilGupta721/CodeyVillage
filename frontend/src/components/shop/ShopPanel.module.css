@@ -1,0 +1,292 @@
+/*
+ * ShopPanel — light pine / workbench palette.
+ */
+
+.shopRoot {
+  position:       fixed;
+  top:            14px;
+  right:          0;
+  height:         auto;
+  display:        flex;
+  flex-direction: row;
+  align-items:    stretch;
+  z-index:        1000;
+  transform:      translateX(360px);
+  transition:     transform 420ms ease-in-out;
+  pointer-events: none;
+}
+
+.shopRoot.open {
+  transform: translateX(0);
+}
+
+/* ── coin hud ────────────────────────────────────────────────── */
+
+.coinHud {
+  position:    fixed;
+  top:         14px;
+  left:        14px;
+  z-index:     1200;
+  display:     flex;
+  align-items: center;
+  gap:         8px;
+  background:  #C89848;
+  color:       #2E1400;
+  border:      3px solid #5A3210;
+  padding:     6px 12px 6px 8px;
+  font-family: var(--font-pixel), monospace;
+  font-size:   11px;
+  line-height: 1;
+  text-shadow: 1px 1px 0 #F0D078;
+  box-shadow:  inset 2px 2px 0 0 #F0CC60, inset -2px -2px 0 0 #8A5420, 3px 3px 0 0 #2A0E00;
+  image-rendering: pixelated;
+}
+
+/* ── handle tab ─────────────────────────────────────────────── */
+
+.handle {
+  pointer-events:  all;
+  flex-shrink:     0;
+  width:           108px;
+  height:          56px;
+  background:      #C89040;
+  border:          3px solid #5A3210;
+  box-shadow:      inset 2px 2px 0 0 #F0CC60, inset -2px -2px 0 0 #7A4A18, -3px 3px 0 0 #2A0E00;
+  cursor:          pointer;
+  display:         flex;
+  flex-direction:  row;
+  align-items:     center;
+  justify-content: center;
+  gap:             6px;
+  padding:         0 12px;
+  margin-right:    -3px;
+  transition:      background 150ms ease;
+  image-rendering: pixelated;
+}
+
+.handle:hover {
+  background: #D8A050;
+}
+
+.handleIcon {
+  font-size:   16px;
+  line-height: 1;
+}
+
+.handleLabel {
+  color:          #2E1400;
+  font-family:    var(--font-pixel), monospace;
+  font-size:      8px;
+  letter-spacing: 0.06em;
+  text-shadow:    1px 1px 0 #F0CC60;
+  user-select:    none;
+}
+
+/* ── panel body ─────────────────────────────────────────────── */
+
+.panel {
+  pointer-events: all;
+  width:          360px;
+  height:         min(78vh, 720px);
+  background:     #D4AA62;
+  border:         3px solid #5A3210;
+  box-shadow:     inset 2px 2px 0 0 #F0CC60, inset -2px -2px 0 0 #8A5420, -4px 4px 0 0 #2A0E00;
+  display:        flex;
+  flex-direction: column;
+  overflow:       hidden;
+}
+
+/* ── top bar ────────────────────────────────────────────────── */
+
+.topBar {
+  display:          flex;
+  align-items:      center;
+  justify-content:  space-between;
+  padding:          14px 18px 16px;
+  background:       #C09040;
+  border-bottom:    none;
+  background-image: repeating-linear-gradient(90deg, #7A4E20 0px, #7A4E20 6px, transparent 6px, transparent 10px);
+  background-position: bottom;
+  background-size:  10px 2px;
+  background-repeat: repeat-x;
+  flex-shrink:      0;
+}
+
+.shopTitle {
+  font-family:    var(--font-pixel), monospace;
+  font-size:      10px;
+  color:          #2E1400;
+  letter-spacing: 0.06em;
+  text-shadow:    1px 1px 0 #F0CC60;
+  text-transform: uppercase;
+}
+
+/* ── categories scroll area ─────────────────────────────────── */
+
+.categories {
+  flex:            1;
+  overflow-y:      auto;
+  padding:         4px 0;
+  scrollbar-width: thin;
+  scrollbar-color: #9A6430 transparent;
+}
+
+.categories::-webkit-scrollbar        { width: 4px; }
+.categories::-webkit-scrollbar-track  { background: transparent; }
+.categories::-webkit-scrollbar-thumb  { background: #9A6430; }
+
+/* ── accordion category ─────────────────────────────────────── */
+
+.category {
+  border-bottom: 2px solid #B87830;
+}
+
+.categoryHeader {
+  width:           100%;
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  padding:         11px 16px;
+  background:      transparent;
+  border:          none;
+  cursor:          pointer;
+  font-family:     var(--font-pixel), monospace;
+  font-size:       7px;
+  color:           #4A2810;
+  text-align:      left;
+  text-transform:  uppercase;
+  letter-spacing:  0.06em;
+  transition:      background 150ms ease;
+}
+
+.categoryHeader:hover {
+  background: #C09040;
+}
+
+.categoryOpen {
+  background: #C09040;
+}
+
+.chevron {
+  font-size:    9px;
+  font-family:  var(--font-pixel), monospace;
+  color:        #8A5420;
+  line-height:  1;
+  display:      inline-block;
+  transition:   transform 250ms ease;
+  transform:    rotate(0deg);
+}
+
+.categoryOpen .chevron {
+  transform: rotate(90deg);
+}
+
+/* ── accordion body ─────────────────────────────────────────── */
+
+.categoryContent {
+  display:    grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 280ms ease-in-out;
+}
+
+.categoryContent.expanded {
+  grid-template-rows: 1fr;
+}
+
+.categoryContentInner {
+  overflow: hidden;
+}
+
+/* ── item grid ──────────────────────────────────────────────── */
+
+.itemGrid {
+  display:               grid;
+  grid-template-columns: 1fr 1fr;
+  gap:                   8px;
+  padding:               10px 12px 14px;
+}
+
+.itemCard {
+  background:     #E8C878;
+  border:         2px solid #8A5428;
+  box-shadow:     inset 2px 2px 0 0 #F8E8A0, inset -1px -1px 0 0 #9A6430;
+  padding:        12px 8px 10px;
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  gap:            5px;
+  transition:     background 120ms ease;
+}
+
+.itemCard:hover {
+  background: #F0D488;
+}
+
+.itemEmoji {
+  font-size:   26px;
+  line-height: 1;
+}
+
+.itemName {
+  font-family:    var(--font-pixel), monospace;
+  font-size:      6px;
+  color:          #4A2810;
+  text-align:     center;
+  line-height:    1.7;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.itemPrice {
+  font-family:    var(--font-pixel), monospace;
+  font-size:      7px;
+  color:          #6A3E10;
+  letter-spacing: 0.03em;
+}
+
+/* ── buy button ─────────────────────────────────────────────── */
+
+.buyBtn {
+  margin-top:     4px;
+  width:          100%;
+  padding:        7px 4px;
+  border:         2px solid #4A2808;
+  background:     #9A5C20;
+  color:          #F8E880;
+  font-size:      6px;
+  font-family:    var(--font-pixel), monospace;
+  font-weight:    normal;
+  cursor:         pointer;
+  letter-spacing: 0.05em;
+  text-shadow:    1px 1px 0 #3A1C04;
+  box-shadow:     inset 2px 2px 0 0 #D09030, inset -1px -1px 0 0 #4A2808, 2px 2px 0 0 #2A0E00;
+  transition:     none;
+  text-transform: uppercase;
+}
+
+.buyBtn:hover:not(:disabled) {
+  background:  #AA6C30;
+  box-shadow:  inset 2px 2px 0 0 #E0A040, inset -1px -1px 0 0 #5A3818, 2px 2px 0 0 #2A0E00;
+}
+
+.buyBtn:active:not(:disabled) {
+  transform:  translate(2px, 2px);
+  box-shadow: inset 1px 1px 0 0 #3A1C04;
+}
+
+.buyBtn:disabled {
+  background:   #C8A860;
+  color:        #8A6838;
+  cursor:       not-allowed;
+  box-shadow:   inset 1px 1px 0 0 #D4B870;
+  border-color: #9A7840;
+}
+
+/* ── outside-click overlay ──────────────────────────────────── */
+
+.overlay {
+  position:   fixed;
+  inset:      0;
+  z-index:    999;
+  background: transparent;
+}
