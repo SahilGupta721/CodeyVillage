@@ -38,6 +38,11 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:800
 
 // Visual depth of placed shop items, y-sorted so taller props occlude correctly.
 const PLACED_ITEM_DEPTH_BASE = 60;
+// Items that emit light — world-space radius of the illuminated circle (px).
+const LIGHT_SOURCES: Record<string, { worldRadius: number; yOffset: number }> = {
+  'candle-set':    { worldRadius: 96,  yOffset: -10 },
+  'fairy-lantern': { worldRadius: 144, yOffset: -14 },
+};
 
 // Texture key per shop item — used by both the ghost preview and the
 // permanent sprite that gets dropped on the map.
@@ -137,7 +142,11 @@ export class GameScene extends Phaser.Scene {
   // own HTTP POST response races with the WS broadcast echo).
   private placedItemIds: Set<string> = new Set();
   private escKey: Phaser.Input.Keyboard.Key | null = null;
-  private nightOverlay: Phaser.GameObjects.Rectangle | null = null;
+  private nightRT: Phaser.GameObjects.RenderTexture | null = null;
+  private nightMaskImg: Phaser.GameObjects.Image | null = null;
+  private lightSources: Map<string, { x: number; y: number; worldRadius: number; yOffset: number }> = new Map();
+  private lastNightCheck = 0;
+  private currentNightAlpha = 0;
 
   constructor() { super({ key: 'GameScene' }); }
 
@@ -255,6 +264,7 @@ export class GameScene extends Phaser.Scene {
 
     this.updatePlacementGhost();
     this.updateDoorAnimations();
+    this.updateNightOverlay(time);
     if (this.placement && this.escKey && Phaser.Input.Keyboard.JustDown(this.escKey)) {
       this.cancelPlacement();
     }
@@ -1004,6 +1014,12 @@ export class GameScene extends Phaser.Scene {
     }
 
     if (showEffect) this.playPlacementEffects(x, y);
+
+    // Register light sources so updateNightOverlay can punch holes in the darkness.
+    const lightCfg = LIGHT_SOURCES[itemId];
+    if (lightCfg && id) {
+      this.lightSources.set(id, { x, y, worldRadius: lightCfg.worldRadius, yOffset: lightCfg.yOffset });
+    }
   }
 
   private async loadPlacedItems(): Promise<void> {
@@ -1059,6 +1075,11 @@ export class GameScene extends Phaser.Scene {
             this.carvedDoors.delete(tempId);
             this.carvedDoors.set(serverId, door);
           }
+          const light = this.lightSources.get(tempId);
+          if (light) {
+            this.lightSources.delete(tempId);
+            this.lightSources.set(serverId, light);
+          }
         }
       }
     } catch (e) {
@@ -1085,6 +1106,7 @@ export class GameScene extends Phaser.Scene {
     this.placedItems.delete(id);
     this.placedItemIds.delete(id);
     this.carvedDoors.delete(id);
+    this.lightSources.delete(id);
   }
 
   private async erasePlacedItem(id: string): Promise<void> {
@@ -1267,30 +1289,47 @@ export class GameScene extends Phaser.Scene {
   // ─── Day / night cycle ────────────────────────────────────────────────────
 
   private setupNightCycle(): void {
-    const { width, height } = this.scale;
-    this.nightOverlay = this.add.rectangle(0, 0, width, height, 0x080c24)
+    this.currentNightAlpha = this.getNightAlpha();
+    // World-sized RT sitting at (0,0) — rendered through the scene camera so
+    // fill/erase coordinates are plain world pixels.  No scrollFactor tricks.
+    this.nightRT = this.add.renderTexture(0, 0, WORLD_WIDTH, WORLD_HEIGHT)
       .setOrigin(0, 0)
-      .setScrollFactor(0)
-      .setDepth(190)
-      .setAlpha(this.getNightAlpha());
+      .setDepth(190);
+    this.nightMaskImg = this.make.image({ key: 'light-mask', add: false })
+      .setOrigin(0.5, 0.5);
 
-    this.scale.on('resize', (size: Phaser.Structs.Size) => {
-      this.nightOverlay?.setSize(size.width, size.height);
-    });
-
-    // Re-evaluate every 30 s and tween smoothly to the new target alpha.
     this.time.addEvent({
       delay: 30_000,
       loop: true,
-      callback: () => {
-        this.tweens.add({
-          targets: this.nightOverlay,
-          alpha: this.getNightAlpha(),
-          duration: 8_000,
-          ease: 'Linear',
-        });
-      },
+      callback: () => { this.currentNightAlpha = this.getNightAlpha(); },
     });
+  }
+
+  private updateNightOverlay(time: number): void {
+    if (!this.nightRT || !this.nightMaskImg) return;
+    if (time - this.lastNightCheck > 1000) {
+      this.currentNightAlpha = this.getNightAlpha();
+      this.lastNightCheck = time;
+    }
+    this.nightRT.clear();
+    if (this.currentNightAlpha <= 0) return;
+    // Fill the entire world with darkness, then punch holes at each light source.
+    // The RT lives in world space so all coordinates are raw world pixels.
+    this.nightRT.fill(0x080c24, this.currentNightAlpha);
+    const MASK_SIZE = 256;
+    for (const light of this.lightSources.values()) {
+      const imgScale = (light.worldRadius * 2) / MASK_SIZE;
+      this.nightMaskImg
+        .setPosition(light.x, light.y + light.yOffset)
+        .setScale(imgScale)
+        .setAlpha(1)
+        .clearTint();
+      // Remove the darkness overlay within the radius.
+      this.nightRT.erase(this.nightMaskImg);
+      // Lay a warm amber tint over the revealed area so it reads as candlelight.
+      this.nightMaskImg.setTint(0xffb347).setAlpha(0.28);
+      this.nightRT.draw(this.nightMaskImg);
+    }
   }
 
   /**

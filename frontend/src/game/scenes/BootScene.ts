@@ -22,6 +22,7 @@ export class BootScene extends Phaser.Scene {
     this.makeLeaf();
     this.makeSparkle();
     this.makeSmokePuff();
+    this.makeLightMask();
     this.makeShopItemTextures();
     this.scene.start('GameScene');
   }
@@ -261,6 +262,30 @@ export class BootScene extends Phaser.Scene {
     // Centre vein (subtle darkening)
     ctx.fillStyle = '#dddddd';
     ctx.fillRect(3, 0, 1, 6);
+    c.refresh();
+  }
+
+  // ─── Light mask texture (256 × 256) ─────────────────────────────────────────
+  // Used with RenderTexture.erase() to punch holes in the night overlay.
+  // Opaque white in the centre = fully remove darkness.
+  // Transparent at the edge   = leave darkness intact.
+
+  private makeLightMask(): void {
+    const SIZE = 256;
+    const c   = this.textures.createCanvas('light-mask', SIZE, SIZE)!;
+    const ctx = c.getContext();
+    const cx  = SIZE / 2;
+    const cy  = SIZE / 2;
+
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, SIZE / 2);
+    grad.addColorStop(0.00, 'rgba(255, 255, 255, 1.00)'); // fully removes darkness
+    grad.addColorStop(0.60, 'rgba(255, 255, 255, 1.00)'); // flat top — stays fully lit
+    grad.addColorStop(0.85, 'rgba(255, 255, 255, 0.50)'); // gradual edge fade
+    grad.addColorStop(0.95, 'rgba(255, 255, 255, 0.10)');
+    grad.addColorStop(1.00, 'rgba(255, 255, 255, 0.00)'); // darkness fully restored
+
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, SIZE, SIZE);
     c.refresh();
   }
 
