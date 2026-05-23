@@ -23,6 +23,8 @@ export class BootScene extends Phaser.Scene {
     this.makeSparkle();
     this.makeSmokePuff();
     this.makeLightMask();
+    this.makeGrassDetailSprites();
+    this.makeFoliageSprite();
     this.makeShopItemTextures();
     this.scene.start('GameScene');
   }
@@ -309,6 +311,64 @@ export class BootScene extends Phaser.Scene {
     ctx.fillRect(0, 0, 6, 6);
     ctx.fillStyle = '#E0E0EC';
     ctx.fillRect(1, 1, 4, 4);
+    c.refresh();
+  }
+
+  // ─── Grass detail sprites ────────────────────────────────────────────────────
+
+  private makeGrassDetailSprites(): void {
+    // grass-cross-a: "+" cross, 6×6 px, light yellow-green
+    const a = this.textures.createCanvas('grass-cross-a', 6, 6)!;
+    const ac = a.getContext();
+    ac.fillStyle = '#C8E86A';
+    ac.fillRect(2, 0, 2, 6); // vertical bar
+    ac.fillRect(0, 2, 6, 2); // horizontal bar
+    ac.fillStyle = '#D4F07A'; // brighter centre pixel
+    ac.fillRect(2, 2, 2, 2);
+    a.refresh();
+
+    // grass-cross-b: "×" X shape, 5×5 px
+    const b = this.textures.createCanvas('grass-cross-b', 5, 5)!;
+    const bc = b.getContext();
+    bc.fillStyle = '#C8E86A';
+    bc.fillRect(0, 0, 2, 2); // TL arm
+    bc.fillRect(3, 0, 2, 2); // TR arm
+    bc.fillRect(0, 3, 2, 2); // BL arm
+    bc.fillRect(3, 3, 2, 2); // BR arm
+    bc.fillStyle = '#D4F07A';
+    bc.fillRect(2, 2, 1, 1); // centre
+    b.refresh();
+  }
+
+  // ─── Foliage cluster sprite ───────────────────────────────────────────────────
+
+  private makeFoliageSprite(): void {
+    // 12×10 px bush/fern cluster — teal-blue-green palette, top-left lit
+    const c = this.textures.createCanvas('foliage-cluster', 12, 10)!;
+    const ctx = c.getContext();
+    // Darkest shadow base
+    ctx.fillStyle = '#1A3D2A';
+    ctx.fillRect(2, 7, 8, 3);
+    ctx.fillRect(0, 8, 12, 2);
+    // Dark body
+    ctx.fillStyle = '#2E6B5A';
+    ctx.fillRect(1, 5, 10, 4);
+    ctx.fillRect(3, 2,  6, 4);
+    ctx.fillRect(4, 1,  4, 2);
+    // Mid tone
+    ctx.fillStyle = '#3A7D6B';
+    ctx.fillRect(2, 5, 8, 3);
+    ctx.fillRect(4, 3, 5, 2);
+    ctx.fillRect(5, 1, 3, 2);
+    // Bright highlight — top-left lit
+    ctx.fillStyle = '#5DBB3F';
+    ctx.fillRect(3, 4, 3, 2);
+    ctx.fillRect(4, 2, 2, 2);
+    ctx.fillRect(5, 1, 2, 1);
+    // Lightest tip
+    ctx.fillStyle = '#72C94F';
+    ctx.fillRect(5, 1, 1, 1);
+    ctx.fillRect(3, 4, 1, 1);
     c.refresh();
   }
 

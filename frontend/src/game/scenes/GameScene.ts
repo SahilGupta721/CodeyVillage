@@ -159,6 +159,8 @@ export class GameScene extends Phaser.Scene {
     this.col = new CollisionSystem(this.island.tiles, this.island.buildings);
 
     this.buildTileLayer();
+    this.addGrassDetailSprites();
+    this.addFoliageSprites();
     this.addPondOverlay();
     this.placeDecorations();
     this.scheduleNextWind();
@@ -447,7 +449,9 @@ export class GameScene extends Phaser.Scene {
       .setOrigin(0, 0).setDepth(2);
     const gfx = this.add.graphics();
 
+    // Non-grass tiles: single flat fill from TILE_COLORS
     for (const [type, color] of TILE_COLORS) {
+      if (type === TileType.GRASS || type === TileType.GRASS_DARK) continue;
       gfx.clear();
       gfx.fillStyle(color);
       for (let y = 0; y < MAP_HEIGHT; y++) {
@@ -460,6 +464,8 @@ export class GameScene extends Phaser.Scene {
       rt.draw(gfx);
     }
 
+    // Grass: multi-variant fill then per-variant pixel details + edge shading
+    this.drawGrassVariants(rt, gfx);
     this.detailGrass(rt, gfx);
     this.detailRock(rt, gfx);
     this.detailPath(rt, gfx);
@@ -472,63 +478,68 @@ export class GameScene extends Phaser.Scene {
   private detailGrass(rt: Phaser.GameObjects.RenderTexture, gfx: Phaser.GameObjects.Graphics): void {
     const TS = TILE_SIZE;
 
-    // Pass 1: lighter variation patches (#72C94F) — ~60% of grass tiles
+    // Variant B: dark blade ticks along the top pixel row of the tile
     gfx.clear();
-    gfx.fillStyle(0x72C94F, 0.38);
+    gfx.fillStyle(0x3A7A20, 1.0);
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
         if (this.island.tiles[y][x] !== TileType.GRASS) continue;
-        const h = ((x * 7 + y * 13) ^ (x * 3)) % 5;
+        if (this.grassVariant(x, y) !== 1) continue;
         const bx = x * TS, by = y * TS;
-        if (h === 0) gfx.fillRect(bx + 2,  by + 2,  14, 12);
-        if (h === 1) gfx.fillRect(bx + 16, by + 14, 14, 12);
-        if (h === 2) gfx.fillRect(bx + 6,  by + 18, 18, 10);
+        const h = ((x * 7 + y * 13) ^ (x * 3)) % 4;
+        if (h === 0) { gfx.fillRect(bx+ 4, by, 1, 2); gfx.fillRect(bx+14, by, 1, 3); gfx.fillRect(bx+22, by, 1, 2); }
+        if (h === 1) { gfx.fillRect(bx+ 6, by, 1, 3); gfx.fillRect(bx+16, by, 1, 2); gfx.fillRect(bx+26, by, 1, 3); }
+        if (h === 2) { gfx.fillRect(bx+ 2, by, 1, 2); gfx.fillRect(bx+12, by, 1, 3); gfx.fillRect(bx+24, by, 1, 2); }
+        if (h === 3) { gfx.fillRect(bx+ 8, by, 1, 3); gfx.fillRect(bx+18, by, 1, 2); gfx.fillRect(bx+28, by, 1, 3); }
       }
     }
     rt.draw(gfx);
 
-    // Pass 2: darker variation patches (#4EA832) — ~43% of grass tiles
+    // Variant C: bright highlight pixels in top-left corner
     gfx.clear();
-    gfx.fillStyle(0x4EA832, 0.38);
+    gfx.fillStyle(0xC8E86A, 0.75);
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
         if (this.island.tiles[y][x] !== TileType.GRASS) continue;
-        const h = ((x * 11 + y * 7) ^ (x * 5)) % 7;
+        if (this.grassVariant(x, y) !== 2) continue;
         const bx = x * TS, by = y * TS;
-        if (h === 0) gfx.fillRect(bx + 16, by + 2,  14, 10);
-        if (h === 2) gfx.fillRect(bx + 2,  by + 18, 12, 10);
-        if (h === 4) gfx.fillRect(bx + 20, by + 20,  8,  8);
+        gfx.fillRect(bx+1, by+1, 5, 1);
+        gfx.fillRect(bx+1, by+2, 1, 4);
+        gfx.fillRect(bx+3, by+3, 1, 1);
       }
     }
     rt.draw(gfx);
 
-    // Pass 3: cross-shaped highlights (#C8E86A) — semi-random, ~44% of tiles get one, ~25% get two
+    // Variant D + GRASS_DARK: deep shadow band bottom-right
     gfx.clear();
-    gfx.fillStyle(0xC8E86A, 1.0);
+    gfx.fillStyle(0x1A3D2A, 0.55);
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
-        if (this.island.tiles[y][x] !== TileType.GRASS) continue;
+        const t = this.island.tiles[y][x];
+        const isD = t === TileType.GRASS_DARK || (t === TileType.GRASS && this.grassVariant(x, y) === 3);
+        if (!isD) continue;
         const bx = x * TS, by = y * TS;
-        const h1 = ((x * 17 + y * 11) ^ (x * 7 + y * 3)) % 9;
-        if (h1 === 0) { const cx = bx + 5,  cy = by + 7;  gfx.fillRect(cx + 1, cy, 1, 3); gfx.fillRect(cx, cy + 1, 3, 1); }
-        if (h1 === 1) { const cx = bx + 19, cy = by + 13; gfx.fillRect(cx + 1, cy, 1, 3); gfx.fillRect(cx, cy + 1, 3, 1); }
-        if (h1 === 2) { const cx = bx + 9,  cy = by + 21; gfx.fillRect(cx + 1, cy, 1, 3); gfx.fillRect(cx, cy + 1, 3, 1); }
-        if (h1 === 3) { const cx = bx + 24, cy = by + 5;  gfx.fillRect(cx + 1, cy, 1, 3); gfx.fillRect(cx, cy + 1, 3, 1); }
-        const h2 = ((x * 5 + y * 19) ^ (y * 11)) % 12;
-        if (h2 === 0) { const cx = bx + 14, cy = by + 5;  gfx.fillRect(cx + 1, cy, 1, 3); gfx.fillRect(cx, cy + 1, 3, 1); }
-        if (h2 === 1) { const cx = bx + 4,  cy = by + 20; gfx.fillRect(cx + 1, cy, 1, 3); gfx.fillRect(cx, cy + 1, 3, 1); }
-        if (h2 === 2) { const cx = bx + 22, cy = by + 22; gfx.fillRect(cx + 1, cy, 1, 3); gfx.fillRect(cx, cy + 1, 3, 1); }
+        gfx.fillRect(bx,          by + TS - 4, TS, 4);
+        gfx.fillRect(bx + TS - 4, by,          4,  TS - 4);
       }
     }
     rt.draw(gfx);
 
-    // Pass 4: deep shadow tint on GRASS_DARK tiles (#1A2E1A)
+    // Edge shading: 2px dark border on grass side where it meets non-grass
     gfx.clear();
-    gfx.fillStyle(0x1A2E1A, 0.35);
+    gfx.fillStyle(0x3A7A20, 1.0);
+    const isGrassTile = (ty: number, tx: number): boolean => {
+      const t = this.island.tiles[ty]?.[tx];
+      return t === TileType.GRASS || t === TileType.GRASS_DARK;
+    };
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
-        if (this.island.tiles[y][x] !== TileType.GRASS_DARK) continue;
-        gfx.fillRect(x * TS, y * TS, TS, TS);
+        if (!isGrassTile(y, x)) continue;
+        const bx = x * TS, by = y * TS;
+        if (!isGrassTile(y,     x - 1)) gfx.fillRect(bx,          by, 2, TS);
+        if (!isGrassTile(y,     x + 1)) gfx.fillRect(bx + TS - 2, by, 2, TS);
+        if (!isGrassTile(y - 1, x    )) gfx.fillRect(bx, by,          TS, 2);
+        if (!isGrassTile(y + 1, x    )) gfx.fillRect(bx, by + TS - 2, TS, 2);
       }
     }
     rt.draw(gfx);
@@ -742,6 +753,77 @@ export class GameScene extends Phaser.Scene {
           .tileSprite(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, 'water')
           .setOrigin(0, 0).setDepth(3).setAlpha(0.55);
         this.pondAnims.push(s);
+      }
+    }
+  }
+
+  // ─── Grass geometry overlay ───────────────────────────────────────────────
+
+  private grassVariant(tx: number, ty: number): number {
+    const cx = Math.floor(tx / 3);
+    const cy = Math.floor(ty / 3);
+    const patch = ((cx * 7 + cy * 13) ^ (cx * 5 + cy * 3)) % 10;
+    const base = patch < 5 ? 0 : patch < 7 ? 1 : patch < 9 ? 2 : 3;
+    return ((tx * 11 + ty * 7) ^ tx) % 20 === 0 ? (base + 1) % 4 : base;
+  }
+
+  private drawGrassVariants(rt: Phaser.GameObjects.RenderTexture, gfx: Phaser.GameObjects.Graphics): void {
+    const TS = TILE_SIZE;
+    const colors: number[] = [0x5DBB3F, 0x4EA832, 0x72C94F, 0x2D6B4A];
+    for (let v = 0; v < 4; v++) {
+      gfx.clear();
+      gfx.fillStyle(colors[v]);
+      for (let y = 0; y < MAP_HEIGHT; y++) {
+        for (let x = 0; x < MAP_WIDTH; x++) {
+          const t = this.island.tiles[y][x];
+          if (t !== TileType.GRASS && t !== TileType.GRASS_DARK) continue;
+          const vt = t === TileType.GRASS_DARK ? 3 : this.grassVariant(x, y);
+          if (vt === v) gfx.fillRect(x * TS, y * TS, TS, TS);
+        }
+      }
+      rt.draw(gfx);
+    }
+  }
+
+  private addGrassDetailSprites(): void {
+    const TS = TILE_SIZE;
+    for (let y = 0; y < MAP_HEIGHT; y++) {
+      for (let x = 0; x < MAP_WIDTH; x++) {
+        const t = this.island.tiles[y][x];
+        if (t !== TileType.GRASS && t !== TileType.GRASS_DARK) continue;
+        if (this.grassVariant(x, y) === 3) continue;
+        const bx = x * TS, by = y * TS;
+        const h1 = ((x * 17 + y * 11) ^ (x * 7 + y * 3)) % 9;
+        if (h1 === 0) this.add.image(bx +  6, by +  8, 'grass-cross-a').setOrigin(0, 0).setDepth(20);
+        if (h1 === 1) this.add.image(bx + 20, by + 14, 'grass-cross-b').setOrigin(0, 0).setDepth(20);
+        if (h1 === 2) this.add.image(bx +  9, by + 22, 'grass-cross-a').setOrigin(0, 0).setDepth(20);
+        if (h1 === 3) this.add.image(bx + 24, by +  5, 'grass-cross-b').setOrigin(0, 0).setDepth(20);
+        const h2 = ((x * 5 + y * 19) ^ (y * 11)) % 12;
+        if (h2 === 0) this.add.image(bx + 14, by +  5, 'grass-cross-a').setOrigin(0, 0).setDepth(20);
+        if (h2 === 1) this.add.image(bx +  4, by + 20, 'grass-cross-b').setOrigin(0, 0).setDepth(20);
+        if (h2 === 2) this.add.image(bx + 22, by + 22, 'grass-cross-a').setOrigin(0, 0).setDepth(20);
+      }
+    }
+  }
+
+  private addFoliageSprites(): void {
+    const TS = TILE_SIZE;
+    const isGrass = (ty: number, tx: number): boolean => {
+      const t = this.island.tiles[ty]?.[tx];
+      return t === TileType.GRASS || t === TileType.GRASS_DARK;
+    };
+    for (let y = 1; y < MAP_HEIGHT - 1; y++) {
+      for (let x = 1; x < MAP_WIDTH - 1; x++) {
+        if (!isGrass(y, x)) continue;
+        const onEdge = !isGrass(y-1,x) || !isGrass(y+1,x) || !isGrass(y,x-1) || !isGrass(y,x+1);
+        const h1 = ((x * 19 + y * 23) ^ (x * 5 + y * 7)) % 15;
+        if (onEdge && h1 === 0) {
+          this.add.image(x * TS + TS / 2, y * TS + TS / 2, 'foliage-cluster').setOrigin(0.5, 0.5).setDepth(48);
+        }
+        if (!onEdge) {
+          const h2 = ((x * 13 + y * 17) ^ (x * 9 + y * 3)) % 35;
+          if (h2 === 0) this.add.image(x * TS + TS / 2, y * TS + TS / 2, 'foliage-cluster').setOrigin(0.5, 0.5).setDepth(48);
+        }
       }
     }
   }
