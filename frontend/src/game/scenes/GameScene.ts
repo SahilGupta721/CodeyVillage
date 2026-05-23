@@ -75,12 +75,12 @@ const SHOP_ITEM_TEXTURES: Record<string, string> = {
 };
 
 const TILE_COLORS = new Map<TileType, number>([
-  [TileType.ROCK, 0x8a8462],
-  [TileType.WATER, 0x3898d8],
-  [TileType.GRASS, 0x8ec86a],
-  [TileType.GRASS_DARK, 0x74ae50],
-  [TileType.DIRT_PATH, 0xc09050],
-  [TileType.GRAVEL, 0xb8a882],
+  [TileType.ROCK,       0xC8A45A],  // warm packed sand
+  [TileType.WATER,      0x3898d8],
+  [TileType.GRASS,      0x5DBB3F],  // Stardew bright mid-green
+  [TileType.GRASS_DARK, 0x2D6B4A],  // deep teal-green shadow grass
+  [TileType.DIRT_PATH,  0xBFA882],  // warm sandy earth path
+  [TileType.GRAVEL,     0xD4B870],  // lighter golden sand
 ]);
 
 interface Palette { wall: number; wallDk: number; floor: number; door: number; accent: number; }
@@ -471,17 +471,64 @@ export class GameScene extends Phaser.Scene {
 
   private detailGrass(rt: Phaser.GameObjects.RenderTexture, gfx: Phaser.GameObjects.Graphics): void {
     const TS = TILE_SIZE;
+
+    // Pass 1: lighter variation patches (#72C94F) — ~60% of grass tiles
     gfx.clear();
-    gfx.fillStyle(0x4a8a18, 0.40);
+    gfx.fillStyle(0x72C94F, 0.38);
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
-        const t = this.island.tiles[y][x];
-        if (t !== TileType.GRASS && t !== TileType.GRASS_DARK) continue;
-        const h = ((x * 7 + y * 13) ^ (x * 3)) % 9;
-        if (h === 0) { gfx.fillRect(x * TS + 4, y * TS + 4, 2, 2); gfx.fillRect(x * TS + 20, y * TS + 18, 2, 2); }
-        if (h === 1) { gfx.fillRect(x * TS + 14, y * TS + 8, 2, 2); gfx.fillRect(x * TS + 6, y * TS + 22, 2, 2); }
-        if (h === 2) { gfx.fillRect(x * TS + 26, y * TS + 6, 2, 2); gfx.fillRect(x * TS + 10, y * TS + 26, 2, 2); }
-        if (h === 5) { gfx.fillRect(x * TS + 8, y * TS + 16, 2, 2); gfx.fillRect(x * TS + 22, y * TS + 10, 2, 2); }
+        if (this.island.tiles[y][x] !== TileType.GRASS) continue;
+        const h = ((x * 7 + y * 13) ^ (x * 3)) % 5;
+        const bx = x * TS, by = y * TS;
+        if (h === 0) gfx.fillRect(bx + 2,  by + 2,  14, 12);
+        if (h === 1) gfx.fillRect(bx + 16, by + 14, 14, 12);
+        if (h === 2) gfx.fillRect(bx + 6,  by + 18, 18, 10);
+      }
+    }
+    rt.draw(gfx);
+
+    // Pass 2: darker variation patches (#4EA832) — ~43% of grass tiles
+    gfx.clear();
+    gfx.fillStyle(0x4EA832, 0.38);
+    for (let y = 0; y < MAP_HEIGHT; y++) {
+      for (let x = 0; x < MAP_WIDTH; x++) {
+        if (this.island.tiles[y][x] !== TileType.GRASS) continue;
+        const h = ((x * 11 + y * 7) ^ (x * 5)) % 7;
+        const bx = x * TS, by = y * TS;
+        if (h === 0) gfx.fillRect(bx + 16, by + 2,  14, 10);
+        if (h === 2) gfx.fillRect(bx + 2,  by + 18, 12, 10);
+        if (h === 4) gfx.fillRect(bx + 20, by + 20,  8,  8);
+      }
+    }
+    rt.draw(gfx);
+
+    // Pass 3: cross-shaped highlights (#C8E86A) — semi-random, ~44% of tiles get one, ~25% get two
+    gfx.clear();
+    gfx.fillStyle(0xC8E86A, 1.0);
+    for (let y = 0; y < MAP_HEIGHT; y++) {
+      for (let x = 0; x < MAP_WIDTH; x++) {
+        if (this.island.tiles[y][x] !== TileType.GRASS) continue;
+        const bx = x * TS, by = y * TS;
+        const h1 = ((x * 17 + y * 11) ^ (x * 7 + y * 3)) % 9;
+        if (h1 === 0) { const cx = bx + 5,  cy = by + 7;  gfx.fillRect(cx + 1, cy, 1, 3); gfx.fillRect(cx, cy + 1, 3, 1); }
+        if (h1 === 1) { const cx = bx + 19, cy = by + 13; gfx.fillRect(cx + 1, cy, 1, 3); gfx.fillRect(cx, cy + 1, 3, 1); }
+        if (h1 === 2) { const cx = bx + 9,  cy = by + 21; gfx.fillRect(cx + 1, cy, 1, 3); gfx.fillRect(cx, cy + 1, 3, 1); }
+        if (h1 === 3) { const cx = bx + 24, cy = by + 5;  gfx.fillRect(cx + 1, cy, 1, 3); gfx.fillRect(cx, cy + 1, 3, 1); }
+        const h2 = ((x * 5 + y * 19) ^ (y * 11)) % 12;
+        if (h2 === 0) { const cx = bx + 14, cy = by + 5;  gfx.fillRect(cx + 1, cy, 1, 3); gfx.fillRect(cx, cy + 1, 3, 1); }
+        if (h2 === 1) { const cx = bx + 4,  cy = by + 20; gfx.fillRect(cx + 1, cy, 1, 3); gfx.fillRect(cx, cy + 1, 3, 1); }
+        if (h2 === 2) { const cx = bx + 22, cy = by + 22; gfx.fillRect(cx + 1, cy, 1, 3); gfx.fillRect(cx, cy + 1, 3, 1); }
+      }
+    }
+    rt.draw(gfx);
+
+    // Pass 4: deep shadow tint on GRASS_DARK tiles (#1A2E1A)
+    gfx.clear();
+    gfx.fillStyle(0x1A2E1A, 0.35);
+    for (let y = 0; y < MAP_HEIGHT; y++) {
+      for (let x = 0; x < MAP_WIDTH; x++) {
+        if (this.island.tiles[y][x] !== TileType.GRASS_DARK) continue;
+        gfx.fillRect(x * TS, y * TS, TS, TS);
       }
     }
     rt.draw(gfx);
@@ -489,29 +536,73 @@ export class GameScene extends Phaser.Scene {
 
   private detailRock(rt: Phaser.GameObjects.RenderTexture, gfx: Phaser.GameObjects.Graphics): void {
     const TS = TILE_SIZE;
+
+    // Pass 1: lighter sand patch variation (#DDBF70) — ~60% of tiles
     gfx.clear();
-    gfx.fillStyle(0x585840, 0.55);
+    gfx.fillStyle(0xDDBF70, 0.35);
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
         if (this.island.tiles[y][x] !== TileType.ROCK) continue;
-        const h = ((x * 7 + y * 13) ^ (x * 3)) % 12;
-        if (h === 0) gfx.fillRect(x * TS + 4, y * TS + 10, 10, 2);
-        if (h === 1) gfx.fillRect(x * TS + 18, y * TS + 6, 2, 10);
-        if (h === 2) gfx.fillRect(x * TS + 8, y * TS + 20, 8, 2);
-        if (h === 3) gfx.fillRect(x * TS + 22, y * TS + 14, 2, 8);
-        if (h === 4) gfx.fillRect(x * TS + 14, y * TS + 4, 6, 2);
+        const h = ((x * 7 + y * 13) ^ (x * 3)) % 5;
+        const bx = x * TS, by = y * TS;
+        if (h === 0) gfx.fillRect(bx + 2,  by + 2,  14, 12);
+        if (h === 1) gfx.fillRect(bx + 16, by + 16, 14, 12);
+        if (h === 2) gfx.fillRect(bx + 6,  by + 10, 18, 14);
       }
     }
     rt.draw(gfx);
+
+    // Pass 2: darker sand patch variation (#A88040) — ~43% of tiles
     gfx.clear();
-    gfx.fillStyle(0xb0a888, 0.40);
+    gfx.fillStyle(0xA88040, 0.28);
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
         if (this.island.tiles[y][x] !== TileType.ROCK) continue;
-        const h = ((x * 11 + y * 5) ^ (y * 7)) % 11;
-        if (h === 0) gfx.fillRect(x * TS + 6, y * TS + 4, 6, 3);
-        if (h === 2) gfx.fillRect(x * TS + 20, y * TS + 16, 4, 3);
-        if (h === 5) gfx.fillRect(x * TS + 10, y * TS + 24, 6, 3);
+        const h = ((x * 11 + y * 7) ^ (x * 5)) % 7;
+        const bx = x * TS, by = y * TS;
+        if (h === 0) gfx.fillRect(bx + 16, by + 2,  14, 12);
+        if (h === 2) gfx.fillRect(bx + 2,  by + 18, 12, 12);
+        if (h === 4) gfx.fillRect(bx + 20, by + 18, 10, 10);
+      }
+    }
+    rt.draw(gfx);
+
+    // Pass 3: dark sand grain specks — 8 preset scatter patterns (#9A7838)
+    gfx.clear();
+    gfx.fillStyle(0x9A7838, 0.75);
+    for (let y = 0; y < MAP_HEIGHT; y++) {
+      for (let x = 0; x < MAP_WIDTH; x++) {
+        if (this.island.tiles[y][x] !== TileType.ROCK) continue;
+        const h = ((x * 7 + y * 13) ^ (x * 3)) % 8;
+        const bx = x * TS, by = y * TS;
+        if (h === 0) { gfx.fillRect(bx+ 5,by+ 8,2,1); gfx.fillRect(bx+19,by+ 6,1,1); gfx.fillRect(bx+11,by+22,2,1); gfx.fillRect(bx+25,by+16,1,1); gfx.fillRect(bx+ 7,by+27,1,1); }
+        if (h === 1) { gfx.fillRect(bx+ 3,by+14,1,1); gfx.fillRect(bx+17,by+ 9,2,1); gfx.fillRect(bx+24,by+24,1,1); gfx.fillRect(bx+ 9,by+19,1,2); gfx.fillRect(bx+22,by+ 4,1,1); }
+        if (h === 2) { gfx.fillRect(bx+ 8,by+ 5,2,1); gfx.fillRect(bx+22,by+12,1,1); gfx.fillRect(bx+14,by+20,1,2); gfx.fillRect(bx+ 4,by+25,2,1); gfx.fillRect(bx+27,by+ 8,1,1); }
+        if (h === 3) { gfx.fillRect(bx+12,by+ 3,1,1); gfx.fillRect(bx+ 6,by+16,2,1); gfx.fillRect(bx+20,by+20,1,1); gfx.fillRect(bx+26,by+26,1,1); gfx.fillRect(bx+15,by+11,1,2); }
+        if (h === 4) { gfx.fillRect(bx+ 4,by+11,1,1); gfx.fillRect(bx+18,by+ 3,2,1); gfx.fillRect(bx+10,by+24,1,1); gfx.fillRect(bx+24,by+18,1,1); gfx.fillRect(bx+ 7,by+20,1,2); }
+        if (h === 5) { gfx.fillRect(bx+16,by+14,2,1); gfx.fillRect(bx+ 5,by+ 4,1,1); gfx.fillRect(bx+23,by+ 7,1,1); gfx.fillRect(bx+12,by+26,1,1); gfx.fillRect(bx+27,by+22,1,1); }
+        if (h === 6) { gfx.fillRect(bx+ 9,by+10,1,1); gfx.fillRect(bx+21,by+16,2,1); gfx.fillRect(bx+ 3,by+22,1,1); gfx.fillRect(bx+25,by+ 4,1,2); gfx.fillRect(bx+14,by+28,1,1); }
+        if (h === 7) { gfx.fillRect(bx+ 6,by+18,1,1); gfx.fillRect(bx+20,by+12,1,1); gfx.fillRect(bx+13,by+ 5,2,1); gfx.fillRect(bx+28,by+20,1,1); gfx.fillRect(bx+10,by+28,1,2); }
+      }
+    }
+    rt.draw(gfx);
+
+    // Pass 4: light grain sparkles — sun-catching sand highlights (#EDD890)
+    gfx.clear();
+    gfx.fillStyle(0xEDD890, 0.70);
+    for (let y = 0; y < MAP_HEIGHT; y++) {
+      for (let x = 0; x < MAP_WIDTH; x++) {
+        if (this.island.tiles[y][x] !== TileType.ROCK) continue;
+        const h = ((x * 11 + y * 5) ^ (y * 7)) % 8;
+        const bx = x * TS, by = y * TS;
+        if (h === 0) { gfx.fillRect(bx+ 7,by+ 6,1,1); gfx.fillRect(bx+22,by+18,1,1); }
+        if (h === 1) { gfx.fillRect(bx+15,by+10,1,1); gfx.fillRect(bx+ 5,by+24,1,1); }
+        if (h === 2) { gfx.fillRect(bx+24,by+ 5,1,1); gfx.fillRect(bx+10,by+19,1,1); }
+        if (h === 3) { gfx.fillRect(bx+ 3,by+17,1,1); gfx.fillRect(bx+20,by+ 6,1,1); }
+        if (h === 4) { gfx.fillRect(bx+18,by+24,1,1); gfx.fillRect(bx+ 8,by+11,1,1); }
+        if (h === 5) { gfx.fillRect(bx+12,by+28,1,1); gfx.fillRect(bx+26,by+14,1,1); }
+        if (h === 6) { gfx.fillRect(bx+ 4,by+ 7,1,1); gfx.fillRect(bx+23,by+23,1,1); }
+        if (h === 7) { gfx.fillRect(bx+17,by+ 3,1,1); gfx.fillRect(bx+ 9,by+22,1,1); }
       }
     }
     rt.draw(gfx);
@@ -519,13 +610,33 @@ export class GameScene extends Phaser.Scene {
 
   private detailPath(rt: Phaser.GameObjects.RenderTexture, gfx: Phaser.GameObjects.Graphics): void {
     const TS = TILE_SIZE;
+
+    // Pass 1: lighter dry-earth patches
     gfx.clear();
-    gfx.fillStyle(0x9a7030, 0.38);
+    gfx.fillStyle(0xD4B87A, 0.42);
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
         if (this.island.tiles[y][x] !== TileType.DIRT_PATH) continue;
-        gfx.fillRect(x * TS, y * TS, TS, 1);
-        gfx.fillRect(x * TS, y * TS, 1, TS);
+        const h = ((x * 7 + y * 13) ^ (x * 3)) % 5;
+        const bx = x * TS, by = y * TS;
+        if (h === 0) gfx.fillRect(bx + 4,  by + 6,  10, 6);
+        if (h === 1) gfx.fillRect(bx + 16, by + 18, 12, 8);
+        if (h === 2) gfx.fillRect(bx + 8,  by + 20, 14, 6);
+      }
+    }
+    rt.draw(gfx);
+
+    // Pass 2: darker rut/divot lines
+    gfx.clear();
+    gfx.fillStyle(0x907050, 0.50);
+    for (let y = 0; y < MAP_HEIGHT; y++) {
+      for (let x = 0; x < MAP_WIDTH; x++) {
+        if (this.island.tiles[y][x] !== TileType.DIRT_PATH) continue;
+        const h = ((x * 11 + y * 7) ^ (x * 5)) % 6;
+        const bx = x * TS, by = y * TS;
+        if (h === 0) { gfx.fillRect(bx + 4, by + 14, TS - 8, 1); }
+        if (h === 2) { gfx.fillRect(bx + 10, by + 8, 1, TS - 16); }
+        if (h === 4) { gfx.fillRect(bx + 4, by + 20, TS - 8, 1); gfx.fillRect(bx + 16, by + 4, 1, 16); }
       }
     }
     rt.draw(gfx);
@@ -549,28 +660,73 @@ export class GameScene extends Phaser.Scene {
 
   private detailGravel(rt: Phaser.GameObjects.RenderTexture, gfx: Phaser.GameObjects.Graphics): void {
     const TS = TILE_SIZE;
+
+    // Pass 1: lighter sand patch variation (#EAD090) — ~60% of tiles
     gfx.clear();
-    gfx.fillStyle(0x8a7858, 0.55);
+    gfx.fillStyle(0xEAD090, 0.35);
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
         if (this.island.tiles[y][x] !== TileType.GRAVEL) continue;
-        const h = ((x * 7 + y * 13) ^ (x * 3)) % 8;
-        if (h === 0) { gfx.fillRect(x * TS + 4, y * TS + 6, 4, 3); gfx.fillRect(x * TS + 18, y * TS + 20, 3, 3); }
-        if (h === 1) { gfx.fillRect(x * TS + 14, y * TS + 10, 3, 3); gfx.fillRect(x * TS + 8, y * TS + 24, 4, 3); }
-        if (h === 2) { gfx.fillRect(x * TS + 22, y * TS + 8, 3, 4); gfx.fillRect(x * TS + 6, y * TS + 18, 3, 3); }
-        if (h === 3) { gfx.fillRect(x * TS + 10, y * TS + 4, 5, 3); gfx.fillRect(x * TS + 20, y * TS + 22, 3, 3); }
+        const h = ((x * 7 + y * 13) ^ (x * 3)) % 5;
+        const bx = x * TS, by = y * TS;
+        if (h === 0) gfx.fillRect(bx + 4,  by + 4,  16, 10);
+        if (h === 1) gfx.fillRect(bx + 14, by + 18, 16, 10);
+        if (h === 2) gfx.fillRect(bx + 2,  by + 12, 20, 12);
       }
     }
     rt.draw(gfx);
+
+    // Pass 2: darker sand patch variation (#B09050) — ~43% of tiles
     gfx.clear();
-    gfx.fillStyle(0xd8c8a8, 0.45);
+    gfx.fillStyle(0xB09050, 0.28);
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
         if (this.island.tiles[y][x] !== TileType.GRAVEL) continue;
-        const h = ((x * 11 + y * 5) ^ (y * 7)) % 10;
-        if (h === 0) { gfx.fillRect(x * TS + 6, y * TS + 4, 3, 2); gfx.fillRect(x * TS + 20, y * TS + 16, 3, 2); }
-        if (h === 2) { gfx.fillRect(x * TS + 12, y * TS + 22, 4, 2); gfx.fillRect(x * TS + 24, y * TS + 8, 3, 2); }
-        if (h === 5) { gfx.fillRect(x * TS + 8, y * TS + 14, 4, 2); gfx.fillRect(x * TS + 16, y * TS + 26, 3, 2); }
+        const h = ((x * 11 + y * 7) ^ (x * 5)) % 7;
+        const bx = x * TS, by = y * TS;
+        if (h === 0) gfx.fillRect(bx + 18, by + 2,  12, 14);
+        if (h === 2) gfx.fillRect(bx + 2,  by + 16, 14, 12);
+        if (h === 4) gfx.fillRect(bx + 18, by + 20, 10,  8);
+      }
+    }
+    rt.draw(gfx);
+
+    // Pass 3: dark grain specks — offset patterns from ROCK for variety (#A08840)
+    gfx.clear();
+    gfx.fillStyle(0xA08840, 0.70);
+    for (let y = 0; y < MAP_HEIGHT; y++) {
+      for (let x = 0; x < MAP_WIDTH; x++) {
+        if (this.island.tiles[y][x] !== TileType.GRAVEL) continue;
+        const h = ((x * 13 + y * 7) ^ (x * 9)) % 8;
+        const bx = x * TS, by = y * TS;
+        if (h === 0) { gfx.fillRect(bx+ 8,by+ 4,1,1); gfx.fillRect(bx+22,by+10,2,1); gfx.fillRect(bx+ 6,by+20,1,1); gfx.fillRect(bx+18,by+26,1,1); gfx.fillRect(bx+27,by+14,1,1); }
+        if (h === 1) { gfx.fillRect(bx+ 4,by+ 9,2,1); gfx.fillRect(bx+14,by+ 4,1,1); gfx.fillRect(bx+26,by+20,1,2); gfx.fillRect(bx+10,by+26,1,1); gfx.fillRect(bx+20,by+14,1,1); }
+        if (h === 2) { gfx.fillRect(bx+11,by+18,1,1); gfx.fillRect(bx+23,by+ 4,1,1); gfx.fillRect(bx+ 5,by+13,2,1); gfx.fillRect(bx+17,by+24,1,1); gfx.fillRect(bx+28,by+ 9,1,1); }
+        if (h === 3) { gfx.fillRect(bx+16,by+ 7,1,1); gfx.fillRect(bx+ 3,by+20,1,2); gfx.fillRect(bx+24,by+16,2,1); gfx.fillRect(bx+ 9,by+28,1,1); gfx.fillRect(bx+21,by+ 3,1,1); }
+        if (h === 4) { gfx.fillRect(bx+ 7,by+15,1,1); gfx.fillRect(bx+19,by+ 8,1,1); gfx.fillRect(bx+13,by+23,2,1); gfx.fillRect(bx+26,by+28,1,1); gfx.fillRect(bx+ 3,by+ 5,1,1); }
+        if (h === 5) { gfx.fillRect(bx+22,by+22,1,1); gfx.fillRect(bx+ 9,by+ 6,1,1); gfx.fillRect(bx+15,by+17,2,1); gfx.fillRect(bx+28,by+ 4,1,1); gfx.fillRect(bx+ 5,by+27,1,2); }
+        if (h === 6) { gfx.fillRect(bx+12,by+12,2,1); gfx.fillRect(bx+24,by+22,1,1); gfx.fillRect(bx+ 6,by+ 3,1,1); gfx.fillRect(bx+18,by+18,1,1); gfx.fillRect(bx+28,by+16,1,1); }
+        if (h === 7) { gfx.fillRect(bx+ 4,by+24,1,1); gfx.fillRect(bx+16,by+13,1,2); gfx.fillRect(bx+25,by+ 6,2,1); gfx.fillRect(bx+10,by+10,1,1); gfx.fillRect(bx+22,by+28,1,1); }
+      }
+    }
+    rt.draw(gfx);
+
+    // Pass 4: light grain sparkles (#F0E0A0)
+    gfx.clear();
+    gfx.fillStyle(0xF0E0A0, 0.65);
+    for (let y = 0; y < MAP_HEIGHT; y++) {
+      for (let x = 0; x < MAP_WIDTH; x++) {
+        if (this.island.tiles[y][x] !== TileType.GRAVEL) continue;
+        const h = ((x * 5 + y * 11) ^ (x * 9 + y * 3)) % 8;
+        const bx = x * TS, by = y * TS;
+        if (h === 0) { gfx.fillRect(bx+ 9,by+ 3,1,1); gfx.fillRect(bx+21,by+21,1,1); }
+        if (h === 1) { gfx.fillRect(bx+17,by+13,1,1); gfx.fillRect(bx+ 4,by+22,1,1); }
+        if (h === 2) { gfx.fillRect(bx+26,by+ 8,1,1); gfx.fillRect(bx+11,by+26,1,1); }
+        if (h === 3) { gfx.fillRect(bx+ 6,by+18,1,1); gfx.fillRect(bx+23,by+ 5,1,1); }
+        if (h === 4) { gfx.fillRect(bx+20,by+27,1,1); gfx.fillRect(bx+ 7,by+10,1,1); }
+        if (h === 5) { gfx.fillRect(bx+14,by+22,1,1); gfx.fillRect(bx+27,by+12,1,1); }
+        if (h === 6) { gfx.fillRect(bx+ 3,by+ 8,1,1); gfx.fillRect(bx+24,by+25,1,1); }
+        if (h === 7) { gfx.fillRect(bx+19,by+ 4,1,1); gfx.fillRect(bx+ 8,by+20,1,1); }
       }
     }
     rt.draw(gfx);
