@@ -726,25 +726,33 @@ function ChessBoardIcon() {
   return (
     <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
       style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
-      {/* shadow */}
-      <rect x="5" y="27" width="22" height="4" fill="rgba(0,0,0,0.22)" />
+      {/* shadow — flush with canvas bottom */}
+      <rect x="4" y="28" width="24" height="3" fill="rgba(0,0,0,0.22)" />
       {/* frame */}
-      <rect x="5" y="4" width="22" height="22" fill="#5C3310" />
-      <rect x="6" y="5" width="20" height="20" fill="#8B5E3C" />
-      <rect x="6" y="5" width="10" height="1" fill="#B07040" />
+      <rect x="5" y="6" width="22" height="22" fill="#5C3310" />
+      <rect x="6" y="7" width="20" height="20" fill="#8B5E3C" />
+      <rect x="6" y="7" width="10" height="1" fill="#B07040" />
       {/* light square background */}
-      <rect x="8" y="7" width="16" height="16" fill="#F0D9B5" />
+      <rect x="8" y="9" width="16" height="16" fill="#F0D9B5" />
       {/* dark squares */}
       {Array.from({ length: 64 }, (_, i) => {
         const col = i % 8;
         const row = Math.floor(i / 8);
         if ((col + row) % 2 === 0) return null;
-        return <rect key={i} x={8 + col * 2} y={7 + row * 2} width="2" height="2" fill="#B58863" />;
+        return <rect key={i} x={8 + col * 2} y={9 + row * 2} width="2" height="2" fill="#B58863" />;
       })}
-      {/* white piece (col 3, row 6 — dark square) */}
-      <rect x="14" y="19" width="2" height="2" fill="#FFFFFF" />
-      {/* black piece (col 4, row 1 — dark square) */}
-      <rect x="16" y="9" width="2" height="2" fill="#1A1A1A" />
+      {/* white pieces (on dark squares) */}
+      <rect x="10" y="9"  width="2" height="2" fill="#FFFFFF" />
+      <rect x="14" y="13" width="2" height="2" fill="#FFFFFF" />
+      <rect x="18" y="17" width="2" height="2" fill="#FFFFFF" />
+      <rect x="22" y="21" width="2" height="2" fill="#FFFFFF" />
+      <rect x="10" y="21" width="2" height="2" fill="#FFFFFF" />
+      {/* black pieces (on light squares) */}
+      <rect x="16" y="9"  width="2" height="2" fill="#1A1A1A" />
+      <rect x="20" y="13" width="2" height="2" fill="#1A1A1A" />
+      <rect x="12" y="13" width="2" height="2" fill="#1A1A1A" />
+      <rect x="16" y="17" width="2" height="2" fill="#1A1A1A" />
+      <rect x="20" y="21" width="2" height="2" fill="#1A1A1A" />
     </svg>
   );
 }

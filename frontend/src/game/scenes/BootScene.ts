@@ -754,34 +754,42 @@ export class BootScene extends Phaser.Scene {
   private makeChessBoard(): void {
     const c = this.textures.createCanvas('chess-board', 32, 32)!;
     const ctx = c.getContext();
-    // shadow
+    // shadow — flush with canvas bottom like other decor items
     ctx.fillStyle = 'rgba(0,0,0,0.22)';
-    ctx.fillRect(5, 27, 22, 4);
+    ctx.fillRect(4, 28, 24, 3);
     // frame outer
     ctx.fillStyle = '#5C3310';
-    ctx.fillRect(5, 4, 22, 22);
+    ctx.fillRect(5, 6, 22, 22);
     // frame inner (wood)
     ctx.fillStyle = '#8B5E3C';
-    ctx.fillRect(6, 5, 20, 20);
+    ctx.fillRect(6, 7, 20, 20);
     // frame highlight
     ctx.fillStyle = '#B07040';
-    ctx.fillRect(6, 5, 10, 1);
-    // light squares background
+    ctx.fillRect(6, 7, 10, 1);
+    // light squares background — board starts at (8,9), 8×8 at 2×2 px = 16×16
     ctx.fillStyle = '#F0D9B5';
-    ctx.fillRect(8, 7, 16, 16);
-    // dark squares (8×8 grid, 2×2 px each)
+    ctx.fillRect(8, 9, 16, 16);
+    // dark squares
     ctx.fillStyle = '#B58863';
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
-        if ((col + row) % 2 === 1) ctx.fillRect(8 + col * 2, 7 + row * 2, 2, 2);
+        if ((col + row) % 2 === 1) ctx.fillRect(8 + col * 2, 9 + row * 2, 2, 2);
       }
     }
-    // white piece (col 3, row 6 — dark square)
+    // white pieces (on dark squares)
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(14, 19, 2, 2);
-    // black piece (col 4, row 1 — dark square)
+    ctx.fillRect(10, 9,  2, 2); // col 1, row 0
+    ctx.fillRect(14, 13, 2, 2); // col 3, row 2
+    ctx.fillRect(18, 17, 2, 2); // col 5, row 4
+    ctx.fillRect(22, 21, 2, 2); // col 7, row 6
+    ctx.fillRect(10, 21, 2, 2); // col 1, row 6
+    // black pieces (on light squares)
     ctx.fillStyle = '#1A1A1A';
-    ctx.fillRect(16, 9, 2, 2);
+    ctx.fillRect(16, 9,  2, 2); // col 4, row 0
+    ctx.fillRect(20, 13, 2, 2); // col 6, row 2
+    ctx.fillRect(12, 13, 2, 2); // col 2, row 2
+    ctx.fillRect(16, 17, 2, 2); // col 4, row 4
+    ctx.fillRect(20, 21, 2, 2); // col 6, row 6
     c.refresh();
   }
 
