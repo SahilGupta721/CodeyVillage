@@ -720,6 +720,85 @@ function GardenGateIcon() {
   );
 }
 
+// ── chess board icon ─────────────────────────────────────────────────────────
+
+function ChessBoardIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
+      {/* shadow */}
+      <rect x="5" y="27" width="22" height="4" fill="rgba(0,0,0,0.22)" />
+      {/* frame */}
+      <rect x="5" y="4" width="22" height="22" fill="#5C3310" />
+      <rect x="6" y="5" width="20" height="20" fill="#8B5E3C" />
+      <rect x="6" y="5" width="10" height="1" fill="#B07040" />
+      {/* light square background */}
+      <rect x="8" y="7" width="16" height="16" fill="#F0D9B5" />
+      {/* dark squares */}
+      {Array.from({ length: 64 }, (_, i) => {
+        const col = i % 8;
+        const row = Math.floor(i / 8);
+        if ((col + row) % 2 === 0) return null;
+        return <rect key={i} x={8 + col * 2} y={7 + row * 2} width="2" height="2" fill="#B58863" />;
+      })}
+      {/* white piece (col 3, row 6 — dark square) */}
+      <rect x="14" y="19" width="2" height="2" fill="#FFFFFF" />
+      {/* black piece (col 4, row 1 — dark square) */}
+      <rect x="16" y="9" width="2" height="2" fill="#1A1A1A" />
+    </svg>
+  );
+}
+
+// ── arcade machine icon ───────────────────────────────────────────────────────
+
+function ArcadeMachineIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
+      {/* shadow */}
+      <rect x="5" y="29" width="22" height="3" fill="rgba(0,0,0,0.25)" />
+      {/* cabinet body */}
+      <rect x="6" y="2" width="20" height="27" fill="#1A1A2E" />
+      <rect x="7" y="3" width="18" height="25" fill="#22223A" />
+      {/* marquee area */}
+      <rect x="7" y="3" width="18" height="7" fill="#2A1F4E" />
+      <rect x="8" y="4" width="16" height="5" fill="#3A2A6A" />
+      {/* marquee neon strips */}
+      <rect x="9" y="5" width="5" height="1" fill="#FF44AA" />
+      <rect x="15" y="5" width="4" height="1" fill="#44FFCC" />
+      <rect x="9" y="7" width="9" height="1" fill="#AA44FF" />
+      <rect x="19" y="7" width="4" height="1" fill="#FF8800" />
+      {/* screen bezel */}
+      <rect x="7" y="11" width="18" height="11" fill="#111122" />
+      {/* screen */}
+      <rect x="8" y="12" width="16" height="9" fill="#002244" />
+      <rect x="9" y="13" width="14" height="7" fill="#003366" />
+      <rect x="10" y="13" width="9" height="3" fill="#1155CC" />
+      {/* game pixels on screen */}
+      <rect x="10" y="14" width="2" height="2" fill="#00FFFF" />
+      <rect x="14" y="13" width="4" height="1" fill="#00FF88" />
+      <rect x="20" y="15" width="2" height="2" fill="#FF4400" />
+      <rect x="12" y="16" width="3" height="2" fill="#FFFF00" />
+      <rect x="17" y="14" width="2" height="3" fill="#FF44AA" />
+      {/* control panel */}
+      <rect x="6" y="23" width="20" height="6" fill="#1A1A2E" />
+      <rect x="7" y="24" width="18" height="4" fill="#252540" />
+      {/* joystick */}
+      <rect x="9" y="25" width="3" height="2" fill="#444466" />
+      <rect x="10" y="24" width="1" height="4" fill="#9999BB" />
+      <rect x="9" y="24" width="3" height="1" fill="#6666AA" />
+      {/* action buttons */}
+      <rect x="15" y="25" width="2" height="2" fill="#DD1133" />
+      <rect x="18" y="25" width="2" height="2" fill="#1133DD" />
+      <rect x="21" y="25" width="2" height="2" fill="#11CC44" />
+      {/* coin slot */}
+      <rect x="12" y="28" width="8" height="1" fill="#333355" />
+      {/* base */}
+      <rect x="7" y="28" width="18" height="2" fill="#111122" />
+    </svg>
+  );
+}
+
 // ── shop catalogue ───────────────────────────────────────────────────────────
 
 const BASE_CATEGORIES: ShopCategory[] = [
@@ -749,6 +828,7 @@ const BASE_CATEGORIES: ShopCategory[] = [
     label: 'Decor',
     emoji: '🌿',
     items: [
+      { id: 'chess-board', name: 'Chess Board', emoji: '♟️', icon: <ChessBoardIcon />, price: 100 },
       { id: 'potted-fern', name: 'Potted Fern', emoji: '🌱', icon: <PottedFernIcon />, price: 40 },
       { id: 'candle-set', name: 'Candle Set', emoji: '🕯️', icon: <CandleSetIcon />, price: 60 },
       { id: 'hanging-vine', name: 'Hanging Vine', emoji: '🪴', icon: <HangingVineIcon />, price: 90 },
@@ -766,6 +846,14 @@ const BASE_CATEGORIES: ShopCategory[] = [
       { id: 'wooden-arch', name: 'Wooden Arch', emoji: '🌉', icon: <WoodenArchIcon />, price: 320 },
       { id: 'fence-post', name: 'Fence Post', emoji: '🪵', icon: <FencePostIcon />, price: 80 },
       { id: 'garden-gate', name: 'Garden Gate', emoji: '⛩️', icon: <GardenGateIcon />, price: 240 },
+    ],
+  },
+  {
+    id: 'tech',
+    label: 'Tech',
+    emoji: '🕹️',
+    items: [
+      { id: 'arcade-machine', name: 'Arcade Machine', emoji: '🕹️', icon: <ArcadeMachineIcon />, price: 500 },
     ],
   },
   {

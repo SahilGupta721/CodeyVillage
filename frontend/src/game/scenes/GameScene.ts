@@ -70,6 +70,8 @@ const SHOP_ITEM_TEXTURES: Record<string, string> = {
   'enchanted-bonsai': 'enchanted-bonsai',
   'star-fragment': 'star-fragment',
   'spirit-bells': 'spirit-bells',
+  'arcade-machine': 'arcade-machine',
+  'chess-board': 'chess-board',
 };
 
 const TILE_COLORS = new Map<TileType, number>([

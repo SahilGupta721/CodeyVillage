@@ -324,6 +324,7 @@ export class BootScene extends Phaser.Scene {
     this.makeRockingChair();
 
     // Decor
+    this.makeChessBoard();
     this.makePottedFern();
     this.makeCandleSet();
     this.makeHangingVine();
@@ -344,6 +345,9 @@ export class BootScene extends Phaser.Scene {
     this.makeEnchantedBonsai();
     this.makeStarFragment();
     this.makeSpiritBells();
+
+    // Tech
+    this.makeArcadeMachine();
   }
 
   // ── Furniture ────────────────────────────────────────────────────────────────
@@ -746,6 +750,40 @@ export class BootScene extends Phaser.Scene {
   }
 
   // ── Decor ─────────────────────────────────────────────────────────────────────
+
+  private makeChessBoard(): void {
+    const c = this.textures.createCanvas('chess-board', 32, 32)!;
+    const ctx = c.getContext();
+    // shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.22)';
+    ctx.fillRect(5, 27, 22, 4);
+    // frame outer
+    ctx.fillStyle = '#5C3310';
+    ctx.fillRect(5, 4, 22, 22);
+    // frame inner (wood)
+    ctx.fillStyle = '#8B5E3C';
+    ctx.fillRect(6, 5, 20, 20);
+    // frame highlight
+    ctx.fillStyle = '#B07040';
+    ctx.fillRect(6, 5, 10, 1);
+    // light squares background
+    ctx.fillStyle = '#F0D9B5';
+    ctx.fillRect(8, 7, 16, 16);
+    // dark squares (8×8 grid, 2×2 px each)
+    ctx.fillStyle = '#B58863';
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 8; col++) {
+        if ((col + row) % 2 === 1) ctx.fillRect(8 + col * 2, 7 + row * 2, 2, 2);
+      }
+    }
+    // white piece (col 3, row 6 — dark square)
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(14, 19, 2, 2);
+    // black piece (col 4, row 1 — dark square)
+    ctx.fillStyle = '#1A1A1A';
+    ctx.fillRect(16, 9, 2, 2);
+    c.refresh();
+  }
 
   private makePottedFern(): void {
     const c = this.textures.createCanvas('potted-fern', 32, 32)!;
@@ -1460,6 +1498,83 @@ export class BootScene extends Phaser.Scene {
     ctx.fillRect(8, 14, 6, 1);
     ctx.fillRect(13, 13, 6, 1);
     ctx.fillRect(18, 14, 6, 1);
+    c.refresh();
+  }
+
+  // ── Tech ─────────────────────────────────────────────────────────────────────
+
+  private makeArcadeMachine(): void {
+    const c = this.textures.createCanvas('arcade-machine', 32, 32)!;
+    const ctx = c.getContext();
+    // shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.fillRect(5, 29, 22, 3);
+    // cabinet body
+    ctx.fillStyle = '#1A1A2E';
+    ctx.fillRect(6, 2, 20, 27);
+    ctx.fillStyle = '#22223A';
+    ctx.fillRect(7, 3, 18, 25);
+    // marquee area
+    ctx.fillStyle = '#2A1F4E';
+    ctx.fillRect(7, 3, 18, 7);
+    ctx.fillStyle = '#3A2A6A';
+    ctx.fillRect(8, 4, 16, 5);
+    // marquee neon strips
+    ctx.fillStyle = '#FF44AA';
+    ctx.fillRect(9, 5, 5, 1);
+    ctx.fillStyle = '#44FFCC';
+    ctx.fillRect(15, 5, 4, 1);
+    ctx.fillStyle = '#AA44FF';
+    ctx.fillRect(9, 7, 9, 1);
+    ctx.fillStyle = '#FF8800';
+    ctx.fillRect(19, 7, 4, 1);
+    // screen bezel
+    ctx.fillStyle = '#111122';
+    ctx.fillRect(7, 11, 18, 11);
+    // screen
+    ctx.fillStyle = '#002244';
+    ctx.fillRect(8, 12, 16, 9);
+    ctx.fillStyle = '#003366';
+    ctx.fillRect(9, 13, 14, 7);
+    ctx.fillStyle = '#1155CC';
+    ctx.fillRect(10, 13, 9, 3);
+    // game pixels on screen
+    ctx.fillStyle = '#00FFFF';
+    ctx.fillRect(10, 14, 2, 2);
+    ctx.fillStyle = '#00FF88';
+    ctx.fillRect(14, 13, 4, 1);
+    ctx.fillStyle = '#FF4400';
+    ctx.fillRect(20, 15, 2, 2);
+    ctx.fillStyle = '#FFFF00';
+    ctx.fillRect(12, 16, 3, 2);
+    ctx.fillStyle = '#FF44AA';
+    ctx.fillRect(17, 14, 2, 3);
+    // control panel
+    ctx.fillStyle = '#1A1A2E';
+    ctx.fillRect(6, 23, 20, 6);
+    ctx.fillStyle = '#252540';
+    ctx.fillRect(7, 24, 18, 4);
+    // joystick base
+    ctx.fillStyle = '#444466';
+    ctx.fillRect(9, 25, 3, 2);
+    // joystick stick
+    ctx.fillStyle = '#9999BB';
+    ctx.fillRect(10, 24, 1, 4);
+    ctx.fillStyle = '#6666AA';
+    ctx.fillRect(9, 24, 3, 1);
+    // action buttons
+    ctx.fillStyle = '#DD1133';
+    ctx.fillRect(15, 25, 2, 2);
+    ctx.fillStyle = '#1133DD';
+    ctx.fillRect(18, 25, 2, 2);
+    ctx.fillStyle = '#11CC44';
+    ctx.fillRect(21, 25, 2, 2);
+    // coin slot
+    ctx.fillStyle = '#333355';
+    ctx.fillRect(12, 28, 8, 1);
+    // base
+    ctx.fillStyle = '#111122';
+    ctx.fillRect(7, 28, 18, 2);
     c.refresh();
   }
 }
