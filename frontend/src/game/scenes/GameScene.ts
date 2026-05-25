@@ -785,12 +785,26 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  private buildingBlockedSet(): Set<string> {
+    const blocked = new Set<string>();
+    for (const b of this.island.buildings) {
+      for (let dy = -2; dy < b.tileH + 3; dy++) {
+        for (let dx = -2; dx < b.tileW + 2; dx++) {
+          blocked.add(`${b.tileX + dx},${b.tileY + dy}`);
+        }
+      }
+    }
+    return blocked;
+  }
+
   private addGrassDetailSprites(): void {
     const TS = TILE_SIZE;
+    const blocked = this.buildingBlockedSet();
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
         const t = this.island.tiles[y][x];
         if (t !== TileType.GRASS && t !== TileType.GRASS_DARK) continue;
+        if (blocked.has(`${x},${y}`)) continue;
         if (this.grassVariant(x, y) === 3) continue;
         const bx = x * TS, by = y * TS;
         const h1 = ((x * 17 + y * 11) ^ (x * 7 + y * 3)) % 9;
@@ -808,6 +822,7 @@ export class GameScene extends Phaser.Scene {
 
   private addFoliageSprites(): void {
     const TS = TILE_SIZE;
+    const blocked = this.buildingBlockedSet();
     const isGrass = (ty: number, tx: number): boolean => {
       const t = this.island.tiles[ty]?.[tx];
       return t === TileType.GRASS || t === TileType.GRASS_DARK;
@@ -815,6 +830,7 @@ export class GameScene extends Phaser.Scene {
     for (let y = 1; y < MAP_HEIGHT - 1; y++) {
       for (let x = 1; x < MAP_WIDTH - 1; x++) {
         if (!isGrass(y, x)) continue;
+        if (blocked.has(`${x},${y}`)) continue;
         const onEdge = !isGrass(y-1,x) || !isGrass(y+1,x) || !isGrass(y,x-1) || !isGrass(y,x+1);
         const h1 = ((x * 19 + y * 23) ^ (x * 5 + y * 7)) % 15;
         if (onEdge && h1 === 0) {
@@ -832,14 +848,7 @@ export class GameScene extends Phaser.Scene {
 
   private placeDecorations(): void {
     const TS = TILE_SIZE;
-    const blocked = new Set<string>();
-    for (const b of this.island.buildings) {
-      for (let dy = -2; dy < b.tileH + 3; dy++) {
-        for (let dx = -2; dx < b.tileW + 2; dx++) {
-          blocked.add(`${b.tileX + dx},${b.tileY + dy}`);
-        }
-      }
-    }
+    const blocked = this.buildingBlockedSet();
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
         const t = this.island.tiles[y][x];
