@@ -807,6 +807,224 @@ function ArcadeMachineIcon() {
   );
 }
 
+// ── special item icons ────────────────────────────────────────────────────────
+
+function FairyLanternIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
+      <rect x="9" y="30" width="14" height="2" fill="rgba(0,0,0,0.22)" />
+      {/* hook */}
+      <rect x="12" y="0" width="8" height="2" fill="#4A2A08" />
+      <rect x="13" y="1" width="6" height="2" fill="#8B5E3C" />
+      {/* string */}
+      <rect x="15" y="3" width="2" height="3" fill="#5A3818" />
+      {/* top cap */}
+      <rect x="9" y="6" width="14" height="3" fill="#4A2A08" />
+      <rect x="10" y="7" width="12" height="2" fill="#D09040" />
+      <rect x="11" y="7" width="6" height="1" fill="#F8C060" />
+      {/* glow aura */}
+      <rect x="7" y="9" width="18" height="14" fill="#FF9010" opacity="0.15" />
+      {/* body */}
+      <rect x="9" y="9" width="14" height="14" fill="#3A2008" />
+      <rect x="10" y="10" width="12" height="12" fill="#FF8010" />
+      <rect x="11" y="10" width="8" height="8" fill="#FFB030" />
+      <rect x="12" y="11" width="5" height="5" fill="#FFD860" />
+      <rect x="13" y="12" width="3" height="3" fill="#FFF8A0" />
+      {/* ribs */}
+      <rect x="14" y="10" width="1" height="12" fill="rgba(60,30,0,0.28)" />
+      <rect x="17" y="10" width="1" height="12" fill="rgba(60,30,0,0.28)" />
+      {/* bottom shadow of body */}
+      <rect x="10" y="18" width="12" height="5" fill="#FF6008" opacity="0.35" />
+      {/* bottom cap */}
+      <rect x="9" y="23" width="14" height="3" fill="#4A2A08" />
+      <rect x="10" y="23" width="12" height="2" fill="#D09040" />
+      <rect x="11" y="23" width="6" height="1" fill="#F8C060" />
+      {/* tassel */}
+      <rect x="13" y="26" width="6" height="2" fill="#D09040" />
+      <rect x="14" y="28" width="4" height="2" fill="#A06020" />
+      <rect x="15" y="29" width="2" height="1" fill="#804810" />
+    </svg>
+  );
+}
+
+function MoonCrystalIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
+      <rect x="10" y="30" width="12" height="2" fill="rgba(0,0,0,0.22)" />
+      {/* base */}
+      <rect x="9" y="26" width="14" height="4" fill="#1E1A30" />
+      <rect x="10" y="27" width="12" height="3" fill="#40385A" />
+      <rect x="11" y="27" width="6" height="2" fill="#7068A0" />
+      {/* main body */}
+      <rect x="11" y="14" width="10" height="13" fill="#1E2E58" />
+      <rect x="12" y="15" width="8" height="11" fill="#4070B8" />
+      <rect x="12" y="15" width="5" height="7" fill="#78A8D8" />
+      <rect x="12" y="15" width="3" height="4" fill="#B8D8F4" />
+      {/* middle spike */}
+      <rect x="13" y="8" width="6" height="7" fill="#283870" />
+      <rect x="14" y="9" width="4" height="5" fill="#6090C8" />
+      <rect x="14" y="9" width="2" height="3" fill="#A8CCF0" />
+      {/* top spike */}
+      <rect x="14" y="2" width="4" height="7" fill="#1E2E58" />
+      <rect x="15" y="3" width="2" height="5" fill="#7AAAD8" />
+      <rect x="15" y="2" width="2" height="2" fill="#D0E8F8" />
+      {/* moon accent */}
+      <rect x="13" y="19" width="6" height="4" fill="#88B8E0" />
+      <rect x="14" y="19" width="4" height="1" fill="#C4DFF4" />
+      <rect x="14" y="22" width="4" height="1" fill="#304880" />
+      {/* facet lines */}
+      <rect x="16" y="15" width="1" height="11" fill="rgba(20,40,100,0.28)" />
+      <rect x="19" y="15" width="1" height="11" fill="rgba(20,40,100,0.22)" />
+    </svg>
+  );
+}
+
+function MysticOrbIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
+      <rect x="7" y="30" width="18" height="2" fill="rgba(0,0,0,0.25)" />
+      {/* pedestal base */}
+      <rect x="6" y="26" width="20" height="4" fill="#201828" />
+      <rect x="7" y="27" width="18" height="3" fill="#483860" />
+      <rect x="8" y="27" width="8" height="2" fill="#706090" />
+      {/* pedestal column */}
+      <rect x="12" y="22" width="8" height="5" fill="#201828" />
+      <rect x="13" y="23" width="6" height="4" fill="#483860" />
+      <rect x="13" y="23" width="3" height="2" fill="#706090" />
+      {/* orb glow aura */}
+      <rect x="5" y="5" width="22" height="18" fill="#8030C0" opacity="0.12" />
+      {/* orb body */}
+      <rect x="8" y="7" width="16" height="15" fill="#2A0848" />
+      <rect x="9" y="8" width="14" height="13" fill="#6820A8" />
+      <rect x="9" y="8" width="9" height="8" fill="#9850D0" />
+      <rect x="9" y="8" width="6" height="5" fill="#C080E8" />
+      <rect x="9" y="8" width="4" height="3" fill="#ECC8FF" />
+      {/* orb bottom shadow */}
+      <rect x="9" y="17" width="14" height="4" fill="#2A0848" opacity="0.55" />
+      {/* inner swirl */}
+      <rect x="15" y="11" width="6" height="2" fill="#D8A8FF" opacity="0.55" />
+      <rect x="12" y="15" width="5" height="2" fill="#D8A8FF" opacity="0.40" />
+      {/* sparkle */}
+      <rect x="20" y="7" width="2" height="2" fill="#FFFFFF" opacity="0.85" />
+      <rect x="21" y="7" width="1" height="1" fill="#FFFFFF" />
+    </svg>
+  );
+}
+
+function EnchantedBonsaiIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
+      <rect x="7" y="30" width="18" height="2" fill="rgba(0,0,0,0.22)" />
+      {/* pot */}
+      <rect x="9" y="22" width="14" height="8" fill="#4A1870" />
+      <rect x="10" y="23" width="12" height="6" fill="#7830B8" />
+      <rect x="11" y="23" width="5" height="2" fill="#A860D8" />
+      {/* rim */}
+      <rect x="8" y="20" width="16" height="3" fill="#4A1870" />
+      <rect x="9" y="21" width="14" height="2" fill="#7830B8" />
+      {/* trunk */}
+      <rect x="14" y="10" width="4" height="12" fill="#3A2010" />
+      <rect x="15" y="11" width="2" height="10" fill="#6A3820" />
+      {/* left branch */}
+      <rect x="8" y="8" width="7" height="3" fill="#3A2010" />
+      <rect x="9" y="9" width="5" height="2" fill="#6A3820" />
+      <rect x="8" y="10" width="3" height="2" fill="#3A2010" />
+      {/* right branch */}
+      <rect x="17" y="6" width="7" height="3" fill="#3A2010" />
+      <rect x="18" y="7" width="5" height="2" fill="#6A3820" />
+      <rect x="22" y="9" width="3" height="2" fill="#3A2010" />
+      {/* left foliage */}
+      <rect x="3" y="4" width="11" height="8" fill="#206818" />
+      <rect x="4" y="5" width="9" height="6" fill="#309828" />
+      <rect x="5" y="5" width="6" height="3" fill="#48BE38" />
+      {/* right foliage */}
+      <rect x="18" y="2" width="11" height="8" fill="#206818" />
+      <rect x="19" y="3" width="9" height="6" fill="#309828" />
+      <rect x="20" y="3" width="6" height="3" fill="#48BE38" />
+      {/* sparkles */}
+      <rect x="5" y="5" width="2" height="2" fill="#A8FF70" opacity="0.80" />
+      <rect x="24" y="4" width="2" height="2" fill="#70FFD0" opacity="0.80" />
+      <rect x="13" y="3" width="2" height="2" fill="#FFFFFF" opacity="0.70" />
+    </svg>
+  );
+}
+
+function StarFragmentIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
+      <rect x="10" y="30" width="12" height="2" fill="rgba(0,0,0,0.22)" />
+      {/* outer glow */}
+      <rect x="6" y="6" width="20" height="20" fill="#FFD020" opacity="0.10" />
+      {/* side facets */}
+      <rect x="7" y="12" width="5" height="8" fill="#9A7400" />
+      <rect x="20" y="12" width="5" height="8" fill="#705400" />
+      {/* center mass */}
+      <rect x="11" y="9" width="10" height="14" fill="#A88200" />
+      {/* top spike */}
+      <rect x="13" y="3" width="6" height="7" fill="#B89000" />
+      <rect x="14" y="2" width="4" height="2" fill="#FFE840" />
+      <rect x="15" y="1" width="2" height="2" fill="#FFFFFF" />
+      {/* bottom point */}
+      <rect x="13" y="22" width="6" height="5" fill="#806200" />
+      <rect x="14" y="26" width="4" height="2" fill="#604800" />
+      {/* bright face */}
+      <rect x="12" y="10" width="6" height="8" fill="#EEB818" />
+      <rect x="12" y="10" width="4" height="5" fill="#FFD850" />
+      <rect x="12" y="10" width="2" height="3" fill="#FFF4A8" />
+      {/* side rays */}
+      <rect x="3" y="15" width="5" height="2" fill="#FFD020" opacity="0.45" />
+      <rect x="24" y="15" width="5" height="2" fill="#FFD020" opacity="0.45" />
+    </svg>
+  );
+}
+
+function SpiritBellsIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
+      <rect x="6" y="30" width="20" height="2" fill="rgba(0,0,0,0.22)" />
+      {/* crossbar */}
+      <rect x="3" y="4" width="26" height="4" fill="#3D2010" />
+      <rect x="4" y="5" width="24" height="2" fill="#8B5E3C" />
+      <rect x="5" y="5" width="11" height="1" fill="#B07040" />
+      {/* left rope */}
+      <rect x="9" y="8" width="2" height="5" fill="#8B5E3C" />
+      {/* right rope */}
+      <rect x="21" y="8" width="2" height="5" fill="#8B5E3C" />
+      {/* left bell */}
+      <rect x="6" y="13" width="8" height="10" fill="#604000" />
+      <rect x="7" y="13" width="6" height="8" fill="#C08020" />
+      <rect x="7" y="13" width="4" height="5" fill="#DCA030" />
+      <rect x="7" y="13" width="3" height="3" fill="#F8C050" />
+      {/* left bell rim */}
+      <rect x="6" y="22" width="8" height="3" fill="#482E00" />
+      <rect x="7" y="22" width="6" height="2" fill="#986018" />
+      {/* left clapper */}
+      <rect x="9" y="25" width="2" height="4" fill="#3A2008" />
+      <rect x="9" y="28" width="2" height="2" fill="#5A3010" />
+      {/* right bell */}
+      <rect x="18" y="13" width="8" height="10" fill="#604000" />
+      <rect x="19" y="13" width="6" height="8" fill="#C08020" />
+      <rect x="19" y="13" width="4" height="5" fill="#DCA030" />
+      <rect x="19" y="13" width="3" height="3" fill="#F8C050" />
+      {/* right bell rim */}
+      <rect x="18" y="22" width="8" height="3" fill="#482E00" />
+      <rect x="19" y="22" width="6" height="2" fill="#986018" />
+      {/* right clapper */}
+      <rect x="21" y="25" width="2" height="4" fill="#3A2008" />
+      <rect x="21" y="28" width="2" height="2" fill="#5A3010" />
+      {/* shimmer highlights */}
+      <rect x="8" y="14" width="2" height="2" fill="#FFFAC8" opacity="0.70" />
+      <rect x="20" y="14" width="2" height="2" fill="#FFFAC8" opacity="0.70" />
+    </svg>
+  );
+}
+
 // ── shop catalogue ───────────────────────────────────────────────────────────
 
 const BASE_CATEGORIES: ShopCategory[] = [
@@ -869,12 +1087,12 @@ const BASE_CATEGORIES: ShopCategory[] = [
     label: 'Special',
     emoji: '✨',
     items: [
-      { id: 'fairy-lantern', name: 'Fairy Lantern', emoji: '🪔', price: 500 },
-      { id: 'moon-crystal', name: 'Moon Crystal', emoji: '🌙', price: 750 },
-      { id: 'mystic-orb', name: 'Mystic Orb', emoji: '🔮', price: 1000 },
-      { id: 'enchanted-bonsai', name: 'Enchanted Bonsai', emoji: '🎋', price: 650 },
-      { id: 'star-fragment', name: 'Star Fragment', emoji: '⭐', price: 850 },
-      { id: 'spirit-bells', name: 'Spirit Bells', emoji: '🔔', price: 420 },
+      { id: 'fairy-lantern', name: 'Fairy Lantern', emoji: '🪔', icon: <FairyLanternIcon />, price: 500 },
+      { id: 'moon-crystal', name: 'Moon Crystal', emoji: '🌙', icon: <MoonCrystalIcon />, price: 750 },
+      { id: 'mystic-orb', name: 'Mystic Orb', emoji: '🔮', icon: <MysticOrbIcon />, price: 1000 },
+      { id: 'enchanted-bonsai', name: 'Enchanted Bonsai', emoji: '🎋', icon: <EnchantedBonsaiIcon />, price: 650 },
+      { id: 'star-fragment', name: 'Star Fragment', emoji: '⭐', icon: <StarFragmentIcon />, price: 850 },
+      { id: 'spirit-bells', name: 'Spirit Bells', emoji: '🔔', icon: <SpiritBellsIcon />, price: 420 },
     ],
   },
 ];
