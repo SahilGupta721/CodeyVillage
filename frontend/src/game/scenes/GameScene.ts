@@ -10,6 +10,9 @@
  *  60  trees
  * 100+ building gSouth        — south wall face, y-sorted
  * 100+ NPCs + player          — y-sorted each frame (100 + y * 0.01)
+ * 190  night overlay RenderTexture
+ * 191  firefly glow (additive blend)
+ * 192  firefly bodies
  * 200  UI overlay
  */
 
@@ -97,6 +100,21 @@ const REMOTE_COLORS = [
   0xe05828, 0x30a840, 0x9030c0, 0xd4a020, 0xd02860, 0x1898c0,
 ];
 
+// ─── Firefly ──────────────────────────────────────────────────────────────────
+
+interface FireflyData {
+  x: number; y: number;
+  angle: number;          // heading in radians (Phaser coords: 0=right, π/2=down)
+  speed: number;          // px / sec
+  flashing: boolean;
+  flashTimer: number;     // ms into the current on/off phase
+  flashDuration: number;  // how long each flash lasts (ms)
+  darkDuration: number;   // dark interval between flashes (ms)
+  intensity: number;      // 0-1 glow brightness, sin-eased within the flash
+  life: number;           // ms since spawned
+  maxLife: number;        // total lifespan (ms)
+}
+
 // ─── Scene ────────────────────────────────────────────────────────────────────
 
 export class GameScene extends Phaser.Scene {
@@ -150,6 +168,12 @@ export class GameScene extends Phaser.Scene {
   private lastNightCheck = 0;
   private currentNightAlpha = 0;
 
+  // ─── Firefly system ────────────────────────────────────────────────────────
+  private fireflyGfx: Phaser.GameObjects.Graphics | null = null;
+  private fireflyGlowGfx: Phaser.GameObjects.Graphics | null = null;
+  private fireflies: FireflyData[] = [];
+  private fireflySpawnCooldown = 0;
+
   constructor() { super({ key: 'GameScene' }); }
 
   // ─── create ───────────────────────────────────────────────────────────────
@@ -191,6 +215,7 @@ export class GameScene extends Phaser.Scene {
 
     this.addLeafParticles();
     this.setupNightCycle();
+    this.initFireflies();
 
     this.cursors = this.input.keyboard!.createCursorKeys();
     this.wasd = {
@@ -269,6 +294,7 @@ export class GameScene extends Phaser.Scene {
     this.updatePlacementGhost();
     this.updateDoorAnimations();
     this.updateNightOverlay(time);
+    this.updateFireflies(delta);
     if (this.placement && this.escKey && Phaser.Input.Keyboard.JustDown(this.escKey)) {
       this.cancelPlacement();
     }
@@ -1603,5 +1629,117 @@ export class GameScene extends Phaser.Scene {
     if (t < 7 + TRANS) return NIGHT_ALPHA * (1 - (t - (7 - TRANS)) / (TRANS * 2));
     // Sunset: fade day → night
     return NIGHT_ALPHA * ((t - (19 - TRANS)) / (TRANS * 2));
+  }
+
+  // ─── Firefly system ───────────────────────────────────────────────────────
+
+  private initFireflies(): void {
+    // Additive-blend layer renders the bioluminescent glow on top of darkness
+    this.fireflyGlowGfx = this.add.graphics()
+      .setDepth(191)
+      .setBlendMode(Phaser.BlendModes.ADD);
+    this.fireflyGfx = this.add.graphics().setDepth(192);
+  }
+
+  private spawnFirefly(): void {
+    const m = 80;
+    this.fireflies.push({
+      x: m + Math.random() * (WORLD_WIDTH  - m * 2),
+      y: m + Math.random() * (WORLD_HEIGHT - m * 2),
+      angle: Math.random() * Math.PI * 2,
+      speed: 18 + Math.random() * 16,          // 18 – 34 px / sec
+      flashing: false,
+      flashTimer: Math.random() * 4500,         // stagger so they don't all sync
+      flashDuration: 2000 + Math.random() * 2500,// 2 – 4.5 s lit
+      darkDuration: 1000 + Math.random() * 1500, // 1 – 2.5 s dark interval
+      intensity: 0,
+      life: 0,
+      maxLife: 28000 + Math.random() * 20000,   // 28 – 48 s lifespan
+    });
+  }
+
+  private updateFireflies(delta: number): void {
+    if (!this.fireflyGfx || !this.fireflyGlowGfx) return;
+
+    // No fireflies until it's properly dark
+    if (this.currentNightAlpha <= 0.15) {
+      if (this.fireflies.length > 0) this.fireflies = [];
+      this.fireflyGfx.clear();
+      this.fireflyGlowGfx.clear();
+      return;
+    }
+
+    // Scale max population (0 → 5) as night deepens from α=0.15 to α=0.55
+    const nightRamp = Phaser.Math.Clamp((this.currentNightAlpha - 0.15) / 0.4, 0, 1);
+    const maxNow    = Math.round(nightRamp * 5);
+
+    this.fireflySpawnCooldown -= delta;
+    if (this.fireflySpawnCooldown <= 0 && this.fireflies.length < maxNow) {
+      this.spawnFirefly();
+      this.fireflySpawnCooldown = 1800 + Math.random() * 2000;
+    }
+
+    this.fireflyGfx.clear();
+    this.fireflyGlowGfx.clear();
+
+    this.fireflies = this.fireflies.filter(f => {
+      f.life += delta;
+      if (f.life >= f.maxLife) return false;
+
+      // Fade in/out over the first and last 2.5 s of each firefly's life
+      const FADE = 2500;
+      const fadeAlpha  = Math.min(f.life / FADE, 1, (f.maxLife - f.life) / FADE);
+      const globalAlpha = fadeAlpha * nightRamp;
+
+      // Flash cycle — transition between dark and lit phases
+      f.flashTimer += delta;
+      const phaseLen = f.flashing ? f.flashDuration : f.darkDuration;
+      if (f.flashTimer >= phaseLen) {
+        f.flashing   = !f.flashing;
+        f.flashTimer -= phaseLen;
+      }
+      // Smooth bell-curve brightness: 0 → 1 → 0 over the flash window
+      f.intensity = f.flashing
+        ? Math.sin((f.flashTimer / f.flashDuration) * Math.PI)
+        : 0;
+
+      // Wander: gentle random angle drift (≈ 1.5 rad / sec max turn rate)
+      f.angle += (Math.random() - 0.5) * 1.5 * delta / 1000;
+      f.x += Math.cos(f.angle) * f.speed * delta / 1000;
+      // Classic "J" ascent at flash peak — slight upward drift while lit
+      const upBias = f.flashing ? 15 * f.intensity * delta / 1000 : 0;
+      f.y += Math.sin(f.angle) * f.speed * delta / 1000 - upBias;
+
+      // Reflect off world edges
+      if (f.x < 48 || f.x > WORLD_WIDTH  - 48) f.angle = Math.PI - f.angle;
+      if (f.y < 48 || f.y > WORLD_HEIGHT - 48) f.angle = -f.angle;
+      f.x = Phaser.Math.Clamp(f.x, 48, WORLD_WIDTH  - 48);
+      f.y = Phaser.Math.Clamp(f.y, 48, WORLD_HEIGHT - 48);
+
+      const bx = Math.round(f.x);
+      const by = Math.round(f.y);
+
+      if (f.intensity > 0) {
+        const gi = f.intensity * globalAlpha;
+        // Concentric additive glow rings — yellow-green bloom, white core
+        this.fireflyGlowGfx!.fillStyle(0xddee22, gi * 0.18);
+        this.fireflyGlowGfx!.fillCircle(bx, by, 6);
+        this.fireflyGlowGfx!.fillStyle(0xeeff44, gi * 0.38);
+        this.fireflyGlowGfx!.fillCircle(bx, by, 4);
+        this.fireflyGlowGfx!.fillStyle(0xfff880, gi * 0.68);
+        this.fireflyGlowGfx!.fillCircle(bx, by, 2.5);
+        this.fireflyGlowGfx!.fillStyle(0xffffff, gi * 0.90);
+        this.fireflyGlowGfx!.fillRect(bx - 1, by - 1, 2, 2);
+        // Crisp 2 × 2 pixel abdomen on the normal-blend layer
+        this.fireflyGfx!.fillStyle(0xf8ff60, gi);
+        this.fireflyGfx!.fillRect(bx - 1, by - 1, 2, 2);
+      } else {
+        // Dark period: barely-visible amber speck so the eye can loosely track it
+        this.fireflyGfx!.fillStyle(0xaa6600, globalAlpha * 0.07);
+        this.fireflyGfx!.fillRect(bx - 1, by - 1, 2, 2);
+      }
+
+      return true;
+    });
   }
 }
