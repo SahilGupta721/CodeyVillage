@@ -42,9 +42,10 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:800
 // Visual depth of placed shop items, y-sorted so taller props occlude correctly.
 const PLACED_ITEM_DEPTH_BASE = 60;
 // Items that emit light — world-space radius of the illuminated circle (px).
-const LIGHT_SOURCES: Record<string, { worldRadius: number; yOffset: number }> = {
-  'candle-set':    { worldRadius: 96,  yOffset: -10 },
-  'fairy-lantern': { worldRadius: 144, yOffset: -14 },
+const LIGHT_SOURCES: Record<string, { worldRadius: number; yOffset: number; tint?: number; tintAlpha?: number }> = {
+  'candle-set':     { worldRadius: 96,  yOffset: -10 },
+  'fairy-lantern':  { worldRadius: 144, yOffset: -14 },
+  'arcade-machine': { worldRadius: 40,  yOffset: -7, tint: 0x4488ff, tintAlpha: 0.18 },
 };
 
 // Texture key per shop item — used by both the ghost preview and the
@@ -164,7 +165,8 @@ export class GameScene extends Phaser.Scene {
   private escKey: Phaser.Input.Keyboard.Key | null = null;
   private nightRT: Phaser.GameObjects.RenderTexture | null = null;
   private nightMaskImg: Phaser.GameObjects.Image | null = null;
-  private lightSources: Map<string, { x: number; y: number; worldRadius: number; yOffset: number }> = new Map();
+  private lightSources: Map<string, { x: number; y: number; worldRadius: number; yOffset: number; tint?: number; tintAlpha?: number }> = new Map();
+  private arcadeScreens: Map<string, { gfx: Phaser.GameObjects.Graphics; timer: number }> = new Map();
   private lastNightCheck = 0;
   private currentNightAlpha = 0;
 
@@ -295,6 +297,7 @@ export class GameScene extends Phaser.Scene {
     this.updateDoorAnimations();
     this.updateNightOverlay(time);
     this.updateFireflies(delta);
+    this.updateArcadeScreens(delta);
     if (this.placement && this.escKey && Phaser.Input.Keyboard.JustDown(this.escKey)) {
       this.cancelPlacement();
     }
@@ -1293,7 +1296,12 @@ export class GameScene extends Phaser.Scene {
     // Register light sources so updateNightOverlay can punch holes in the darkness.
     const lightCfg = LIGHT_SOURCES[itemId];
     if (lightCfg && id) {
-      this.lightSources.set(id, { x, y, worldRadius: lightCfg.worldRadius, yOffset: lightCfg.yOffset });
+      this.lightSources.set(id, { x, y, worldRadius: lightCfg.worldRadius, yOffset: lightCfg.yOffset, tint: lightCfg.tint, tintAlpha: lightCfg.tintAlpha });
+    }
+    if (itemId === 'arcade-machine' && id) {
+      const depth = PLACED_ITEM_DEPTH_BASE + y * 0.001 + 0.5;
+      const gfx = this.add.graphics().setPosition(x, y).setDepth(depth);
+      this.arcadeScreens.set(id, { gfx, timer: 0 });
     }
   }
 
@@ -1355,6 +1363,11 @@ export class GameScene extends Phaser.Scene {
             this.lightSources.delete(tempId);
             this.lightSources.set(serverId, light);
           }
+          const screen = this.arcadeScreens.get(tempId);
+          if (screen) {
+            this.arcadeScreens.delete(tempId);
+            this.arcadeScreens.set(serverId, screen);
+          }
         }
       }
     } catch (e) {
@@ -1382,6 +1395,8 @@ export class GameScene extends Phaser.Scene {
     this.placedItemIds.delete(id);
     this.carvedDoors.delete(id);
     this.lightSources.delete(id);
+    const screen = this.arcadeScreens.get(id);
+    if (screen) { screen.gfx.destroy(); this.arcadeScreens.delete(id); }
   }
 
   private async erasePlacedItem(id: string): Promise<void> {
@@ -1602,7 +1617,7 @@ export class GameScene extends Phaser.Scene {
       // Remove the darkness overlay within the radius.
       this.nightRT.erase(this.nightMaskImg);
       // Lay a warm amber tint over the revealed area so it reads as candlelight.
-      this.nightMaskImg.setTint(0xffb347).setAlpha(0.28);
+      this.nightMaskImg.setTint(light.tint ?? 0xffb347).setAlpha(light.tintAlpha ?? 0.28);
       this.nightRT.draw(this.nightMaskImg);
     }
   }
@@ -1741,5 +1756,47 @@ export class GameScene extends Phaser.Scene {
 
       return true;
     });
+  }
+
+  // ─── Arcade machine screen animation ─────────────────────────────────────
+
+  // Bright arcade palette — cycles every ~130 ms per machine
+  private static readonly ARCADE_COLORS = [
+    0x00ffff, 0xffff00, 0xff44aa, 0x00ff88, 0xff8800, 0xffffff, 0x8844ff,
+  ];
+
+  private updateArcadeScreens(delta: number): void {
+    for (const [id, screen] of this.arcadeScreens) {
+      screen.timer += delta;
+      if (screen.timer < 400) continue;
+      screen.timer -= 400;
+
+      const color = GameScene.ARCADE_COLORS[
+        Math.floor(Math.random() * GameScene.ARCADE_COLORS.length)
+      ];
+
+      screen.gfx.clear();
+
+      // Screen face — sprite-local (9,13,14,7) offset by origin (16, 22.4)
+      // → local coords: fillRect(-7, -9, 14, 7)
+      screen.gfx.fillStyle(color, 0.88);
+      screen.gfx.fillRect(-7, -9, 14, 7);
+
+      // Scanlines
+      screen.gfx.fillStyle(0x000000, 0.18);
+      for (let row = -9; row < -2; row += 2) {
+        screen.gfx.fillRect(-7, row, 14, 1);
+      }
+
+      // A few bright "game sprite" pixels for depth
+      screen.gfx.fillStyle(0xffffff, 0.80);
+      screen.gfx.fillRect(-5, -8, 2, 2);
+      screen.gfx.fillRect( 2, -5, 2, 2);
+      screen.gfx.fillRect(-1, -7, 1, 1);
+
+      // Sync the night-overlay light pool tint to the current screen color
+      const light = this.lightSources.get(id);
+      if (light) light.tint = color;
+    }
   }
 }
