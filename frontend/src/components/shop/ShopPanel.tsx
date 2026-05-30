@@ -1086,7 +1086,7 @@ const BASE_CATEGORIES: ShopCategory[] = [
     label: 'Nature',
     emoji: '🌳',
     items: [
-      { id: 'tree', name: 'Oak Tree', emoji: '🌳', icon: <OakTreeIcon />, price: 110 },
+      { id: 'tree', name: 'Oak Sapling', emoji: '🌳', icon: <OakTreeIcon />, price: 110 },
     ],
   },
   {
