@@ -38,6 +38,11 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:800
 
 // Visual depth of placed shop items, y-sorted so taller props occlude correctly.
 const PLACED_ITEM_DEPTH_BASE = 60;
+// Items that emit light — world-space radius of the illuminated circle (px).
+const LIGHT_SOURCES: Record<string, { worldRadius: number; yOffset: number }> = {
+  'candle-set': { worldRadius: 96, yOffset: -10 },
+  'fairy-lantern': { worldRadius: 144, yOffset: -14 },
+};
 
 // Texture key per shop item — used by both the ghost preview and the
 // permanent sprite that gets dropped on the map.
@@ -65,15 +70,17 @@ const SHOP_ITEM_TEXTURES: Record<string, string> = {
   'enchanted-bonsai': 'enchanted-bonsai',
   'star-fragment': 'star-fragment',
   'spirit-bells': 'spirit-bells',
+  'arcade-machine': 'arcade-machine',
+  'chess-board': 'chess-board',
 };
 
 const TILE_COLORS = new Map<TileType, number>([
-  [TileType.ROCK, 0x8a8462],
+  [TileType.ROCK, 0xC8A45A],  // warm packed sand
   [TileType.WATER, 0x3898d8],
-  [TileType.GRASS, 0x8ec86a],
-  [TileType.GRASS_DARK, 0x74ae50],
-  [TileType.DIRT_PATH, 0xc09050],
-  [TileType.GRAVEL, 0xb8a882],
+  [TileType.GRASS, 0x5DBB3F],  // Stardew bright mid-green
+  [TileType.GRASS_DARK, 0x2D6B4A],  // deep teal-green shadow grass
+  [TileType.DIRT_PATH, 0xBFA882],  // warm sandy earth path
+  [TileType.GRAVEL, 0xD4B870],  // lighter golden sand
 ]);
 
 interface Palette { wall: number; wallDk: number; floor: number; door: number; accent: number; }
@@ -137,6 +144,11 @@ export class GameScene extends Phaser.Scene {
   // own HTTP POST response races with the WS broadcast echo).
   private placedItemIds: Set<string> = new Set();
   private escKey: Phaser.Input.Keyboard.Key | null = null;
+  private nightRT: Phaser.GameObjects.RenderTexture | null = null;
+  private nightMaskImg: Phaser.GameObjects.Image | null = null;
+  private lightSources: Map<string, { x: number; y: number; worldRadius: number; yOffset: number }> = new Map();
+  private lastNightCheck = 0;
+  private currentNightAlpha = 0;
 
   constructor() { super({ key: 'GameScene' }); }
 
@@ -147,6 +159,8 @@ export class GameScene extends Phaser.Scene {
     this.col = new CollisionSystem(this.island.tiles, this.island.buildings);
 
     this.buildTileLayer();
+    this.addGrassDetailSprites();
+    this.addFoliageSprites();
     this.addPondOverlay();
     this.placeDecorations();
     this.scheduleNextWind();
@@ -176,6 +190,7 @@ export class GameScene extends Phaser.Scene {
       .setBackgroundColor('#3898d8');
 
     this.addLeafParticles();
+    this.setupNightCycle();
 
     this.cursors = this.input.keyboard!.createCursorKeys();
     this.wasd = {
@@ -253,6 +268,7 @@ export class GameScene extends Phaser.Scene {
 
     this.updatePlacementGhost();
     this.updateDoorAnimations();
+    this.updateNightOverlay(time);
     if (this.placement && this.escKey && Phaser.Input.Keyboard.JustDown(this.escKey)) {
       this.cancelPlacement();
     }
@@ -433,7 +449,9 @@ export class GameScene extends Phaser.Scene {
       .setOrigin(0, 0).setDepth(2);
     const gfx = this.add.graphics();
 
+    // Non-grass tiles: single flat fill from TILE_COLORS
     for (const [type, color] of TILE_COLORS) {
+      if (type === TileType.GRASS || type === TileType.GRASS_DARK) continue;
       gfx.clear();
       gfx.fillStyle(color);
       for (let y = 0; y < MAP_HEIGHT; y++) {
@@ -446,6 +464,8 @@ export class GameScene extends Phaser.Scene {
       rt.draw(gfx);
     }
 
+    // Grass: multi-variant fill then per-variant pixel details + edge shading
+    this.drawGrassVariants(rt, gfx);
     this.detailGrass(rt, gfx);
     this.detailRock(rt, gfx);
     this.detailPath(rt, gfx);
@@ -457,17 +477,69 @@ export class GameScene extends Phaser.Scene {
 
   private detailGrass(rt: Phaser.GameObjects.RenderTexture, gfx: Phaser.GameObjects.Graphics): void {
     const TS = TILE_SIZE;
+
+    // Variant B: dark blade ticks along the top pixel row of the tile
     gfx.clear();
-    gfx.fillStyle(0x4a8a18, 0.40);
+    gfx.fillStyle(0x3A7A20, 1.0);
+    for (let y = 0; y < MAP_HEIGHT; y++) {
+      for (let x = 0; x < MAP_WIDTH; x++) {
+        if (this.island.tiles[y][x] !== TileType.GRASS) continue;
+        if (this.grassVariant(x, y) !== 1) continue;
+        const bx = x * TS, by = y * TS;
+        const h = ((x * 7 + y * 13) ^ (x * 3)) % 4;
+        if (h === 0) { gfx.fillRect(bx + 4, by, 1, 2); gfx.fillRect(bx + 14, by, 1, 3); gfx.fillRect(bx + 22, by, 1, 2); }
+        if (h === 1) { gfx.fillRect(bx + 6, by, 1, 3); gfx.fillRect(bx + 16, by, 1, 2); gfx.fillRect(bx + 26, by, 1, 3); }
+        if (h === 2) { gfx.fillRect(bx + 2, by, 1, 2); gfx.fillRect(bx + 12, by, 1, 3); gfx.fillRect(bx + 24, by, 1, 2); }
+        if (h === 3) { gfx.fillRect(bx + 8, by, 1, 3); gfx.fillRect(bx + 18, by, 1, 2); gfx.fillRect(bx + 28, by, 1, 3); }
+      }
+    }
+    rt.draw(gfx);
+
+    // Variant C: bright highlight pixels in top-left corner
+    gfx.clear();
+    gfx.fillStyle(0xC8E86A, 0.75);
+    for (let y = 0; y < MAP_HEIGHT; y++) {
+      for (let x = 0; x < MAP_WIDTH; x++) {
+        if (this.island.tiles[y][x] !== TileType.GRASS) continue;
+        if (this.grassVariant(x, y) !== 2) continue;
+        const bx = x * TS, by = y * TS;
+        gfx.fillRect(bx + 1, by + 1, 5, 1);
+        gfx.fillRect(bx + 1, by + 2, 1, 4);
+        gfx.fillRect(bx + 3, by + 3, 1, 1);
+      }
+    }
+    rt.draw(gfx);
+
+    // Variant D + GRASS_DARK: deep shadow band bottom-right
+    gfx.clear();
+    gfx.fillStyle(0x1A3D2A, 0.55);
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
         const t = this.island.tiles[y][x];
-        if (t !== TileType.GRASS && t !== TileType.GRASS_DARK) continue;
-        const h = ((x * 7 + y * 13) ^ (x * 3)) % 9;
-        if (h === 0) { gfx.fillRect(x * TS + 4, y * TS + 4, 2, 2); gfx.fillRect(x * TS + 20, y * TS + 18, 2, 2); }
-        if (h === 1) { gfx.fillRect(x * TS + 14, y * TS + 8, 2, 2); gfx.fillRect(x * TS + 6, y * TS + 22, 2, 2); }
-        if (h === 2) { gfx.fillRect(x * TS + 26, y * TS + 6, 2, 2); gfx.fillRect(x * TS + 10, y * TS + 26, 2, 2); }
-        if (h === 5) { gfx.fillRect(x * TS + 8, y * TS + 16, 2, 2); gfx.fillRect(x * TS + 22, y * TS + 10, 2, 2); }
+        const isD = t === TileType.GRASS_DARK || (t === TileType.GRASS && this.grassVariant(x, y) === 3);
+        if (!isD) continue;
+        const bx = x * TS, by = y * TS;
+        gfx.fillRect(bx, by + TS - 4, TS, 4);
+        gfx.fillRect(bx + TS - 4, by, 4, TS - 4);
+      }
+    }
+    rt.draw(gfx);
+
+    // Edge shading: 2px dark border on grass side where it meets non-grass
+    gfx.clear();
+    gfx.fillStyle(0x3A7A20, 1.0);
+    const isGrassTile = (ty: number, tx: number): boolean => {
+      const t = this.island.tiles[ty]?.[tx];
+      return t === TileType.GRASS || t === TileType.GRASS_DARK;
+    };
+    for (let y = 0; y < MAP_HEIGHT; y++) {
+      for (let x = 0; x < MAP_WIDTH; x++) {
+        if (!isGrassTile(y, x)) continue;
+        const bx = x * TS, by = y * TS;
+        if (!isGrassTile(y, x - 1)) gfx.fillRect(bx, by, 2, TS);
+        if (!isGrassTile(y, x + 1)) gfx.fillRect(bx + TS - 2, by, 2, TS);
+        if (!isGrassTile(y - 1, x)) gfx.fillRect(bx, by, TS, 2);
+        if (!isGrassTile(y + 1, x)) gfx.fillRect(bx, by + TS - 2, TS, 2);
       }
     }
     rt.draw(gfx);
@@ -475,29 +547,73 @@ export class GameScene extends Phaser.Scene {
 
   private detailRock(rt: Phaser.GameObjects.RenderTexture, gfx: Phaser.GameObjects.Graphics): void {
     const TS = TILE_SIZE;
+
+    // Pass 1: lighter sand patch variation (#DDBF70) — ~60% of tiles
     gfx.clear();
-    gfx.fillStyle(0x585840, 0.55);
+    gfx.fillStyle(0xDDBF70, 0.35);
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
         if (this.island.tiles[y][x] !== TileType.ROCK) continue;
-        const h = ((x * 7 + y * 13) ^ (x * 3)) % 12;
-        if (h === 0) gfx.fillRect(x * TS + 4, y * TS + 10, 10, 2);
-        if (h === 1) gfx.fillRect(x * TS + 18, y * TS + 6, 2, 10);
-        if (h === 2) gfx.fillRect(x * TS + 8, y * TS + 20, 8, 2);
-        if (h === 3) gfx.fillRect(x * TS + 22, y * TS + 14, 2, 8);
-        if (h === 4) gfx.fillRect(x * TS + 14, y * TS + 4, 6, 2);
+        const h = ((x * 7 + y * 13) ^ (x * 3)) % 5;
+        const bx = x * TS, by = y * TS;
+        if (h === 0) gfx.fillRect(bx + 2, by + 2, 14, 12);
+        if (h === 1) gfx.fillRect(bx + 16, by + 16, 14, 12);
+        if (h === 2) gfx.fillRect(bx + 6, by + 10, 18, 14);
       }
     }
     rt.draw(gfx);
+
+    // Pass 2: darker sand patch variation (#A88040) — ~43% of tiles
     gfx.clear();
-    gfx.fillStyle(0xb0a888, 0.40);
+    gfx.fillStyle(0xA88040, 0.28);
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
         if (this.island.tiles[y][x] !== TileType.ROCK) continue;
-        const h = ((x * 11 + y * 5) ^ (y * 7)) % 11;
-        if (h === 0) gfx.fillRect(x * TS + 6, y * TS + 4, 6, 3);
-        if (h === 2) gfx.fillRect(x * TS + 20, y * TS + 16, 4, 3);
-        if (h === 5) gfx.fillRect(x * TS + 10, y * TS + 24, 6, 3);
+        const h = ((x * 11 + y * 7) ^ (x * 5)) % 7;
+        const bx = x * TS, by = y * TS;
+        if (h === 0) gfx.fillRect(bx + 16, by + 2, 14, 12);
+        if (h === 2) gfx.fillRect(bx + 2, by + 18, 12, 12);
+        if (h === 4) gfx.fillRect(bx + 20, by + 18, 10, 10);
+      }
+    }
+    rt.draw(gfx);
+
+    // Pass 3: dark sand grain specks — 8 preset scatter patterns (#9A7838)
+    gfx.clear();
+    gfx.fillStyle(0x9A7838, 0.75);
+    for (let y = 0; y < MAP_HEIGHT; y++) {
+      for (let x = 0; x < MAP_WIDTH; x++) {
+        if (this.island.tiles[y][x] !== TileType.ROCK) continue;
+        const h = ((x * 7 + y * 13) ^ (x * 3)) % 8;
+        const bx = x * TS, by = y * TS;
+        if (h === 0) { gfx.fillRect(bx + 5, by + 8, 2, 1); gfx.fillRect(bx + 19, by + 6, 1, 1); gfx.fillRect(bx + 11, by + 22, 2, 1); gfx.fillRect(bx + 25, by + 16, 1, 1); gfx.fillRect(bx + 7, by + 27, 1, 1); }
+        if (h === 1) { gfx.fillRect(bx + 3, by + 14, 1, 1); gfx.fillRect(bx + 17, by + 9, 2, 1); gfx.fillRect(bx + 24, by + 24, 1, 1); gfx.fillRect(bx + 9, by + 19, 1, 2); gfx.fillRect(bx + 22, by + 4, 1, 1); }
+        if (h === 2) { gfx.fillRect(bx + 8, by + 5, 2, 1); gfx.fillRect(bx + 22, by + 12, 1, 1); gfx.fillRect(bx + 14, by + 20, 1, 2); gfx.fillRect(bx + 4, by + 25, 2, 1); gfx.fillRect(bx + 27, by + 8, 1, 1); }
+        if (h === 3) { gfx.fillRect(bx + 12, by + 3, 1, 1); gfx.fillRect(bx + 6, by + 16, 2, 1); gfx.fillRect(bx + 20, by + 20, 1, 1); gfx.fillRect(bx + 26, by + 26, 1, 1); gfx.fillRect(bx + 15, by + 11, 1, 2); }
+        if (h === 4) { gfx.fillRect(bx + 4, by + 11, 1, 1); gfx.fillRect(bx + 18, by + 3, 2, 1); gfx.fillRect(bx + 10, by + 24, 1, 1); gfx.fillRect(bx + 24, by + 18, 1, 1); gfx.fillRect(bx + 7, by + 20, 1, 2); }
+        if (h === 5) { gfx.fillRect(bx + 16, by + 14, 2, 1); gfx.fillRect(bx + 5, by + 4, 1, 1); gfx.fillRect(bx + 23, by + 7, 1, 1); gfx.fillRect(bx + 12, by + 26, 1, 1); gfx.fillRect(bx + 27, by + 22, 1, 1); }
+        if (h === 6) { gfx.fillRect(bx + 9, by + 10, 1, 1); gfx.fillRect(bx + 21, by + 16, 2, 1); gfx.fillRect(bx + 3, by + 22, 1, 1); gfx.fillRect(bx + 25, by + 4, 1, 2); gfx.fillRect(bx + 14, by + 28, 1, 1); }
+        if (h === 7) { gfx.fillRect(bx + 6, by + 18, 1, 1); gfx.fillRect(bx + 20, by + 12, 1, 1); gfx.fillRect(bx + 13, by + 5, 2, 1); gfx.fillRect(bx + 28, by + 20, 1, 1); gfx.fillRect(bx + 10, by + 28, 1, 2); }
+      }
+    }
+    rt.draw(gfx);
+
+    // Pass 4: light grain sparkles — sun-catching sand highlights (#EDD890)
+    gfx.clear();
+    gfx.fillStyle(0xEDD890, 0.70);
+    for (let y = 0; y < MAP_HEIGHT; y++) {
+      for (let x = 0; x < MAP_WIDTH; x++) {
+        if (this.island.tiles[y][x] !== TileType.ROCK) continue;
+        const h = ((x * 11 + y * 5) ^ (y * 7)) % 8;
+        const bx = x * TS, by = y * TS;
+        if (h === 0) { gfx.fillRect(bx + 7, by + 6, 1, 1); gfx.fillRect(bx + 22, by + 18, 1, 1); }
+        if (h === 1) { gfx.fillRect(bx + 15, by + 10, 1, 1); gfx.fillRect(bx + 5, by + 24, 1, 1); }
+        if (h === 2) { gfx.fillRect(bx + 24, by + 5, 1, 1); gfx.fillRect(bx + 10, by + 19, 1, 1); }
+        if (h === 3) { gfx.fillRect(bx + 3, by + 17, 1, 1); gfx.fillRect(bx + 20, by + 6, 1, 1); }
+        if (h === 4) { gfx.fillRect(bx + 18, by + 24, 1, 1); gfx.fillRect(bx + 8, by + 11, 1, 1); }
+        if (h === 5) { gfx.fillRect(bx + 12, by + 28, 1, 1); gfx.fillRect(bx + 26, by + 14, 1, 1); }
+        if (h === 6) { gfx.fillRect(bx + 4, by + 7, 1, 1); gfx.fillRect(bx + 23, by + 23, 1, 1); }
+        if (h === 7) { gfx.fillRect(bx + 17, by + 3, 1, 1); gfx.fillRect(bx + 9, by + 22, 1, 1); }
       }
     }
     rt.draw(gfx);
@@ -505,13 +621,33 @@ export class GameScene extends Phaser.Scene {
 
   private detailPath(rt: Phaser.GameObjects.RenderTexture, gfx: Phaser.GameObjects.Graphics): void {
     const TS = TILE_SIZE;
+
+    // Pass 1: lighter dry-earth patches
     gfx.clear();
-    gfx.fillStyle(0x9a7030, 0.38);
+    gfx.fillStyle(0xD4B87A, 0.42);
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
         if (this.island.tiles[y][x] !== TileType.DIRT_PATH) continue;
-        gfx.fillRect(x * TS, y * TS, TS, 1);
-        gfx.fillRect(x * TS, y * TS, 1, TS);
+        const h = ((x * 7 + y * 13) ^ (x * 3)) % 5;
+        const bx = x * TS, by = y * TS;
+        if (h === 0) gfx.fillRect(bx + 4, by + 6, 10, 6);
+        if (h === 1) gfx.fillRect(bx + 16, by + 18, 12, 8);
+        if (h === 2) gfx.fillRect(bx + 8, by + 20, 14, 6);
+      }
+    }
+    rt.draw(gfx);
+
+    // Pass 2: darker rut/divot lines
+    gfx.clear();
+    gfx.fillStyle(0x907050, 0.50);
+    for (let y = 0; y < MAP_HEIGHT; y++) {
+      for (let x = 0; x < MAP_WIDTH; x++) {
+        if (this.island.tiles[y][x] !== TileType.DIRT_PATH) continue;
+        const h = ((x * 11 + y * 7) ^ (x * 5)) % 6;
+        const bx = x * TS, by = y * TS;
+        if (h === 0) { gfx.fillRect(bx + 4, by + 14, TS - 8, 1); }
+        if (h === 2) { gfx.fillRect(bx + 10, by + 8, 1, TS - 16); }
+        if (h === 4) { gfx.fillRect(bx + 4, by + 20, TS - 8, 1); gfx.fillRect(bx + 16, by + 4, 1, 16); }
       }
     }
     rt.draw(gfx);
@@ -535,28 +671,73 @@ export class GameScene extends Phaser.Scene {
 
   private detailGravel(rt: Phaser.GameObjects.RenderTexture, gfx: Phaser.GameObjects.Graphics): void {
     const TS = TILE_SIZE;
+
+    // Pass 1: lighter sand patch variation (#EAD090) — ~60% of tiles
     gfx.clear();
-    gfx.fillStyle(0x8a7858, 0.55);
+    gfx.fillStyle(0xEAD090, 0.35);
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
         if (this.island.tiles[y][x] !== TileType.GRAVEL) continue;
-        const h = ((x * 7 + y * 13) ^ (x * 3)) % 8;
-        if (h === 0) { gfx.fillRect(x * TS + 4, y * TS + 6, 4, 3); gfx.fillRect(x * TS + 18, y * TS + 20, 3, 3); }
-        if (h === 1) { gfx.fillRect(x * TS + 14, y * TS + 10, 3, 3); gfx.fillRect(x * TS + 8, y * TS + 24, 4, 3); }
-        if (h === 2) { gfx.fillRect(x * TS + 22, y * TS + 8, 3, 4); gfx.fillRect(x * TS + 6, y * TS + 18, 3, 3); }
-        if (h === 3) { gfx.fillRect(x * TS + 10, y * TS + 4, 5, 3); gfx.fillRect(x * TS + 20, y * TS + 22, 3, 3); }
+        const h = ((x * 7 + y * 13) ^ (x * 3)) % 5;
+        const bx = x * TS, by = y * TS;
+        if (h === 0) gfx.fillRect(bx + 4, by + 4, 16, 10);
+        if (h === 1) gfx.fillRect(bx + 14, by + 18, 16, 10);
+        if (h === 2) gfx.fillRect(bx + 2, by + 12, 20, 12);
       }
     }
     rt.draw(gfx);
+
+    // Pass 2: darker sand patch variation (#B09050) — ~43% of tiles
     gfx.clear();
-    gfx.fillStyle(0xd8c8a8, 0.45);
+    gfx.fillStyle(0xB09050, 0.28);
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
         if (this.island.tiles[y][x] !== TileType.GRAVEL) continue;
-        const h = ((x * 11 + y * 5) ^ (y * 7)) % 10;
-        if (h === 0) { gfx.fillRect(x * TS + 6, y * TS + 4, 3, 2); gfx.fillRect(x * TS + 20, y * TS + 16, 3, 2); }
-        if (h === 2) { gfx.fillRect(x * TS + 12, y * TS + 22, 4, 2); gfx.fillRect(x * TS + 24, y * TS + 8, 3, 2); }
-        if (h === 5) { gfx.fillRect(x * TS + 8, y * TS + 14, 4, 2); gfx.fillRect(x * TS + 16, y * TS + 26, 3, 2); }
+        const h = ((x * 11 + y * 7) ^ (x * 5)) % 7;
+        const bx = x * TS, by = y * TS;
+        if (h === 0) gfx.fillRect(bx + 18, by + 2, 12, 14);
+        if (h === 2) gfx.fillRect(bx + 2, by + 16, 14, 12);
+        if (h === 4) gfx.fillRect(bx + 18, by + 20, 10, 8);
+      }
+    }
+    rt.draw(gfx);
+
+    // Pass 3: dark grain specks — offset patterns from ROCK for variety (#A08840)
+    gfx.clear();
+    gfx.fillStyle(0xA08840, 0.70);
+    for (let y = 0; y < MAP_HEIGHT; y++) {
+      for (let x = 0; x < MAP_WIDTH; x++) {
+        if (this.island.tiles[y][x] !== TileType.GRAVEL) continue;
+        const h = ((x * 13 + y * 7) ^ (x * 9)) % 8;
+        const bx = x * TS, by = y * TS;
+        if (h === 0) { gfx.fillRect(bx + 8, by + 4, 1, 1); gfx.fillRect(bx + 22, by + 10, 2, 1); gfx.fillRect(bx + 6, by + 20, 1, 1); gfx.fillRect(bx + 18, by + 26, 1, 1); gfx.fillRect(bx + 27, by + 14, 1, 1); }
+        if (h === 1) { gfx.fillRect(bx + 4, by + 9, 2, 1); gfx.fillRect(bx + 14, by + 4, 1, 1); gfx.fillRect(bx + 26, by + 20, 1, 2); gfx.fillRect(bx + 10, by + 26, 1, 1); gfx.fillRect(bx + 20, by + 14, 1, 1); }
+        if (h === 2) { gfx.fillRect(bx + 11, by + 18, 1, 1); gfx.fillRect(bx + 23, by + 4, 1, 1); gfx.fillRect(bx + 5, by + 13, 2, 1); gfx.fillRect(bx + 17, by + 24, 1, 1); gfx.fillRect(bx + 28, by + 9, 1, 1); }
+        if (h === 3) { gfx.fillRect(bx + 16, by + 7, 1, 1); gfx.fillRect(bx + 3, by + 20, 1, 2); gfx.fillRect(bx + 24, by + 16, 2, 1); gfx.fillRect(bx + 9, by + 28, 1, 1); gfx.fillRect(bx + 21, by + 3, 1, 1); }
+        if (h === 4) { gfx.fillRect(bx + 7, by + 15, 1, 1); gfx.fillRect(bx + 19, by + 8, 1, 1); gfx.fillRect(bx + 13, by + 23, 2, 1); gfx.fillRect(bx + 26, by + 28, 1, 1); gfx.fillRect(bx + 3, by + 5, 1, 1); }
+        if (h === 5) { gfx.fillRect(bx + 22, by + 22, 1, 1); gfx.fillRect(bx + 9, by + 6, 1, 1); gfx.fillRect(bx + 15, by + 17, 2, 1); gfx.fillRect(bx + 28, by + 4, 1, 1); gfx.fillRect(bx + 5, by + 27, 1, 2); }
+        if (h === 6) { gfx.fillRect(bx + 12, by + 12, 2, 1); gfx.fillRect(bx + 24, by + 22, 1, 1); gfx.fillRect(bx + 6, by + 3, 1, 1); gfx.fillRect(bx + 18, by + 18, 1, 1); gfx.fillRect(bx + 28, by + 16, 1, 1); }
+        if (h === 7) { gfx.fillRect(bx + 4, by + 24, 1, 1); gfx.fillRect(bx + 16, by + 13, 1, 2); gfx.fillRect(bx + 25, by + 6, 2, 1); gfx.fillRect(bx + 10, by + 10, 1, 1); gfx.fillRect(bx + 22, by + 28, 1, 1); }
+      }
+    }
+    rt.draw(gfx);
+
+    // Pass 4: light grain sparkles (#F0E0A0)
+    gfx.clear();
+    gfx.fillStyle(0xF0E0A0, 0.65);
+    for (let y = 0; y < MAP_HEIGHT; y++) {
+      for (let x = 0; x < MAP_WIDTH; x++) {
+        if (this.island.tiles[y][x] !== TileType.GRAVEL) continue;
+        const h = ((x * 5 + y * 11) ^ (x * 9 + y * 3)) % 8;
+        const bx = x * TS, by = y * TS;
+        if (h === 0) { gfx.fillRect(bx + 9, by + 3, 1, 1); gfx.fillRect(bx + 21, by + 21, 1, 1); }
+        if (h === 1) { gfx.fillRect(bx + 17, by + 13, 1, 1); gfx.fillRect(bx + 4, by + 22, 1, 1); }
+        if (h === 2) { gfx.fillRect(bx + 26, by + 8, 1, 1); gfx.fillRect(bx + 11, by + 26, 1, 1); }
+        if (h === 3) { gfx.fillRect(bx + 6, by + 18, 1, 1); gfx.fillRect(bx + 23, by + 5, 1, 1); }
+        if (h === 4) { gfx.fillRect(bx + 20, by + 27, 1, 1); gfx.fillRect(bx + 7, by + 10, 1, 1); }
+        if (h === 5) { gfx.fillRect(bx + 14, by + 22, 1, 1); gfx.fillRect(bx + 27, by + 12, 1, 1); }
+        if (h === 6) { gfx.fillRect(bx + 3, by + 8, 1, 1); gfx.fillRect(bx + 24, by + 25, 1, 1); }
+        if (h === 7) { gfx.fillRect(bx + 19, by + 4, 1, 1); gfx.fillRect(bx + 8, by + 20, 1, 1); }
       }
     }
     rt.draw(gfx);
@@ -576,10 +757,35 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  // ─── Decorations ──────────────────────────────────────────────────────────
+  // ─── Grass geometry overlay ───────────────────────────────────────────────
 
-  private placeDecorations(): void {
+  private grassVariant(tx: number, ty: number): number {
+    const cx = Math.floor(tx / 3);
+    const cy = Math.floor(ty / 3);
+    const patch = ((cx * 7 + cy * 13) ^ (cx * 5 + cy * 3)) % 10;
+    const base = patch < 5 ? 0 : patch < 7 ? 1 : patch < 9 ? 2 : 3;
+    return ((tx * 11 + ty * 7) ^ tx) % 20 === 0 ? (base + 1) % 4 : base;
+  }
+
+  private drawGrassVariants(rt: Phaser.GameObjects.RenderTexture, gfx: Phaser.GameObjects.Graphics): void {
     const TS = TILE_SIZE;
+    const colors: number[] = [0x5DBB3F, 0x4EA832, 0x72C94F, 0x2D6B4A];
+    for (let v = 0; v < 4; v++) {
+      gfx.clear();
+      gfx.fillStyle(colors[v]);
+      for (let y = 0; y < MAP_HEIGHT; y++) {
+        for (let x = 0; x < MAP_WIDTH; x++) {
+          const t = this.island.tiles[y][x];
+          if (t !== TileType.GRASS && t !== TileType.GRASS_DARK) continue;
+          const vt = t === TileType.GRASS_DARK ? 3 : this.grassVariant(x, y);
+          if (vt === v) gfx.fillRect(x * TS, y * TS, TS, TS);
+        }
+      }
+      rt.draw(gfx);
+    }
+  }
+
+  private buildingBlockedSet(): Set<string> {
     const blocked = new Set<string>();
     for (const b of this.island.buildings) {
       for (let dy = -2; dy < b.tileH + 3; dy++) {
@@ -588,6 +794,61 @@ export class GameScene extends Phaser.Scene {
         }
       }
     }
+    return blocked;
+  }
+
+  private addGrassDetailSprites(): void {
+    const TS = TILE_SIZE;
+    const blocked = this.buildingBlockedSet();
+    for (let y = 0; y < MAP_HEIGHT; y++) {
+      for (let x = 0; x < MAP_WIDTH; x++) {
+        const t = this.island.tiles[y][x];
+        if (t !== TileType.GRASS && t !== TileType.GRASS_DARK) continue;
+        if (blocked.has(`${x},${y}`)) continue;
+        if (this.grassVariant(x, y) === 3) continue;
+        const bx = x * TS, by = y * TS;
+        const h1 = ((x * 17 + y * 11) ^ (x * 7 + y * 3)) % 9;
+        if (h1 === 0) this.add.image(bx + 6, by + 8, 'grass-cross-a').setOrigin(0, 0).setDepth(20);
+        if (h1 === 1) this.add.image(bx + 20, by + 14, 'grass-cross-b').setOrigin(0, 0).setDepth(20);
+        if (h1 === 2) this.add.image(bx + 9, by + 22, 'grass-cross-a').setOrigin(0, 0).setDepth(20);
+        if (h1 === 3) this.add.image(bx + 24, by + 5, 'grass-cross-b').setOrigin(0, 0).setDepth(20);
+        const h2 = ((x * 5 + y * 19) ^ (y * 11)) % 12;
+        if (h2 === 0) this.add.image(bx + 14, by + 5, 'grass-cross-a').setOrigin(0, 0).setDepth(20);
+        if (h2 === 1) this.add.image(bx + 4, by + 20, 'grass-cross-b').setOrigin(0, 0).setDepth(20);
+        if (h2 === 2) this.add.image(bx + 22, by + 22, 'grass-cross-a').setOrigin(0, 0).setDepth(20);
+      }
+    }
+  }
+
+  private addFoliageSprites(): void {
+    const TS = TILE_SIZE;
+    const blocked = this.buildingBlockedSet();
+    const isGrass = (ty: number, tx: number): boolean => {
+      const t = this.island.tiles[ty]?.[tx];
+      return t === TileType.GRASS || t === TileType.GRASS_DARK;
+    };
+    for (let y = 1; y < MAP_HEIGHT - 1; y++) {
+      for (let x = 1; x < MAP_WIDTH - 1; x++) {
+        if (!isGrass(y, x)) continue;
+        if (blocked.has(`${x},${y}`)) continue;
+        const onEdge = !isGrass(y - 1, x) || !isGrass(y + 1, x) || !isGrass(y, x - 1) || !isGrass(y, x + 1);
+        const h1 = ((x * 19 + y * 23) ^ (x * 5 + y * 7)) % 15;
+        if (onEdge && h1 === 0) {
+          this.add.image(x * TS + TS / 2, y * TS + TS / 2, 'foliage-cluster').setOrigin(0.5, 0.5).setDepth(48);
+        }
+        if (!onEdge) {
+          const h2 = ((x * 13 + y * 17) ^ (x * 9 + y * 3)) % 35;
+          if (h2 === 0) this.add.image(x * TS + TS / 2, y * TS + TS / 2, 'foliage-cluster').setOrigin(0.5, 0.5).setDepth(48);
+        }
+      }
+    }
+  }
+
+  // ─── Decorations ──────────────────────────────────────────────────────────
+
+  private placeDecorations(): void {
+    const TS = TILE_SIZE;
+    const blocked = this.buildingBlockedSet();
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
         const t = this.island.tiles[y][x];
@@ -637,7 +898,6 @@ export class GameScene extends Phaser.Scene {
     for (let row = 0; row * 8 < floorH; row++) {
       gBase.fillRect(px + WALL, py + WALL + row * 8 + 7, pw - WALL * 2, 1);
     }
-    this.drawFurniture(gBase, b, px, py, pw, ph, WALL, pal);
     gBase.lineStyle(1, 0x000000, 0.50);
     gBase.strokeRect(px, py, pw, ph);
     gBase.lineStyle(1, 0x000000, 0.08);
@@ -673,76 +933,6 @@ export class GameScene extends Phaser.Scene {
     gSouth.lineStyle(1, 0x000000, 0.35);
     gSouth.strokeRect(px, py + ph - WALL, pw, WALL + FACE);
     gSouth.setDepth(100 + (py + ph + FACE) * 0.01);
-  }
-
-  private drawFurniture(
-    g: Phaser.GameObjects.Graphics,
-    b: BuildingData,
-    px: number, py: number, pw: number, ph: number,
-    WALL: number,
-    pal: Palette,
-  ): void {
-    const ix = px + WALL + 4;
-    const iy = py + WALL + 4;
-    const iw = pw - WALL * 2 - 8;
-    const ih = ph - WALL * 2 - 8;
-
-    switch (b.style % 5) {
-      case 0: {
-        g.fillStyle(pal.accent, 0.30);
-        g.fillRect(ix + Math.floor(iw * 0.20), iy + Math.floor(ih * 0.20), Math.floor(iw * 0.60), Math.floor(ih * 0.55));
-        g.fillStyle(0x8a5c2a);
-        g.fillRect(ix + Math.floor(iw * 0.28), iy + Math.floor(ih * 0.28), Math.floor(iw * 0.44), Math.floor(ih * 0.38));
-        g.fillStyle(0x6a4a20);
-        g.fillRect(ix + Math.floor(iw * 0.12), iy + Math.floor(ih * 0.35), 5, 5);
-        g.fillRect(ix + Math.floor(iw * 0.78), iy + Math.floor(ih * 0.35), 5, 5);
-        break;
-      }
-      case 1: {
-        g.fillStyle(0x8090c0);
-        g.fillRect(ix, iy, Math.floor(iw * 0.50), Math.floor(ih * 0.55));
-        g.fillStyle(0xf0e8d8);
-        g.fillRect(ix + 2, iy + 2, Math.floor(iw * 0.42), Math.floor(ih * 0.18));
-        g.fillStyle(0x7a5030);
-        g.fillRect(ix + Math.floor(iw * 0.60), iy, Math.floor(iw * 0.38), Math.floor(ih * 0.35));
-        break;
-      }
-      case 2: {
-        g.fillStyle(0x9a7040);
-        g.fillRect(ix, iy, iw, Math.floor(ih * 0.28));
-        g.fillStyle(0xc0a060);
-        g.fillRect(ix, iy, iw, 3);
-        const itemColors = [0xc03020, 0x208030, 0x2040c0, 0xa06020];
-        for (let i = 0; i < 4; i++) {
-          g.fillStyle(itemColors[i]);
-          g.fillRect(ix + 5 + i * Math.floor(iw / 4.5), iy + 5, 8, 6);
-        }
-        break;
-      }
-      case 3: {
-        g.fillStyle(0x6a4a20);
-        g.fillRect(ix, iy, Math.floor(iw * 0.22), ih);
-        const bookColors = [0xc03020, 0x2060a0, 0x208040, 0xa08020, 0x8020a0, 0xc06020];
-        for (let i = 0; i < 6; i++) {
-          g.fillStyle(bookColors[i % bookColors.length]);
-          g.fillRect(ix + 2, iy + 2 + i * Math.floor(ih / 6.5), Math.floor(iw * 0.18), Math.max(4, Math.floor(ih / 7) - 1));
-        }
-        g.fillStyle(pal.accent, 0.80);
-        g.fillRect(ix + Math.floor(iw * 0.50), iy + Math.floor(ih * 0.40), Math.floor(iw * 0.40), Math.floor(ih * 0.40));
-        break;
-      }
-      case 4: {
-        g.fillStyle(0x8a5c2a);
-        g.fillRect(ix + Math.floor(iw * 0.15), iy + Math.floor(ih * 0.28), Math.floor(iw * 0.70), Math.floor(ih * 0.44));
-        g.fillStyle(0x6a4a20);
-        for (let i = 0; i < 3; i++) {
-          const cx = ix + Math.floor(iw * 0.20) + i * Math.floor(iw * 0.22);
-          g.fillRect(cx, iy + Math.floor(ih * 0.08), 5, 5);
-          g.fillRect(cx, iy + Math.floor(ih * 0.78), 5, 5);
-        }
-        break;
-      }
-    }
   }
 
   // ─── NPC spawning ─────────────────────────────────────────────────────────
@@ -1028,6 +1218,9 @@ export class GameScene extends Phaser.Scene {
     const sprite = this.add.image(x, y, tex)
       .setOrigin(0.5, 0.7)
       .setDepth(PLACED_ITEM_DEPTH_BASE + y * 0.001);
+    if (itemId === 'cobble-wall') {
+      sprite.postFX.addShadow(1, 5, 0.005, 1.2, 0x000000, 10, 0.85);
+    }
     if (itemId === 'carved-door') {
       // Determine which entrance half this door is on by checking whether its tile
       // is the right tile (c1) of any building entrance — if so, flip it so the
@@ -1070,6 +1263,12 @@ export class GameScene extends Phaser.Scene {
     }
 
     if (showEffect) this.playPlacementEffects(x, y);
+
+    // Register light sources so updateNightOverlay can punch holes in the darkness.
+    const lightCfg = LIGHT_SOURCES[itemId];
+    if (lightCfg && id) {
+      this.lightSources.set(id, { x, y, worldRadius: lightCfg.worldRadius, yOffset: lightCfg.yOffset });
+    }
   }
 
   private async loadPlacedItems(): Promise<void> {
@@ -1125,6 +1324,11 @@ export class GameScene extends Phaser.Scene {
             this.carvedDoors.delete(tempId);
             this.carvedDoors.set(serverId, door);
           }
+          const light = this.lightSources.get(tempId);
+          if (light) {
+            this.lightSources.delete(tempId);
+            this.lightSources.set(serverId, light);
+          }
         }
       }
     } catch (e) {
@@ -1151,6 +1355,7 @@ export class GameScene extends Phaser.Scene {
     this.placedItems.delete(id);
     this.placedItemIds.delete(id);
     this.carvedDoors.delete(id);
+    this.lightSources.delete(id);
   }
 
   private async erasePlacedItem(id: string): Promise<void> {
@@ -1328,5 +1533,75 @@ export class GameScene extends Phaser.Scene {
         });
       }
     }
+  }
+
+  // ─── Day / night cycle ────────────────────────────────────────────────────
+
+  private setupNightCycle(): void {
+    this.currentNightAlpha = this.getNightAlpha();
+    // World-sized RT sitting at (0,0) — rendered through the scene camera so
+    // fill/erase coordinates are plain world pixels.  No scrollFactor tricks.
+    this.nightRT = this.add.renderTexture(0, 0, WORLD_WIDTH, WORLD_HEIGHT)
+      .setOrigin(0, 0)
+      .setDepth(190);
+    this.nightMaskImg = this.make.image({ key: 'light-mask', add: false })
+      .setOrigin(0.5, 0.5);
+
+    this.time.addEvent({
+      delay: 30_000,
+      loop: true,
+      callback: () => { this.currentNightAlpha = this.getNightAlpha(); },
+    });
+  }
+
+  private updateNightOverlay(time: number): void {
+    if (!this.nightRT || !this.nightMaskImg) return;
+    if (time - this.lastNightCheck > 1000) {
+      this.currentNightAlpha = this.getNightAlpha();
+      this.lastNightCheck = time;
+    }
+    this.nightRT.clear();
+    if (this.currentNightAlpha <= 0) return;
+    // Fill the entire world with darkness, then punch holes at each light source.
+    // The RT lives in world space so all coordinates are raw world pixels.
+    this.nightRT.fill(0x080c24, this.currentNightAlpha);
+    const MASK_SIZE = 256;
+    for (const light of this.lightSources.values()) {
+      const imgScale = (light.worldRadius * 2) / MASK_SIZE;
+      this.nightMaskImg
+        .setPosition(light.x, light.y + light.yOffset)
+        .setScale(imgScale)
+        .setAlpha(1)
+        .clearTint();
+      // Remove the darkness overlay within the radius.
+      this.nightRT.erase(this.nightMaskImg);
+      // Lay a warm amber tint over the revealed area so it reads as candlelight.
+      this.nightMaskImg.setTint(0xffb347).setAlpha(0.28);
+      this.nightRT.draw(this.nightMaskImg);
+    }
+  }
+
+  /**
+   * Returns the overlay alpha for the current EST clock time.
+   *   0          = full day  (7:30 am – 6:30 pm)
+   *   NIGHT_ALPHA = full night (7:30 pm – 6:30 am)
+   * A 30-minute linear fade is applied around each threshold.
+   */
+  private getNightAlpha(): number {
+    const NIGHT_ALPHA = 0.74;
+    const TRANS = 0.5; // half-hour fade window
+
+    const now = new Date();
+    const est = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+    const t = est.getHours() + est.getMinutes() / 60; // 0 – 24
+
+    // Full day
+    if (t >= 7 + TRANS && t < 19 - TRANS) return 0;
+    // Full night
+    if (t < 7 - TRANS || t >= 19 + TRANS) return NIGHT_ALPHA;
+    // Sunrise: fade night → day
+    if (t < 7 + TRANS) return NIGHT_ALPHA * (1 - (t - (7 - TRANS)) / (TRANS * 2));
+    // Sunset: fade day → night
+    return NIGHT_ALPHA * ((t - (19 - TRANS)) / (TRANS * 2));
   }
 }
