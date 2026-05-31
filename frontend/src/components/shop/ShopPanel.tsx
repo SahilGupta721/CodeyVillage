@@ -397,6 +397,59 @@ function FeatherBedIcon() {
   );
 }
 
+// ── oak tree icon ─────────────────────────────────────────────────────────────
+//
+// Low-poly pixel version of the placeable oak sprite, compressed to 32 × 32.
+// Draw order: ground shadow → trunk → canopy (each layer paints over the last).
+
+function OakTreeIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
+      {/* ground shadow */}
+      <rect x="9"  y="28" width="14" height="3" fill="rgba(0,0,0,0.18)" />
+      <rect x="7"  y="29" width="18" height="2" fill="rgba(0,0,0,0.08)" />
+      {/* trunk — dark outline */}
+      <rect x="13" y="19" width="6"  height="13" fill="#3d1e0a" />
+      {/* trunk — bark */}
+      <rect x="14" y="20" width="4"  height="11" fill="#6b3d1e" />
+      {/* trunk — lit left face */}
+      <rect x="14" y="20" width="2"  height="10" fill="#8b5530" />
+      {/* trunk — deep-shadow right edge */}
+      <rect x="17" y="20" width="1"  height="11" fill="#2a1006" />
+      {/* trunk — bark fissure */}
+      <rect x="15" y="23" width="1"  height="7"  fill="#4a2912" />
+      {/* canopy — outermost dark ring (silhouette) */}
+      <rect x="8"  y="0"  width="16" height="1"  fill="#193e08" />
+      <rect x="5"  y="1"  width="22" height="2"  fill="#193e08" />
+      <rect x="2"  y="3"  width="28" height="18" fill="#193e08" />
+      <rect x="4"  y="20" width="24" height="2"  fill="#193e08" />
+      <rect x="7"  y="22" width="18" height="1"  fill="#193e08" />
+      {/* canopy — main mid-green fill */}
+      <rect x="9"  y="1"  width="14" height="1"  fill="#367e14" />
+      <rect x="6"  y="2"  width="20" height="2"  fill="#367e14" />
+      <rect x="3"  y="4"  width="26" height="16" fill="#367e14" />
+      <rect x="5"  y="20" width="22" height="2"  fill="#367e14" />
+      <rect x="8"  y="22" width="16" height="1"  fill="#367e14" />
+      {/* canopy — upper highlight band */}
+      <rect x="4"  y="2"  width="15" height="11" fill="#54b028" />
+      <rect x="3"  y="4"  width="16" height="7"  fill="#54b028" />
+      {/* canopy — bright cluster (top-left, direct sun) */}
+      <rect x="5"  y="3"  width="10" height="7"  fill="#78d040" />
+      <rect x="3"  y="5"  width="11" height="4"  fill="#78d040" />
+      {/* canopy — specular hotspot */}
+      <rect x="6"  y="4"  width="5"  height="4"  fill="#9ce050" />
+      {/* lobe-edge shadows — suggest bumpy oak silhouette */}
+      <rect x="2"  y="5"  width="2"  height="3"  fill="#1a4e0a" />
+      <rect x="2"  y="11" width="2"  height="3"  fill="#1a4e0a" />
+      <rect x="2"  y="16" width="2"  height="2"  fill="#1a4e0a" />
+      <rect x="28" y="5"  width="2"  height="3"  fill="#1a4e0a" />
+      <rect x="28" y="11" width="2"  height="3"  fill="#1a4e0a" />
+      <rect x="28" y="16" width="2"  height="2"  fill="#1a4e0a" />
+    </svg>
+  );
+}
+
 // ── potted fern icon ─────────────────────────────────────────────────────────
 
 function PottedFernIcon() {
@@ -1033,7 +1086,7 @@ const BASE_CATEGORIES: ShopCategory[] = [
     label: 'Nature',
     emoji: '🌳',
     items: [
-      { id: 'tree', name: 'Oak Tree', emoji: '🌳', price: 110 },
+      { id: 'tree', name: 'Oak Sapling', emoji: '🌳', icon: <OakTreeIcon />, price: 110 },
     ],
   },
   {

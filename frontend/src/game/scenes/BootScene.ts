@@ -62,42 +62,77 @@ export class BootScene extends Phaser.Scene {
     c.refresh();
   }
 
-  // ─── Tree — top-down canopy (32 × 32) ───────────────────────────────────────
+  // ─── Tree — oak (32 × 52) ────────────────────────────────────────────────────
   //
-  // Drawn as overlapping rectangles to create a chunky octagonal silhouette.
-  // Bright highlight in the top-left corner implies overhead lighting.
+  // Side/¾-view oak: broad spreading canopy (y 0-30) + visible trunk (y 28-51).
+  // Five green shades build depth; lobe-edge shadows suggest the irregular
+  // bumpy oak silhouette. Anchor via setOrigin(0.5, 0.7) lands mid-trunk.
 
   private makeTree(): void {
-    const c = this.textures.createCanvas('tree', 32, 32)!;
+    const c = this.textures.createCanvas('tree', 32, 52)!;
     const ctx = c.getContext();
 
-    // Outer dark shadow edge (octagonal frame)
-    ctx.fillStyle = '#1a4a08';
-    ctx.fillRect(6, 0, 20, 32);
-    ctx.fillRect(0, 6, 32, 20);
-    ctx.fillRect(3, 2, 26, 28);
+    // Ground shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.18)';
+    ctx.fillRect(8, 47, 16, 4);
+    ctx.fillRect(6, 48, 20, 3);
+    ctx.fillStyle = 'rgba(0,0,0,0.08)';
+    ctx.fillRect(4, 49, 24, 2);
 
-    // Main mid-green canopy
-    ctx.fillStyle = '#3a8c18';
-    ctx.fillRect(7, 1, 18, 30);
-    ctx.fillRect(1, 7, 30, 18);
-    ctx.fillRect(4, 3, 24, 26);
+    // Trunk — drawn first so the canopy overlaps the top of it naturally
+    ctx.fillStyle = '#3d1e0a';  // dark outline
+    ctx.fillRect(12, 28, 8, 24);
+    ctx.fillStyle = '#6b3d1e';  // bark
+    ctx.fillRect(13, 29, 6, 22);
+    ctx.fillStyle = '#8b5530';  // lit left face
+    ctx.fillRect(13, 29, 3, 20);
+    ctx.fillStyle = '#2a1006';  // deep-shadow right edge
+    ctx.fillRect(18, 29, 2, 22);
+    ctx.fillStyle = '#4a2912';  // vertical bark fissures
+    ctx.fillRect(15, 34, 1, 15);
+    ctx.fillRect(17, 39, 1, 9);
 
-    // Highlight band (top-left lit)
-    ctx.fillStyle = '#5ab830';
-    ctx.fillRect(5, 2, 16, 14);
-    ctx.fillRect(2, 5, 18, 10);
-
-    // Bright highlight cluster
-    ctx.fillStyle = '#7ad448';
-    ctx.fillRect(6, 4, 8, 8);
-    ctx.fillRect(4, 6, 10, 4);
-
-    // Trunk near bottom of canopy (brown wood)
-    ctx.fillStyle = '#4a2f18';
-    ctx.fillRect(13, 24, 6, 8);
-    ctx.fillStyle = '#6a4222';
-    ctx.fillRect(14, 25, 4, 6);
+    // Canopy — broad rounded shape (~30 px wide, 30 px tall)
+    // 1. Outermost dark ring (silhouette definition)
+    ctx.fillStyle = '#193e08';
+    ctx.fillRect(8, 0, 16, 1);
+    ctx.fillRect(5, 1, 22, 2);
+    ctx.fillRect(3, 3, 26, 3);
+    ctx.fillRect(1, 5, 30, 22);
+    ctx.fillRect(3, 26, 26, 3);
+    ctx.fillRect(5, 28, 22, 2);
+    ctx.fillRect(8, 29, 16, 1);
+    // 2. Main mid-green fill
+    ctx.fillStyle = '#367e14';
+    ctx.fillRect(9, 1, 14, 1);
+    ctx.fillRect(6, 2, 20, 2);
+    ctx.fillRect(4, 4, 24, 2);
+    ctx.fillRect(2, 6, 28, 20);
+    ctx.fillRect(4, 25, 24, 2);
+    ctx.fillRect(6, 27, 20, 1);
+    ctx.fillRect(9, 28, 14, 1);
+    // 3. Upper highlight band (ambient light from above-left)
+    ctx.fillStyle = '#54b028';
+    ctx.fillRect(4, 3, 16, 11);
+    ctx.fillRect(3, 5, 17, 9);
+    ctx.fillRect(5, 2, 15, 12);
+    // 4. Bright cluster (direct sunlight, top-left)
+    ctx.fillStyle = '#78d040';
+    ctx.fillRect(5, 3, 10, 7);
+    ctx.fillRect(4, 6, 12, 5);
+    ctx.fillRect(6, 4, 11, 8);
+    // 5. Specular hotspot
+    ctx.fillStyle = '#9ce050';
+    ctx.fillRect(6, 5, 6, 5);
+    ctx.fillRect(7, 7, 5, 4);
+    // Oak lobe-edge shadows — dark patches on both sides suggest irregular lobing
+    ctx.fillStyle = '#1a4e0a';
+    ctx.fillRect(2, 7, 2, 4);
+    ctx.fillRect(2, 14, 2, 4);
+    ctx.fillRect(2, 20, 2, 3);
+    ctx.fillRect(28, 7, 2, 4);
+    ctx.fillRect(28, 14, 2, 4);
+    ctx.fillRect(28, 20, 2, 3);
 
     c.refresh();
   }

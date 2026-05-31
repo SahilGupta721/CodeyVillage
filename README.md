@@ -6,6 +6,19 @@ Built as a full-stack web app with a Phaser 3 multiplayer game at its core, a Py
 
 ---
 
+## Screenshots
+
+### Landing Page
+![Codey Village Landing Page](docs/screenshots/landing.png)
+
+### Game Lobby
+![Game Lobby](docs/screenshots/lobby.png)
+
+### In-Game World
+![In-Game World](docs/screenshots/game.png)
+
+---
+
 ## Table of Contents
 
 - [Overview](#overview)
@@ -49,7 +62,6 @@ Codey Village turns your daily developer workflow into a resource loop:
 | Player Interactions | Interact with other players in the same room |
 | Shop System | Browse and buy items to customize your island |
 | GitHub OAuth | Link your GitHub account for commit tracking via webhooks |
-| AI Integration | Google Gemini powers NPC dialogue and dynamic content generation |
 | Activity Tracking | Complete webhook and event pipeline from IDE → extension → backend → game |
 
 ---
@@ -77,7 +89,6 @@ Codey Village turns your daily developer workflow into a resource loop:
 │  Coin system            │   │  Activity tracker        │
 │  Island / shop logic    │   └──────────────────────────┘
 │  Firebase auth verify   │
-│  Gemini AI integration  │
 │  ─────────────────────  │
 │      MongoDB            │
 └─────────────────────────┘
@@ -97,16 +108,14 @@ Codey Village turns your daily developer workflow into a resource loop:
 | Layer | Technology |
 |-------|-----------|
 | Frontend | Next.js 16, React 19, TypeScript, Phaser 3.90, Tailwind CSS 4 |
-| State Management | Zustand |
 | Auth | Firebase Authentication |
 | Backend | Python 3.11, FastAPI, Uvicorn |
 | Database | MongoDB (Atlas) via pymongo |
 | Real-time | WebSockets (FastAPI native) |
 | OAuth Server | Node.js, Express 4 |
 | Chrome Extension | Manifest v3, Vanilla JS |
-| AI | Google Gemini API |
 | External APIs | GitHub REST API, LeetCode (scraped), Workday |
-| Deployment | Google Cloud Run (backend), Vercel (frontend) |
+| Deployment | Render (backend), Vercel (frontend) |
 | Containerization | Docker (Python 3.11-slim) |
 
 ---
@@ -255,24 +264,17 @@ The extension monitors:
 
 ## Deployment
 
-### Backend — Google Cloud Run
-
-The backend is containerized and deployed to Cloud Run:
-
-```bash
-cd backend
-./deploy.sh
-```
-
-The `cloudrun.yaml` is configured with:
-- **maxScale: 1** — single instance to preserve in-memory WebSocket room state (see [Multiplayer Architecture Notes](#multiplayer-architecture-notes))
-- **sessionAffinity: true** — routes WebSocket reconnects to the same instance
-- **containerConcurrency: 50** — supports ~10 full rooms of 5 players concurrently
-- **timeoutSeconds: 3600** — long timeout to keep WebSocket connections alive
-
 ### Frontend — Vercel
 
 The Next.js app is deployed to Vercel. Connect the `frontend/` directory as the Vercel project root and set the environment variables in the Vercel dashboard.
+
+### Backend — Render
+
+The FastAPI backend is deployed to [Render](https://render.com). Connect your repository and set the environment variables in the Render dashboard. Use the following start command:
+
+```bash
+uvicorn main:app --host 0.0.0.0 --port 8000
+```
 
 ---
 
@@ -289,7 +291,6 @@ The FastAPI backend exposes the following route groups:
 | `/shop` | Item catalog, purchase |
 | `/interactions` | Player-to-player interaction events |
 | `/ws` | WebSocket endpoint for real-time multiplayer |
-| `/webhooks` | Incoming webhooks from GitHub, LeetCode, Workday |
 
 Full interactive documentation is available at `/docs` (Swagger UI) and `/redoc` when the backend is running.
 
@@ -313,11 +314,9 @@ An `injected/interceptor.js` script is injected into the page context (not the e
 
 ## Multiplayer Architecture Notes
 
-The WebSocket room manager (`backend/routes/ws_routes.py`) holds all active room and player state in memory inside a `RoomManager` class. This means **the backend must run as a single instance** — splitting across multiple Cloud Run instances would cause players in the same room to connect to different instances with no shared state.
+The WebSocket room manager (`backend/routes/ws_routes.py`) holds all active room and player state in memory inside a `RoomManager` class. This means **the backend must run as a single instance** — splitting across multiple instances would cause players in the same room to connect to different instances with no shared state.
 
-The current deployment enforces `maxScale: 1` in `cloudrun.yaml` as a hard guardrail. The natural path to horizontal scaling is to move room state to a **Redis pub/sub** layer, which would allow any number of backend instances to share room events. This is the primary scalability improvement for a production rollout.
-
-At `containerConcurrency: 50`, a single instance can support approximately 50 concurrent WebSocket connections — roughly 10 full rooms of 5 players.
+The natural path to horizontal scaling is to move room state to a **Redis pub/sub** layer, which would allow any number of backend instances to share room events. This is the primary scalability improvement for a production rollout.
 
 ---
 
@@ -341,11 +340,8 @@ GDG-HACKS3/
 │   ├── models/                 # Pydantic data models
 │   ├── controllers/            # Business logic
 │   ├── routes/                 # API route handlers + WebSocket manager
-│   ├── services/               # Firebase, GitHub, LeetCode, Gemini integrations
-│   ├── database/               # MongoDB connection
-│   ├── Dockerfile              # Python 3.11-slim container
-│   ├── cloudrun.yaml           # Cloud Run deployment config
-│   └── deploy.sh               # GCP build + deploy script
+│   ├── services/               # Firebase, GitHub, LeetCode integrations
+│   └── database/               # MongoDB connection
 │
 ├── server/                     # Node.js OAuth + webhook middleware
 │   └── index.js                # Express app (GitHub OAuth, webhook receiver)
