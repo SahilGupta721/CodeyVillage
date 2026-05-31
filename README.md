@@ -12,10 +12,10 @@ Built as a full-stack web app with a Phaser 3 multiplayer game at its core, a Py
 ![Codey Village Landing Page](docs/screenshots/landing.png)
 
 ### Game Lobby
-![Game Lobby](docs/screenshots/lobby.png)
+![Game Lobby](docs/screenshots/game.png)
 
 ### In-Game World
-![In-Game World](docs/screenshots/game.png)
+![In-Game World](docs/screenshots/lobby.png)
 
 ---
 
