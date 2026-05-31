@@ -43,9 +43,9 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:800
 const PLACED_ITEM_DEPTH_BASE = 60;
 // Items that emit light — world-space radius of the illuminated circle (px).
 const LIGHT_SOURCES: Record<string, { worldRadius: number; yOffset: number; tint?: number; tintAlpha?: number }> = {
-  'candle-set':     { worldRadius: 96,  yOffset: -10 },
-  'fairy-lantern':  { worldRadius: 144, yOffset: -14 },
-  'arcade-machine': { worldRadius: 40,  yOffset: -7, tint: 0x4488ff, tintAlpha: 0.18 },
+  'candle-set': { worldRadius: 96, yOffset: -10 },
+  'fairy-lantern': { worldRadius: 144, yOffset: -14 },
+  'arcade-machine': { worldRadius: 40, yOffset: -7, tint: 0x4488ff, tintAlpha: 0.18 },
 };
 
 // Texture key per shop item — used by both the ghost preview and the
@@ -79,12 +79,12 @@ const SHOP_ITEM_TEXTURES: Record<string, string> = {
 };
 
 const TILE_COLORS = new Map<TileType, number>([
-  [TileType.ROCK,       0xC8A45A],  // warm packed sand
-  [TileType.WATER,      0x3898d8],
-  [TileType.GRASS,      0x5DBB3F],  // Stardew bright mid-green
+  [TileType.ROCK, 0xC8A45A],  // warm packed sand
+  [TileType.WATER, 0x3898d8],
+  [TileType.GRASS, 0x5DBB3F],  // Stardew bright mid-green
   [TileType.GRASS_DARK, 0x2D6B4A],  // deep teal-green shadow grass
-  [TileType.DIRT_PATH,  0xBFA882],  // warm sandy earth path
-  [TileType.GRAVEL,     0xD4B870],  // lighter golden sand
+  [TileType.DIRT_PATH, 0xBFA882],  // warm sandy earth path
+  [TileType.GRAVEL, 0xD4B870],  // lighter golden sand
 ]);
 
 interface Palette { wall: number; wallDk: number; floor: number; door: number; accent: number; }
@@ -516,10 +516,10 @@ export class GameScene extends Phaser.Scene {
         if (this.grassVariant(x, y) !== 1) continue;
         const bx = x * TS, by = y * TS;
         const h = ((x * 7 + y * 13) ^ (x * 3)) % 4;
-        if (h === 0) { gfx.fillRect(bx+ 4, by, 1, 2); gfx.fillRect(bx+14, by, 1, 3); gfx.fillRect(bx+22, by, 1, 2); }
-        if (h === 1) { gfx.fillRect(bx+ 6, by, 1, 3); gfx.fillRect(bx+16, by, 1, 2); gfx.fillRect(bx+26, by, 1, 3); }
-        if (h === 2) { gfx.fillRect(bx+ 2, by, 1, 2); gfx.fillRect(bx+12, by, 1, 3); gfx.fillRect(bx+24, by, 1, 2); }
-        if (h === 3) { gfx.fillRect(bx+ 8, by, 1, 3); gfx.fillRect(bx+18, by, 1, 2); gfx.fillRect(bx+28, by, 1, 3); }
+        if (h === 0) { gfx.fillRect(bx + 4, by, 1, 2); gfx.fillRect(bx + 14, by, 1, 3); gfx.fillRect(bx + 22, by, 1, 2); }
+        if (h === 1) { gfx.fillRect(bx + 6, by, 1, 3); gfx.fillRect(bx + 16, by, 1, 2); gfx.fillRect(bx + 26, by, 1, 3); }
+        if (h === 2) { gfx.fillRect(bx + 2, by, 1, 2); gfx.fillRect(bx + 12, by, 1, 3); gfx.fillRect(bx + 24, by, 1, 2); }
+        if (h === 3) { gfx.fillRect(bx + 8, by, 1, 3); gfx.fillRect(bx + 18, by, 1, 2); gfx.fillRect(bx + 28, by, 1, 3); }
       }
     }
     rt.draw(gfx);
@@ -532,9 +532,9 @@ export class GameScene extends Phaser.Scene {
         if (this.island.tiles[y][x] !== TileType.GRASS) continue;
         if (this.grassVariant(x, y) !== 2) continue;
         const bx = x * TS, by = y * TS;
-        gfx.fillRect(bx+1, by+1, 5, 1);
-        gfx.fillRect(bx+1, by+2, 1, 4);
-        gfx.fillRect(bx+3, by+3, 1, 1);
+        gfx.fillRect(bx + 1, by + 1, 5, 1);
+        gfx.fillRect(bx + 1, by + 2, 1, 4);
+        gfx.fillRect(bx + 3, by + 3, 1, 1);
       }
     }
     rt.draw(gfx);
@@ -548,8 +548,8 @@ export class GameScene extends Phaser.Scene {
         const isD = t === TileType.GRASS_DARK || (t === TileType.GRASS && this.grassVariant(x, y) === 3);
         if (!isD) continue;
         const bx = x * TS, by = y * TS;
-        gfx.fillRect(bx,          by + TS - 4, TS, 4);
-        gfx.fillRect(bx + TS - 4, by,          4,  TS - 4);
+        gfx.fillRect(bx, by + TS - 4, TS, 4);
+        gfx.fillRect(bx + TS - 4, by, 4, TS - 4);
       }
     }
     rt.draw(gfx);
@@ -565,10 +565,10 @@ export class GameScene extends Phaser.Scene {
       for (let x = 0; x < MAP_WIDTH; x++) {
         if (!isGrassTile(y, x)) continue;
         const bx = x * TS, by = y * TS;
-        if (!isGrassTile(y,     x - 1)) gfx.fillRect(bx,          by, 2, TS);
-        if (!isGrassTile(y,     x + 1)) gfx.fillRect(bx + TS - 2, by, 2, TS);
-        if (!isGrassTile(y - 1, x    )) gfx.fillRect(bx, by,          TS, 2);
-        if (!isGrassTile(y + 1, x    )) gfx.fillRect(bx, by + TS - 2, TS, 2);
+        if (!isGrassTile(y, x - 1)) gfx.fillRect(bx, by, 2, TS);
+        if (!isGrassTile(y, x + 1)) gfx.fillRect(bx + TS - 2, by, 2, TS);
+        if (!isGrassTile(y - 1, x)) gfx.fillRect(bx, by, TS, 2);
+        if (!isGrassTile(y + 1, x)) gfx.fillRect(bx, by + TS - 2, TS, 2);
       }
     }
     rt.draw(gfx);
@@ -585,9 +585,9 @@ export class GameScene extends Phaser.Scene {
         if (this.island.tiles[y][x] !== TileType.ROCK) continue;
         const h = ((x * 7 + y * 13) ^ (x * 3)) % 5;
         const bx = x * TS, by = y * TS;
-        if (h === 0) gfx.fillRect(bx + 2,  by + 2,  14, 12);
+        if (h === 0) gfx.fillRect(bx + 2, by + 2, 14, 12);
         if (h === 1) gfx.fillRect(bx + 16, by + 16, 14, 12);
-        if (h === 2) gfx.fillRect(bx + 6,  by + 10, 18, 14);
+        if (h === 2) gfx.fillRect(bx + 6, by + 10, 18, 14);
       }
     }
     rt.draw(gfx);
@@ -600,8 +600,8 @@ export class GameScene extends Phaser.Scene {
         if (this.island.tiles[y][x] !== TileType.ROCK) continue;
         const h = ((x * 11 + y * 7) ^ (x * 5)) % 7;
         const bx = x * TS, by = y * TS;
-        if (h === 0) gfx.fillRect(bx + 16, by + 2,  14, 12);
-        if (h === 2) gfx.fillRect(bx + 2,  by + 18, 12, 12);
+        if (h === 0) gfx.fillRect(bx + 16, by + 2, 14, 12);
+        if (h === 2) gfx.fillRect(bx + 2, by + 18, 12, 12);
         if (h === 4) gfx.fillRect(bx + 20, by + 18, 10, 10);
       }
     }
@@ -615,14 +615,14 @@ export class GameScene extends Phaser.Scene {
         if (this.island.tiles[y][x] !== TileType.ROCK) continue;
         const h = ((x * 7 + y * 13) ^ (x * 3)) % 8;
         const bx = x * TS, by = y * TS;
-        if (h === 0) { gfx.fillRect(bx+ 5,by+ 8,2,1); gfx.fillRect(bx+19,by+ 6,1,1); gfx.fillRect(bx+11,by+22,2,1); gfx.fillRect(bx+25,by+16,1,1); gfx.fillRect(bx+ 7,by+27,1,1); }
-        if (h === 1) { gfx.fillRect(bx+ 3,by+14,1,1); gfx.fillRect(bx+17,by+ 9,2,1); gfx.fillRect(bx+24,by+24,1,1); gfx.fillRect(bx+ 9,by+19,1,2); gfx.fillRect(bx+22,by+ 4,1,1); }
-        if (h === 2) { gfx.fillRect(bx+ 8,by+ 5,2,1); gfx.fillRect(bx+22,by+12,1,1); gfx.fillRect(bx+14,by+20,1,2); gfx.fillRect(bx+ 4,by+25,2,1); gfx.fillRect(bx+27,by+ 8,1,1); }
-        if (h === 3) { gfx.fillRect(bx+12,by+ 3,1,1); gfx.fillRect(bx+ 6,by+16,2,1); gfx.fillRect(bx+20,by+20,1,1); gfx.fillRect(bx+26,by+26,1,1); gfx.fillRect(bx+15,by+11,1,2); }
-        if (h === 4) { gfx.fillRect(bx+ 4,by+11,1,1); gfx.fillRect(bx+18,by+ 3,2,1); gfx.fillRect(bx+10,by+24,1,1); gfx.fillRect(bx+24,by+18,1,1); gfx.fillRect(bx+ 7,by+20,1,2); }
-        if (h === 5) { gfx.fillRect(bx+16,by+14,2,1); gfx.fillRect(bx+ 5,by+ 4,1,1); gfx.fillRect(bx+23,by+ 7,1,1); gfx.fillRect(bx+12,by+26,1,1); gfx.fillRect(bx+27,by+22,1,1); }
-        if (h === 6) { gfx.fillRect(bx+ 9,by+10,1,1); gfx.fillRect(bx+21,by+16,2,1); gfx.fillRect(bx+ 3,by+22,1,1); gfx.fillRect(bx+25,by+ 4,1,2); gfx.fillRect(bx+14,by+28,1,1); }
-        if (h === 7) { gfx.fillRect(bx+ 6,by+18,1,1); gfx.fillRect(bx+20,by+12,1,1); gfx.fillRect(bx+13,by+ 5,2,1); gfx.fillRect(bx+28,by+20,1,1); gfx.fillRect(bx+10,by+28,1,2); }
+        if (h === 0) { gfx.fillRect(bx + 5, by + 8, 2, 1); gfx.fillRect(bx + 19, by + 6, 1, 1); gfx.fillRect(bx + 11, by + 22, 2, 1); gfx.fillRect(bx + 25, by + 16, 1, 1); gfx.fillRect(bx + 7, by + 27, 1, 1); }
+        if (h === 1) { gfx.fillRect(bx + 3, by + 14, 1, 1); gfx.fillRect(bx + 17, by + 9, 2, 1); gfx.fillRect(bx + 24, by + 24, 1, 1); gfx.fillRect(bx + 9, by + 19, 1, 2); gfx.fillRect(bx + 22, by + 4, 1, 1); }
+        if (h === 2) { gfx.fillRect(bx + 8, by + 5, 2, 1); gfx.fillRect(bx + 22, by + 12, 1, 1); gfx.fillRect(bx + 14, by + 20, 1, 2); gfx.fillRect(bx + 4, by + 25, 2, 1); gfx.fillRect(bx + 27, by + 8, 1, 1); }
+        if (h === 3) { gfx.fillRect(bx + 12, by + 3, 1, 1); gfx.fillRect(bx + 6, by + 16, 2, 1); gfx.fillRect(bx + 20, by + 20, 1, 1); gfx.fillRect(bx + 26, by + 26, 1, 1); gfx.fillRect(bx + 15, by + 11, 1, 2); }
+        if (h === 4) { gfx.fillRect(bx + 4, by + 11, 1, 1); gfx.fillRect(bx + 18, by + 3, 2, 1); gfx.fillRect(bx + 10, by + 24, 1, 1); gfx.fillRect(bx + 24, by + 18, 1, 1); gfx.fillRect(bx + 7, by + 20, 1, 2); }
+        if (h === 5) { gfx.fillRect(bx + 16, by + 14, 2, 1); gfx.fillRect(bx + 5, by + 4, 1, 1); gfx.fillRect(bx + 23, by + 7, 1, 1); gfx.fillRect(bx + 12, by + 26, 1, 1); gfx.fillRect(bx + 27, by + 22, 1, 1); }
+        if (h === 6) { gfx.fillRect(bx + 9, by + 10, 1, 1); gfx.fillRect(bx + 21, by + 16, 2, 1); gfx.fillRect(bx + 3, by + 22, 1, 1); gfx.fillRect(bx + 25, by + 4, 1, 2); gfx.fillRect(bx + 14, by + 28, 1, 1); }
+        if (h === 7) { gfx.fillRect(bx + 6, by + 18, 1, 1); gfx.fillRect(bx + 20, by + 12, 1, 1); gfx.fillRect(bx + 13, by + 5, 2, 1); gfx.fillRect(bx + 28, by + 20, 1, 1); gfx.fillRect(bx + 10, by + 28, 1, 2); }
       }
     }
     rt.draw(gfx);
@@ -635,14 +635,14 @@ export class GameScene extends Phaser.Scene {
         if (this.island.tiles[y][x] !== TileType.ROCK) continue;
         const h = ((x * 11 + y * 5) ^ (y * 7)) % 8;
         const bx = x * TS, by = y * TS;
-        if (h === 0) { gfx.fillRect(bx+ 7,by+ 6,1,1); gfx.fillRect(bx+22,by+18,1,1); }
-        if (h === 1) { gfx.fillRect(bx+15,by+10,1,1); gfx.fillRect(bx+ 5,by+24,1,1); }
-        if (h === 2) { gfx.fillRect(bx+24,by+ 5,1,1); gfx.fillRect(bx+10,by+19,1,1); }
-        if (h === 3) { gfx.fillRect(bx+ 3,by+17,1,1); gfx.fillRect(bx+20,by+ 6,1,1); }
-        if (h === 4) { gfx.fillRect(bx+18,by+24,1,1); gfx.fillRect(bx+ 8,by+11,1,1); }
-        if (h === 5) { gfx.fillRect(bx+12,by+28,1,1); gfx.fillRect(bx+26,by+14,1,1); }
-        if (h === 6) { gfx.fillRect(bx+ 4,by+ 7,1,1); gfx.fillRect(bx+23,by+23,1,1); }
-        if (h === 7) { gfx.fillRect(bx+17,by+ 3,1,1); gfx.fillRect(bx+ 9,by+22,1,1); }
+        if (h === 0) { gfx.fillRect(bx + 7, by + 6, 1, 1); gfx.fillRect(bx + 22, by + 18, 1, 1); }
+        if (h === 1) { gfx.fillRect(bx + 15, by + 10, 1, 1); gfx.fillRect(bx + 5, by + 24, 1, 1); }
+        if (h === 2) { gfx.fillRect(bx + 24, by + 5, 1, 1); gfx.fillRect(bx + 10, by + 19, 1, 1); }
+        if (h === 3) { gfx.fillRect(bx + 3, by + 17, 1, 1); gfx.fillRect(bx + 20, by + 6, 1, 1); }
+        if (h === 4) { gfx.fillRect(bx + 18, by + 24, 1, 1); gfx.fillRect(bx + 8, by + 11, 1, 1); }
+        if (h === 5) { gfx.fillRect(bx + 12, by + 28, 1, 1); gfx.fillRect(bx + 26, by + 14, 1, 1); }
+        if (h === 6) { gfx.fillRect(bx + 4, by + 7, 1, 1); gfx.fillRect(bx + 23, by + 23, 1, 1); }
+        if (h === 7) { gfx.fillRect(bx + 17, by + 3, 1, 1); gfx.fillRect(bx + 9, by + 22, 1, 1); }
       }
     }
     rt.draw(gfx);
@@ -659,9 +659,9 @@ export class GameScene extends Phaser.Scene {
         if (this.island.tiles[y][x] !== TileType.DIRT_PATH) continue;
         const h = ((x * 7 + y * 13) ^ (x * 3)) % 5;
         const bx = x * TS, by = y * TS;
-        if (h === 0) gfx.fillRect(bx + 4,  by + 6,  10, 6);
+        if (h === 0) gfx.fillRect(bx + 4, by + 6, 10, 6);
         if (h === 1) gfx.fillRect(bx + 16, by + 18, 12, 8);
-        if (h === 2) gfx.fillRect(bx + 8,  by + 20, 14, 6);
+        if (h === 2) gfx.fillRect(bx + 8, by + 20, 14, 6);
       }
     }
     rt.draw(gfx);
@@ -709,9 +709,9 @@ export class GameScene extends Phaser.Scene {
         if (this.island.tiles[y][x] !== TileType.GRAVEL) continue;
         const h = ((x * 7 + y * 13) ^ (x * 3)) % 5;
         const bx = x * TS, by = y * TS;
-        if (h === 0) gfx.fillRect(bx + 4,  by + 4,  16, 10);
+        if (h === 0) gfx.fillRect(bx + 4, by + 4, 16, 10);
         if (h === 1) gfx.fillRect(bx + 14, by + 18, 16, 10);
-        if (h === 2) gfx.fillRect(bx + 2,  by + 12, 20, 12);
+        if (h === 2) gfx.fillRect(bx + 2, by + 12, 20, 12);
       }
     }
     rt.draw(gfx);
@@ -724,9 +724,9 @@ export class GameScene extends Phaser.Scene {
         if (this.island.tiles[y][x] !== TileType.GRAVEL) continue;
         const h = ((x * 11 + y * 7) ^ (x * 5)) % 7;
         const bx = x * TS, by = y * TS;
-        if (h === 0) gfx.fillRect(bx + 18, by + 2,  12, 14);
-        if (h === 2) gfx.fillRect(bx + 2,  by + 16, 14, 12);
-        if (h === 4) gfx.fillRect(bx + 18, by + 20, 10,  8);
+        if (h === 0) gfx.fillRect(bx + 18, by + 2, 12, 14);
+        if (h === 2) gfx.fillRect(bx + 2, by + 16, 14, 12);
+        if (h === 4) gfx.fillRect(bx + 18, by + 20, 10, 8);
       }
     }
     rt.draw(gfx);
@@ -739,14 +739,14 @@ export class GameScene extends Phaser.Scene {
         if (this.island.tiles[y][x] !== TileType.GRAVEL) continue;
         const h = ((x * 13 + y * 7) ^ (x * 9)) % 8;
         const bx = x * TS, by = y * TS;
-        if (h === 0) { gfx.fillRect(bx+ 8,by+ 4,1,1); gfx.fillRect(bx+22,by+10,2,1); gfx.fillRect(bx+ 6,by+20,1,1); gfx.fillRect(bx+18,by+26,1,1); gfx.fillRect(bx+27,by+14,1,1); }
-        if (h === 1) { gfx.fillRect(bx+ 4,by+ 9,2,1); gfx.fillRect(bx+14,by+ 4,1,1); gfx.fillRect(bx+26,by+20,1,2); gfx.fillRect(bx+10,by+26,1,1); gfx.fillRect(bx+20,by+14,1,1); }
-        if (h === 2) { gfx.fillRect(bx+11,by+18,1,1); gfx.fillRect(bx+23,by+ 4,1,1); gfx.fillRect(bx+ 5,by+13,2,1); gfx.fillRect(bx+17,by+24,1,1); gfx.fillRect(bx+28,by+ 9,1,1); }
-        if (h === 3) { gfx.fillRect(bx+16,by+ 7,1,1); gfx.fillRect(bx+ 3,by+20,1,2); gfx.fillRect(bx+24,by+16,2,1); gfx.fillRect(bx+ 9,by+28,1,1); gfx.fillRect(bx+21,by+ 3,1,1); }
-        if (h === 4) { gfx.fillRect(bx+ 7,by+15,1,1); gfx.fillRect(bx+19,by+ 8,1,1); gfx.fillRect(bx+13,by+23,2,1); gfx.fillRect(bx+26,by+28,1,1); gfx.fillRect(bx+ 3,by+ 5,1,1); }
-        if (h === 5) { gfx.fillRect(bx+22,by+22,1,1); gfx.fillRect(bx+ 9,by+ 6,1,1); gfx.fillRect(bx+15,by+17,2,1); gfx.fillRect(bx+28,by+ 4,1,1); gfx.fillRect(bx+ 5,by+27,1,2); }
-        if (h === 6) { gfx.fillRect(bx+12,by+12,2,1); gfx.fillRect(bx+24,by+22,1,1); gfx.fillRect(bx+ 6,by+ 3,1,1); gfx.fillRect(bx+18,by+18,1,1); gfx.fillRect(bx+28,by+16,1,1); }
-        if (h === 7) { gfx.fillRect(bx+ 4,by+24,1,1); gfx.fillRect(bx+16,by+13,1,2); gfx.fillRect(bx+25,by+ 6,2,1); gfx.fillRect(bx+10,by+10,1,1); gfx.fillRect(bx+22,by+28,1,1); }
+        if (h === 0) { gfx.fillRect(bx + 8, by + 4, 1, 1); gfx.fillRect(bx + 22, by + 10, 2, 1); gfx.fillRect(bx + 6, by + 20, 1, 1); gfx.fillRect(bx + 18, by + 26, 1, 1); gfx.fillRect(bx + 27, by + 14, 1, 1); }
+        if (h === 1) { gfx.fillRect(bx + 4, by + 9, 2, 1); gfx.fillRect(bx + 14, by + 4, 1, 1); gfx.fillRect(bx + 26, by + 20, 1, 2); gfx.fillRect(bx + 10, by + 26, 1, 1); gfx.fillRect(bx + 20, by + 14, 1, 1); }
+        if (h === 2) { gfx.fillRect(bx + 11, by + 18, 1, 1); gfx.fillRect(bx + 23, by + 4, 1, 1); gfx.fillRect(bx + 5, by + 13, 2, 1); gfx.fillRect(bx + 17, by + 24, 1, 1); gfx.fillRect(bx + 28, by + 9, 1, 1); }
+        if (h === 3) { gfx.fillRect(bx + 16, by + 7, 1, 1); gfx.fillRect(bx + 3, by + 20, 1, 2); gfx.fillRect(bx + 24, by + 16, 2, 1); gfx.fillRect(bx + 9, by + 28, 1, 1); gfx.fillRect(bx + 21, by + 3, 1, 1); }
+        if (h === 4) { gfx.fillRect(bx + 7, by + 15, 1, 1); gfx.fillRect(bx + 19, by + 8, 1, 1); gfx.fillRect(bx + 13, by + 23, 2, 1); gfx.fillRect(bx + 26, by + 28, 1, 1); gfx.fillRect(bx + 3, by + 5, 1, 1); }
+        if (h === 5) { gfx.fillRect(bx + 22, by + 22, 1, 1); gfx.fillRect(bx + 9, by + 6, 1, 1); gfx.fillRect(bx + 15, by + 17, 2, 1); gfx.fillRect(bx + 28, by + 4, 1, 1); gfx.fillRect(bx + 5, by + 27, 1, 2); }
+        if (h === 6) { gfx.fillRect(bx + 12, by + 12, 2, 1); gfx.fillRect(bx + 24, by + 22, 1, 1); gfx.fillRect(bx + 6, by + 3, 1, 1); gfx.fillRect(bx + 18, by + 18, 1, 1); gfx.fillRect(bx + 28, by + 16, 1, 1); }
+        if (h === 7) { gfx.fillRect(bx + 4, by + 24, 1, 1); gfx.fillRect(bx + 16, by + 13, 1, 2); gfx.fillRect(bx + 25, by + 6, 2, 1); gfx.fillRect(bx + 10, by + 10, 1, 1); gfx.fillRect(bx + 22, by + 28, 1, 1); }
       }
     }
     rt.draw(gfx);
@@ -759,14 +759,14 @@ export class GameScene extends Phaser.Scene {
         if (this.island.tiles[y][x] !== TileType.GRAVEL) continue;
         const h = ((x * 5 + y * 11) ^ (x * 9 + y * 3)) % 8;
         const bx = x * TS, by = y * TS;
-        if (h === 0) { gfx.fillRect(bx+ 9,by+ 3,1,1); gfx.fillRect(bx+21,by+21,1,1); }
-        if (h === 1) { gfx.fillRect(bx+17,by+13,1,1); gfx.fillRect(bx+ 4,by+22,1,1); }
-        if (h === 2) { gfx.fillRect(bx+26,by+ 8,1,1); gfx.fillRect(bx+11,by+26,1,1); }
-        if (h === 3) { gfx.fillRect(bx+ 6,by+18,1,1); gfx.fillRect(bx+23,by+ 5,1,1); }
-        if (h === 4) { gfx.fillRect(bx+20,by+27,1,1); gfx.fillRect(bx+ 7,by+10,1,1); }
-        if (h === 5) { gfx.fillRect(bx+14,by+22,1,1); gfx.fillRect(bx+27,by+12,1,1); }
-        if (h === 6) { gfx.fillRect(bx+ 3,by+ 8,1,1); gfx.fillRect(bx+24,by+25,1,1); }
-        if (h === 7) { gfx.fillRect(bx+19,by+ 4,1,1); gfx.fillRect(bx+ 8,by+20,1,1); }
+        if (h === 0) { gfx.fillRect(bx + 9, by + 3, 1, 1); gfx.fillRect(bx + 21, by + 21, 1, 1); }
+        if (h === 1) { gfx.fillRect(bx + 17, by + 13, 1, 1); gfx.fillRect(bx + 4, by + 22, 1, 1); }
+        if (h === 2) { gfx.fillRect(bx + 26, by + 8, 1, 1); gfx.fillRect(bx + 11, by + 26, 1, 1); }
+        if (h === 3) { gfx.fillRect(bx + 6, by + 18, 1, 1); gfx.fillRect(bx + 23, by + 5, 1, 1); }
+        if (h === 4) { gfx.fillRect(bx + 20, by + 27, 1, 1); gfx.fillRect(bx + 7, by + 10, 1, 1); }
+        if (h === 5) { gfx.fillRect(bx + 14, by + 22, 1, 1); gfx.fillRect(bx + 27, by + 12, 1, 1); }
+        if (h === 6) { gfx.fillRect(bx + 3, by + 8, 1, 1); gfx.fillRect(bx + 24, by + 25, 1, 1); }
+        if (h === 7) { gfx.fillRect(bx + 19, by + 4, 1, 1); gfx.fillRect(bx + 8, by + 20, 1, 1); }
       }
     }
     rt.draw(gfx);
@@ -837,13 +837,13 @@ export class GameScene extends Phaser.Scene {
         if (this.grassVariant(x, y) === 3) continue;
         const bx = x * TS, by = y * TS;
         const h1 = ((x * 17 + y * 11) ^ (x * 7 + y * 3)) % 9;
-        if (h1 === 0) this.add.image(bx +  6, by +  8, 'grass-cross-a').setOrigin(0, 0).setDepth(20);
+        if (h1 === 0) this.add.image(bx + 6, by + 8, 'grass-cross-a').setOrigin(0, 0).setDepth(20);
         if (h1 === 1) this.add.image(bx + 20, by + 14, 'grass-cross-b').setOrigin(0, 0).setDepth(20);
-        if (h1 === 2) this.add.image(bx +  9, by + 22, 'grass-cross-a').setOrigin(0, 0).setDepth(20);
-        if (h1 === 3) this.add.image(bx + 24, by +  5, 'grass-cross-b').setOrigin(0, 0).setDepth(20);
+        if (h1 === 2) this.add.image(bx + 9, by + 22, 'grass-cross-a').setOrigin(0, 0).setDepth(20);
+        if (h1 === 3) this.add.image(bx + 24, by + 5, 'grass-cross-b').setOrigin(0, 0).setDepth(20);
         const h2 = ((x * 5 + y * 19) ^ (y * 11)) % 12;
-        if (h2 === 0) this.add.image(bx + 14, by +  5, 'grass-cross-a').setOrigin(0, 0).setDepth(20);
-        if (h2 === 1) this.add.image(bx +  4, by + 20, 'grass-cross-b').setOrigin(0, 0).setDepth(20);
+        if (h2 === 0) this.add.image(bx + 14, by + 5, 'grass-cross-a').setOrigin(0, 0).setDepth(20);
+        if (h2 === 1) this.add.image(bx + 4, by + 20, 'grass-cross-b').setOrigin(0, 0).setDepth(20);
         if (h2 === 2) this.add.image(bx + 22, by + 22, 'grass-cross-a').setOrigin(0, 0).setDepth(20);
       }
     }
@@ -860,7 +860,7 @@ export class GameScene extends Phaser.Scene {
       for (let x = 1; x < MAP_WIDTH - 1; x++) {
         if (!isGrass(y, x)) continue;
         if (blocked.has(`${x},${y}`)) continue;
-        const onEdge = !isGrass(y-1,x) || !isGrass(y+1,x) || !isGrass(y,x-1) || !isGrass(y,x+1);
+        const onEdge = !isGrass(y - 1, x) || !isGrass(y + 1, x) || !isGrass(y, x - 1) || !isGrass(y, x + 1);
         const h1 = ((x * 19 + y * 23) ^ (x * 5 + y * 7)) % 15;
         if (onEdge && h1 === 0) {
           this.add.image(x * TS + TS / 2, y * TS + TS / 2, 'foliage-cluster').setOrigin(0.5, 0.5).setDepth(48);
@@ -1659,7 +1659,7 @@ export class GameScene extends Phaser.Scene {
   private spawnFirefly(): void {
     const m = 80;
     this.fireflies.push({
-      x: m + Math.random() * (WORLD_WIDTH  - m * 2),
+      x: m + Math.random() * (WORLD_WIDTH - m * 2),
       y: m + Math.random() * (WORLD_HEIGHT - m * 2),
       angle: Math.random() * Math.PI * 2,
       speed: 18 + Math.random() * 16,          // 18 – 34 px / sec
@@ -1686,7 +1686,7 @@ export class GameScene extends Phaser.Scene {
 
     // Scale max population (0 → 5) as night deepens from α=0.15 to α=0.55
     const nightRamp = Phaser.Math.Clamp((this.currentNightAlpha - 0.15) / 0.4, 0, 1);
-    const maxNow    = Math.round(nightRamp * 5);
+    const maxNow = Math.round(nightRamp * 5);
 
     this.fireflySpawnCooldown -= delta;
     if (this.fireflySpawnCooldown <= 0 && this.fireflies.length < maxNow) {
@@ -1703,14 +1703,14 @@ export class GameScene extends Phaser.Scene {
 
       // Fade in/out over the first and last 2.5 s of each firefly's life
       const FADE = 2500;
-      const fadeAlpha  = Math.min(f.life / FADE, 1, (f.maxLife - f.life) / FADE);
+      const fadeAlpha = Math.min(f.life / FADE, 1, (f.maxLife - f.life) / FADE);
       const globalAlpha = fadeAlpha * nightRamp;
 
       // Flash cycle — transition between dark and lit phases
       f.flashTimer += delta;
       const phaseLen = f.flashing ? f.flashDuration : f.darkDuration;
       if (f.flashTimer >= phaseLen) {
-        f.flashing   = !f.flashing;
+        f.flashing = !f.flashing;
         f.flashTimer -= phaseLen;
       }
       // Smooth bell-curve brightness: 0 → 1 → 0 over the flash window
@@ -1726,9 +1726,9 @@ export class GameScene extends Phaser.Scene {
       f.y += Math.sin(f.angle) * f.speed * delta / 1000 - upBias;
 
       // Reflect off world edges
-      if (f.x < 48 || f.x > WORLD_WIDTH  - 48) f.angle = Math.PI - f.angle;
+      if (f.x < 48 || f.x > WORLD_WIDTH - 48) f.angle = Math.PI - f.angle;
       if (f.y < 48 || f.y > WORLD_HEIGHT - 48) f.angle = -f.angle;
-      f.x = Phaser.Math.Clamp(f.x, 48, WORLD_WIDTH  - 48);
+      f.x = Phaser.Math.Clamp(f.x, 48, WORLD_WIDTH - 48);
       f.y = Phaser.Math.Clamp(f.y, 48, WORLD_HEIGHT - 48);
 
       const bx = Math.round(f.x);
@@ -1791,7 +1791,7 @@ export class GameScene extends Phaser.Scene {
       // A few bright "game sprite" pixels for depth
       screen.gfx.fillStyle(0xffffff, 0.80);
       screen.gfx.fillRect(-5, -8, 2, 2);
-      screen.gfx.fillRect( 2, -5, 2, 2);
+      screen.gfx.fillRect(2, -5, 2, 2);
       screen.gfx.fillRect(-1, -7, 1, 1);
 
       // Sync the night-overlay light pool tint to the current screen color

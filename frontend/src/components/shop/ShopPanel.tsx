@@ -588,7 +588,7 @@ function WovenRugIcon() {
       <rect x="12" y="16" width="8" height="2" fill="#E8C040" />
       <rect x="15" y="16" width="2" height="2" fill="#FFFFFF" />
       {/* fringe top & bottom */}
-      {[4,7,10,13,16,19,22,25].map(x => (
+      {[4, 7, 10, 13, 16, 19, 22, 25].map(x => (
         <g key={x}>
           <rect x={x} y={5} width={2} height={2} fill="#D06030" />
           <rect x={x} y={28} width={2} height={2} fill="#D06030" />
@@ -669,29 +669,29 @@ function CobbleWallIcon() {
       {/* grout */}
       <rect x="0" y="0" width="32" height="32" fill="#5A5450" />
       {/* row 1 */}
-      <rect x="1"  y="0"  width="14" height="10" fill="#8A8078" />
-      <rect x="16" y="0"  width="15" height="10" fill="#8A8078" />
-      <rect x="2"  y="1"  width="12" height="8"  fill="#A09890" />
-      <rect x="17" y="1"  width="13" height="8"  fill="#A09890" />
-      <rect x="2"  y="1"  width="4"  height="2"  fill="#C0B8B0" />
-      <rect x="17" y="1"  width="4"  height="2"  fill="#C0B8B0" />
+      <rect x="1" y="0" width="14" height="10" fill="#8A8078" />
+      <rect x="16" y="0" width="15" height="10" fill="#8A8078" />
+      <rect x="2" y="1" width="12" height="8" fill="#A09890" />
+      <rect x="17" y="1" width="13" height="8" fill="#A09890" />
+      <rect x="2" y="1" width="4" height="2" fill="#C0B8B0" />
+      <rect x="17" y="1" width="4" height="2" fill="#C0B8B0" />
       {/* row 2 offset */}
-      <rect x="1"  y="11" width="7"  height="10" fill="#8A8078" />
-      <rect x="9"  y="11" width="14" height="10" fill="#8A8078" />
-      <rect x="24" y="11" width="7"  height="10" fill="#8A8078" />
-      <rect x="2"  y="12" width="5"  height="8"  fill="#A09890" />
-      <rect x="10" y="12" width="12" height="8"  fill="#A09890" />
-      <rect x="25" y="12" width="5"  height="8"  fill="#A09890" />
-      <rect x="2"  y="12" width="3"  height="2"  fill="#C0B8B0" />
-      <rect x="10" y="12" width="4"  height="2"  fill="#C0B8B0" />
-      <rect x="25" y="12" width="3"  height="2"  fill="#C0B8B0" />
+      <rect x="1" y="11" width="7" height="10" fill="#8A8078" />
+      <rect x="9" y="11" width="14" height="10" fill="#8A8078" />
+      <rect x="24" y="11" width="7" height="10" fill="#8A8078" />
+      <rect x="2" y="12" width="5" height="8" fill="#A09890" />
+      <rect x="10" y="12" width="12" height="8" fill="#A09890" />
+      <rect x="25" y="12" width="5" height="8" fill="#A09890" />
+      <rect x="2" y="12" width="3" height="2" fill="#C0B8B0" />
+      <rect x="10" y="12" width="4" height="2" fill="#C0B8B0" />
+      <rect x="25" y="12" width="3" height="2" fill="#C0B8B0" />
       {/* row 3 */}
-      <rect x="1"  y="22" width="14" height="10" fill="#8A8078" />
+      <rect x="1" y="22" width="14" height="10" fill="#8A8078" />
       <rect x="16" y="22" width="15" height="10" fill="#8A8078" />
-      <rect x="2"  y="23" width="12" height="8"  fill="#A09890" />
-      <rect x="17" y="23" width="13" height="8"  fill="#A09890" />
-      <rect x="2"  y="23" width="4"  height="2"  fill="#C0B8B0" />
-      <rect x="17" y="23" width="4"  height="2"  fill="#C0B8B0" />
+      <rect x="2" y="23" width="12" height="8" fill="#A09890" />
+      <rect x="17" y="23" width="13" height="8" fill="#A09890" />
+      <rect x="2" y="23" width="4" height="2" fill="#C0B8B0" />
+      <rect x="17" y="23" width="4" height="2" fill="#C0B8B0" />
     </svg>
   );
 }
@@ -724,10 +724,10 @@ function FencePostIcon() {
     <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
       style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
       <rect x="2" y="26" width="28" height="1" fill="rgba(0,0,0,0.20)" />
-      {[0,1,2,3,4].map(i => (
+      {[0, 1, 2, 3, 4].map(i => (
         <rect key={i} x={4 + i * 6} y="26" width="4" height="4" fill="rgba(0,0,0,0.20)" />
       ))}
-      {[0,1,2,3,4].map(i => {
+      {[0, 1, 2, 3, 4].map(i => {
         const bx = 4 + i * 6;
         return (
           <g key={i}>
@@ -795,13 +795,13 @@ function ChessBoardIcon() {
         return <rect key={i} x={8 + col * 2} y={9 + row * 2} width="2" height="2" fill="#B58863" />;
       })}
       {/* white pieces (on dark squares) */}
-      <rect x="10" y="9"  width="2" height="2" fill="#FFFFFF" />
+      <rect x="10" y="9" width="2" height="2" fill="#FFFFFF" />
       <rect x="14" y="13" width="2" height="2" fill="#FFFFFF" />
       <rect x="18" y="17" width="2" height="2" fill="#FFFFFF" />
       <rect x="22" y="21" width="2" height="2" fill="#FFFFFF" />
       <rect x="10" y="21" width="2" height="2" fill="#FFFFFF" />
       {/* black pieces (on light squares) */}
-      <rect x="16" y="9"  width="2" height="2" fill="#1A1A1A" />
+      <rect x="16" y="9" width="2" height="2" fill="#1A1A1A" />
       <rect x="20" y="13" width="2" height="2" fill="#1A1A1A" />
       <rect x="12" y="13" width="2" height="2" fill="#1A1A1A" />
       <rect x="16" y="17" width="2" height="2" fill="#1A1A1A" />

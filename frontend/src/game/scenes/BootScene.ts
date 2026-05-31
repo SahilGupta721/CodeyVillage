@@ -32,7 +32,7 @@ export class BootScene extends Phaser.Scene {
   // ─── Pond water tile (32 × 32) ──────────────────────────────────────────────
 
   private makeWaterTile(): void {
-    const c   = this.textures.createCanvas('water', 32, 32)!;
+    const c = this.textures.createCanvas('water', 32, 32)!;
     const ctx = c.getContext();
 
     ctx.fillStyle = '#3898d8';
@@ -40,21 +40,21 @@ export class BootScene extends Phaser.Scene {
 
     // Lighter wave crests
     ctx.fillStyle = '#54b0f0';
-    ctx.fillRect(0,  2, 32, 2);
+    ctx.fillRect(0, 2, 32, 2);
     ctx.fillRect(0, 10, 32, 2);
     ctx.fillRect(0, 18, 32, 2);
     ctx.fillRect(0, 26, 32, 2);
 
     // Darker wave troughs
     ctx.fillStyle = '#2878b8';
-    ctx.fillRect(0,  6, 32, 2);
+    ctx.fillRect(0, 6, 32, 2);
     ctx.fillRect(0, 14, 32, 2);
     ctx.fillRect(0, 22, 32, 2);
     ctx.fillRect(0, 30, 32, 2);
 
     // Foam sparkle flecks
     ctx.fillStyle = 'rgba(255,255,255,0.65)';
-    ctx.fillRect( 5,  3, 4, 1);
+    ctx.fillRect(5, 3, 4, 1);
     ctx.fillRect(20, 11, 4, 1);
     ctx.fillRect(10, 19, 4, 1);
     ctx.fillRect(24, 27, 4, 1);
@@ -69,7 +69,7 @@ export class BootScene extends Phaser.Scene {
   // bumpy oak silhouette. Anchor via setOrigin(0.5, 0.7) lands mid-trunk.
 
   private makeTree(): void {
-    const c   = this.textures.createCanvas('tree', 32, 52)!;
+    const c = this.textures.createCanvas('tree', 32, 52)!;
     const ctx = c.getContext();
 
     // Ground shadow
@@ -90,49 +90,49 @@ export class BootScene extends Phaser.Scene {
     ctx.fillRect(18, 29, 2, 22);
     ctx.fillStyle = '#4a2912';  // vertical bark fissures
     ctx.fillRect(15, 34, 1, 15);
-    ctx.fillRect(17, 39, 1,  9);
+    ctx.fillRect(17, 39, 1, 9);
 
     // Canopy — broad rounded shape (~30 px wide, 30 px tall)
     // 1. Outermost dark ring (silhouette definition)
     ctx.fillStyle = '#193e08';
-    ctx.fillRect(8,  0, 16,  1);
-    ctx.fillRect(5,  1, 22,  2);
-    ctx.fillRect(3,  3, 26,  3);
-    ctx.fillRect(1,  5, 30, 22);
-    ctx.fillRect(3, 26, 26,  3);
-    ctx.fillRect(5, 28, 22,  2);
-    ctx.fillRect(8, 29, 16,  1);
+    ctx.fillRect(8, 0, 16, 1);
+    ctx.fillRect(5, 1, 22, 2);
+    ctx.fillRect(3, 3, 26, 3);
+    ctx.fillRect(1, 5, 30, 22);
+    ctx.fillRect(3, 26, 26, 3);
+    ctx.fillRect(5, 28, 22, 2);
+    ctx.fillRect(8, 29, 16, 1);
     // 2. Main mid-green fill
     ctx.fillStyle = '#367e14';
-    ctx.fillRect(9,  1, 14,  1);
-    ctx.fillRect(6,  2, 20,  2);
-    ctx.fillRect(4,  4, 24,  2);
-    ctx.fillRect(2,  6, 28, 20);
-    ctx.fillRect(4, 25, 24,  2);
-    ctx.fillRect(6, 27, 20,  1);
-    ctx.fillRect(9, 28, 14,  1);
+    ctx.fillRect(9, 1, 14, 1);
+    ctx.fillRect(6, 2, 20, 2);
+    ctx.fillRect(4, 4, 24, 2);
+    ctx.fillRect(2, 6, 28, 20);
+    ctx.fillRect(4, 25, 24, 2);
+    ctx.fillRect(6, 27, 20, 1);
+    ctx.fillRect(9, 28, 14, 1);
     // 3. Upper highlight band (ambient light from above-left)
     ctx.fillStyle = '#54b028';
-    ctx.fillRect(4,  3, 16, 11);
-    ctx.fillRect(3,  5, 17,  9);
-    ctx.fillRect(5,  2, 15, 12);
+    ctx.fillRect(4, 3, 16, 11);
+    ctx.fillRect(3, 5, 17, 9);
+    ctx.fillRect(5, 2, 15, 12);
     // 4. Bright cluster (direct sunlight, top-left)
     ctx.fillStyle = '#78d040';
-    ctx.fillRect(5,  3, 10,  7);
-    ctx.fillRect(4,  6, 12,  5);
-    ctx.fillRect(6,  4, 11,  8);
+    ctx.fillRect(5, 3, 10, 7);
+    ctx.fillRect(4, 6, 12, 5);
+    ctx.fillRect(6, 4, 11, 8);
     // 5. Specular hotspot
     ctx.fillStyle = '#9ce050';
-    ctx.fillRect(6,  5,  6,  5);
-    ctx.fillRect(7,  7,  5,  4);
+    ctx.fillRect(6, 5, 6, 5);
+    ctx.fillRect(7, 7, 5, 4);
     // Oak lobe-edge shadows — dark patches on both sides suggest irregular lobing
     ctx.fillStyle = '#1a4e0a';
-    ctx.fillRect(2,  7,  2,  4);
-    ctx.fillRect(2, 14,  2,  4);
-    ctx.fillRect(2, 20,  2,  3);
-    ctx.fillRect(28, 7,  2,  4);
-    ctx.fillRect(28,14,  2,  4);
-    ctx.fillRect(28,20,  2,  3);
+    ctx.fillRect(2, 7, 2, 4);
+    ctx.fillRect(2, 14, 2, 4);
+    ctx.fillRect(2, 20, 2, 3);
+    ctx.fillRect(28, 7, 2, 4);
+    ctx.fillRect(28, 14, 2, 4);
+    ctx.fillRect(28, 20, 2, 3);
 
     c.refresh();
   }
@@ -140,7 +140,7 @@ export class BootScene extends Phaser.Scene {
   // ─── Bush — top-down (24 × 20) ──────────────────────────────────────────────
 
   private makeBush(): void {
-    const c   = this.textures.createCanvas('bush', 24, 24)!;  // +4 rows for shadow
+    const c = this.textures.createCanvas('bush', 24, 24)!;  // +4 rows for shadow
     const ctx = c.getContext();
 
     // ── Soft drop shadow — three concentric rectangles fade to transparent ────
@@ -157,28 +157,28 @@ export class BootScene extends Phaser.Scene {
     // ── Bush body (identical shape, same y-offsets as before) ─────────────────
     // Dark outer edge
     ctx.fillStyle = '#1a5008';
-    ctx.fillRect(4,  0, 16, 20);
-    ctx.fillRect(0,  4, 24, 12);
-    ctx.fillRect(2,  2, 20, 16);
+    ctx.fillRect(4, 0, 16, 20);
+    ctx.fillRect(0, 4, 24, 12);
+    ctx.fillRect(2, 2, 20, 16);
     // Main green fill
     ctx.fillStyle = '#368a14';
-    ctx.fillRect(5,  1, 14, 18);
-    ctx.fillRect(1,  5, 22, 10);
-    ctx.fillRect(3,  3, 18, 14);
+    ctx.fillRect(5, 1, 14, 18);
+    ctx.fillRect(1, 5, 22, 10);
+    ctx.fillRect(3, 3, 18, 14);
     // Highlight
     ctx.fillStyle = '#54b42a';
-    ctx.fillRect(3,  2, 11,  8);
-    ctx.fillRect(2,  3, 12,  5);
+    ctx.fillRect(3, 2, 11, 8);
+    ctx.fillRect(2, 3, 12, 5);
 
     // ── Red berry dots ────────────────────────────────────────────────────────
     ctx.fillStyle = '#d42020';
-    ctx.fillRect(14,  5, 3, 3);
-    ctx.fillRect( 8, 12, 3, 3);
+    ctx.fillRect(14, 5, 3, 3);
+    ctx.fillRect(8, 12, 3, 3);
     ctx.fillRect(17, 10, 3, 3);  // third berry
     // Berry specular highlights
     ctx.fillStyle = '#ff6868';
-    ctx.fillRect(15,  6, 1, 1);
-    ctx.fillRect( 9, 13, 1, 1);
+    ctx.fillRect(15, 6, 1, 1);
+    ctx.fillRect(9, 13, 1, 1);
     ctx.fillRect(18, 11, 1, 1);
 
     c.refresh();
@@ -187,7 +187,7 @@ export class BootScene extends Phaser.Scene {
   // ─── Flower — top-down chunky (16 × 16) ─────────────────────────────────────
 
   private makeFlower(key: string, petalColor: string, centreColor: string): void {
-    const c   = this.textures.createCanvas(key, 16, 16)!;
+    const c = this.textures.createCanvas(key, 16, 16)!;
     const ctx = c.getContext();
 
     // Stem
@@ -223,7 +223,7 @@ export class BootScene extends Phaser.Scene {
   //   #eaf6f2  specular— brightest peaks
 
   private makeRock(): void {
-    const c   = this.textures.createCanvas('rock_sm', 28, 26)!;
+    const c = this.textures.createCanvas('rock_sm', 28, 26)!;
     const ctx = c.getContext();
 
     // ── Ground shadow (flat ellipse beneath rock) ────────────────────────────
@@ -233,50 +233,50 @@ export class BootScene extends Phaser.Scene {
 
     // ── Dark outline / entire silhouette ────────────────────────────────────
     ctx.fillStyle = '#3a4844';
-    ctx.fillRect(5,  4, 18, 17);   // centre column
-    ctx.fillRect(3,  8, 22, 13);   // wide middle band
-    ctx.fillRect(4,  5, 20, 15);   // main bounds
-    ctx.fillRect(3, 12,  7,  8);   // secondary lobe (lower-left)
+    ctx.fillRect(5, 4, 18, 17);   // centre column
+    ctx.fillRect(3, 8, 22, 13);   // wide middle band
+    ctx.fillRect(4, 5, 20, 15);   // main bounds
+    ctx.fillRect(3, 12, 7, 8);   // secondary lobe (lower-left)
 
     // ── Front face — heavy shadow on lower third ─────────────────────────────
     ctx.fillStyle = '#5f6e69';
-    ctx.fillRect(5, 13, 18,  7);
-    ctx.fillRect(4, 14, 20,  6);
-    ctx.fillRect(3, 15, 22,  4);
-    ctx.fillRect(4,  8,  4, 11);   // left shadow side
-    ctx.fillRect(8, 14,  2,  6);   // crevice between lobes
+    ctx.fillRect(5, 13, 18, 7);
+    ctx.fillRect(4, 14, 20, 6);
+    ctx.fillRect(3, 15, 22, 4);
+    ctx.fillRect(4, 8, 4, 11);   // left shadow side
+    ctx.fillRect(8, 14, 2, 6);   // crevice between lobes
 
     // ── Mid-tone body ────────────────────────────────────────────────────────
     ctx.fillStyle = '#8da09a';
-    ctx.fillRect(6, 10, 16,  5);
-    ctx.fillRect(4, 12, 20,  4);
-    ctx.fillRect(5, 11, 18,  4);
-    ctx.fillRect(4, 13,  6,  5);   // secondary lobe body
+    ctx.fillRect(6, 10, 16, 5);
+    ctx.fillRect(4, 12, 20, 4);
+    ctx.fillRect(5, 11, 18, 4);
+    ctx.fillRect(4, 13, 6, 5);   // secondary lobe body
 
     // ── Upper lit surfaces ───────────────────────────────────────────────────
     ctx.fillStyle = '#b8ccc7';
-    ctx.fillRect(7,  6, 14,  7);
-    ctx.fillRect(5,  9, 16,  4);
-    ctx.fillRect(6,  7, 12,  5);
-    ctx.fillRect(4, 11,  5,  3);   // secondary lobe top
+    ctx.fillRect(7, 6, 14, 7);
+    ctx.fillRect(5, 9, 16, 4);
+    ctx.fillRect(6, 7, 12, 5);
+    ctx.fillRect(4, 11, 5, 3);   // secondary lobe top
 
     // ── Bright top highlight ─────────────────────────────────────────────────
     ctx.fillStyle = '#d4e6e2';
-    ctx.fillRect(8,  5, 10,  5);
-    ctx.fillRect(7,  7, 10,  4);
-    ctx.fillRect(6,  6,  8,  4);
+    ctx.fillRect(8, 5, 10, 5);
+    ctx.fillRect(7, 7, 10, 4);
+    ctx.fillRect(6, 6, 8, 4);
 
     // ── Specular peaks ───────────────────────────────────────────────────────
     ctx.fillStyle = '#eaf6f2';
-    ctx.fillRect(10,  5,  4,  2);
-    ctx.fillRect( 9,  6,  3,  2);
-    ctx.fillRect(14,  7,  3,  2);
+    ctx.fillRect(10, 5, 4, 2);
+    ctx.fillRect(9, 6, 3, 2);
+    ctx.fillRect(14, 7, 3, 2);
 
     // ── Crevice lines (dark seams between stone faces) ───────────────────────
     ctx.fillStyle = '#2e3c38';
-    ctx.fillRect(15,  9,  1, 10);  // main vertical seam
-    ctx.fillRect(16, 15,  5,  1);  // horizontal crack right
-    ctx.fillRect( 8, 12,  1,  2);  // small nick left of crevice
+    ctx.fillRect(15, 9, 1, 10);  // main vertical seam
+    ctx.fillRect(16, 15, 5, 1);  // horizontal crack right
+    ctx.fillRect(8, 12, 1, 2);  // small nick left of crevice
 
     c.refresh();
   }
@@ -284,7 +284,7 @@ export class BootScene extends Phaser.Scene {
   // ─── Leaf particle texture (8 × 8) ─────────────────────────────────────────
 
   private makeLeaf(): void {
-    const c   = this.textures.createCanvas('leaf', 8, 8)!;
+    const c = this.textures.createCanvas('leaf', 8, 8)!;
     const ctx = c.getContext();
     // White body so tint fully controls the leaf colour
     ctx.fillStyle = '#ffffff';
@@ -309,10 +309,10 @@ export class BootScene extends Phaser.Scene {
 
   private makeLightMask(): void {
     const SIZE = 256;
-    const c   = this.textures.createCanvas('light-mask', SIZE, SIZE)!;
+    const c = this.textures.createCanvas('light-mask', SIZE, SIZE)!;
     const ctx = c.getContext();
-    const cx  = SIZE / 2;
-    const cy  = SIZE / 2;
+    const cx = SIZE / 2;
+    const cy = SIZE / 2;
 
     const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, SIZE / 2);
     grad.addColorStop(0.00, 'rgba(255, 255, 255, 1.00)'); // fully removes darkness
@@ -329,7 +329,7 @@ export class BootScene extends Phaser.Scene {
   // ─── Sparkle particle texture (5 × 5) ──────────────────────────────────────
 
   private makeSparkle(): void {
-    const c   = this.textures.createCanvas('sparkle', 5, 5)!;
+    const c = this.textures.createCanvas('sparkle', 5, 5)!;
     const ctx = c.getContext();
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(2, 0, 1, 5); // vertical arm
@@ -340,7 +340,7 @@ export class BootScene extends Phaser.Scene {
   // ─── Smoke-puff particle texture (6 × 6) ────────────────────────────────────
 
   private makeSmokePuff(): void {
-    const c   = this.textures.createCanvas('smoke-puff', 6, 6)!;
+    const c = this.textures.createCanvas('smoke-puff', 6, 6)!;
     const ctx = c.getContext();
     ctx.fillStyle = '#C8C8D8';
     ctx.fillRect(0, 0, 6, 6);
@@ -388,8 +388,8 @@ export class BootScene extends Phaser.Scene {
     // Dark body
     ctx.fillStyle = '#2E6B5A';
     ctx.fillRect(1, 5, 10, 4);
-    ctx.fillRect(3, 2,  6, 4);
-    ctx.fillRect(4, 1,  4, 2);
+    ctx.fillRect(3, 2, 6, 4);
+    ctx.fillRect(4, 1, 4, 2);
     // Mid tone
     ctx.fillStyle = '#3A7D6B';
     ctx.fillRect(2, 5, 8, 3);
@@ -504,26 +504,26 @@ export class BootScene extends Phaser.Scene {
     ctx.fillRect(3, 29, 26, 3);
 
     // Base plinth
-    ctx.fillStyle = D;  ctx.fillRect(3, 26, 26, 3);
-    ctx.fillStyle = K;  ctx.fillRect(4, 27, 24, 1);
+    ctx.fillStyle = D; ctx.fillRect(3, 26, 26, 3);
+    ctx.fillStyle = K; ctx.fillRect(4, 27, 24, 1);
 
     // LEFT ARMREST — side face
-    ctx.fillStyle = D;  ctx.fillRect(0, 8, 5, 18);
-    ctx.fillStyle = K;  ctx.fillRect(1, 9, 3, 16);
-    ctx.fillStyle = M;  ctx.fillRect(1, 9, 2, 10);
+    ctx.fillStyle = D; ctx.fillRect(0, 8, 5, 18);
+    ctx.fillStyle = K; ctx.fillRect(1, 9, 3, 16);
+    ctx.fillStyle = M; ctx.fillRect(1, 9, 2, 10);
     // Left armrest — top cap
-    ctx.fillStyle = D;  ctx.fillRect(0, 5, 6, 4);
-    ctx.fillStyle = L;  ctx.fillRect(1, 6, 4, 2);
-    ctx.fillStyle = B;  ctx.fillRect(1, 6, 3, 1);
+    ctx.fillStyle = D; ctx.fillRect(0, 5, 6, 4);
+    ctx.fillStyle = L; ctx.fillRect(1, 6, 4, 2);
+    ctx.fillStyle = B; ctx.fillRect(1, 6, 3, 1);
 
     // RIGHT ARMREST — side face
-    ctx.fillStyle = D;  ctx.fillRect(27, 8, 5, 18);
-    ctx.fillStyle = K;  ctx.fillRect(28, 9, 3, 16);
-    ctx.fillStyle = M;  ctx.fillRect(29, 9, 2, 10);
+    ctx.fillStyle = D; ctx.fillRect(27, 8, 5, 18);
+    ctx.fillStyle = K; ctx.fillRect(28, 9, 3, 16);
+    ctx.fillStyle = M; ctx.fillRect(29, 9, 2, 10);
     // Right armrest — top cap
-    ctx.fillStyle = D;  ctx.fillRect(26, 5, 6, 4);
-    ctx.fillStyle = L;  ctx.fillRect(27, 6, 4, 2);
-    ctx.fillStyle = B;  ctx.fillRect(28, 6, 3, 1);
+    ctx.fillStyle = D; ctx.fillRect(26, 5, 6, 4);
+    ctx.fillStyle = L; ctx.fillRect(27, 6, 4, 2);
+    ctx.fillStyle = B; ctx.fillRect(28, 6, 3, 1);
 
     // BACK CUSHIONS — 3 × 6 px, symmetric (x=5-26)
     ctx.fillStyle = D;
@@ -533,30 +533,30 @@ export class BootScene extends Phaser.Scene {
 
     // Headrest top roll — bright top edge + dark fold
     ctx.fillStyle = H;
-    ctx.fillRect(6, 2, 6, 1);  ctx.fillRect(13, 2, 6, 1);  ctx.fillRect(20, 2, 6, 1);
+    ctx.fillRect(6, 2, 6, 1); ctx.fillRect(13, 2, 6, 1); ctx.fillRect(20, 2, 6, 1);
     ctx.fillStyle = K;
-    ctx.fillRect(6, 3, 6, 1);  ctx.fillRect(13, 3, 6, 1);  ctx.fillRect(20, 3, 6, 1);
+    ctx.fillRect(6, 3, 6, 1); ctx.fillRect(13, 3, 6, 1); ctx.fillRect(20, 3, 6, 1);
 
     // Left back cushion
-    ctx.fillStyle = L;  ctx.fillRect(6,  4, 6, 9);
-    ctx.fillStyle = H;  ctx.fillRect(6,  4, 5, 5);
-    ctx.fillStyle = B;  ctx.fillRect(6,  4, 4, 2);
-    ctx.fillStyle = M;  ctx.fillRect(6, 12, 6, 2);  // bottom shadow
+    ctx.fillStyle = L; ctx.fillRect(6, 4, 6, 9);
+    ctx.fillStyle = H; ctx.fillRect(6, 4, 5, 5);
+    ctx.fillStyle = B; ctx.fillRect(6, 4, 4, 2);
+    ctx.fillStyle = M; ctx.fillRect(6, 12, 6, 2);  // bottom shadow
 
     // Center back cushion
-    ctx.fillStyle = L;  ctx.fillRect(13,  4, 6, 9);
-    ctx.fillStyle = H;  ctx.fillRect(13,  4, 5, 5);
-    ctx.fillStyle = B;  ctx.fillRect(13,  4, 4, 2);
-    ctx.fillStyle = M;  ctx.fillRect(13, 12, 6, 2);
+    ctx.fillStyle = L; ctx.fillRect(13, 4, 6, 9);
+    ctx.fillStyle = H; ctx.fillRect(13, 4, 5, 5);
+    ctx.fillStyle = B; ctx.fillRect(13, 4, 4, 2);
+    ctx.fillStyle = M; ctx.fillRect(13, 12, 6, 2);
 
     // Right back cushion
-    ctx.fillStyle = L;  ctx.fillRect(20,  4, 6, 9);
-    ctx.fillStyle = H;  ctx.fillRect(20,  4, 5, 5);
-    ctx.fillStyle = B;  ctx.fillRect(20,  4, 4, 2);
-    ctx.fillStyle = M;  ctx.fillRect(20, 12, 6, 2);
+    ctx.fillStyle = L; ctx.fillRect(20, 4, 6, 9);
+    ctx.fillStyle = H; ctx.fillRect(20, 4, 5, 5);
+    ctx.fillStyle = B; ctx.fillRect(20, 4, 4, 2);
+    ctx.fillStyle = M; ctx.fillRect(20, 12, 6, 2);
 
     // Back-seat welt seam
-    ctx.fillStyle = K;  ctx.fillRect(6, 14, 20, 1);
+    ctx.fillStyle = K; ctx.fillRect(6, 14, 20, 1);
 
     // SEAT CUSHIONS — 3 × 6 px
     ctx.fillStyle = D;
@@ -565,25 +565,25 @@ export class BootScene extends Phaser.Scene {
     ctx.fillRect(19, 15, 1, 8);
 
     // Left seat
-    ctx.fillStyle = L;  ctx.fillRect(6, 16, 6, 6);
-    ctx.fillStyle = H;  ctx.fillRect(6, 16, 5, 3);
-    ctx.fillStyle = B;  ctx.fillRect(6, 16, 4, 1);
-    ctx.fillStyle = M;  ctx.fillRect(6, 21, 6, 2);
+    ctx.fillStyle = L; ctx.fillRect(6, 16, 6, 6);
+    ctx.fillStyle = H; ctx.fillRect(6, 16, 5, 3);
+    ctx.fillStyle = B; ctx.fillRect(6, 16, 4, 1);
+    ctx.fillStyle = M; ctx.fillRect(6, 21, 6, 2);
 
     // Center seat
-    ctx.fillStyle = L;  ctx.fillRect(13, 16, 6, 6);
-    ctx.fillStyle = H;  ctx.fillRect(13, 16, 5, 3);
-    ctx.fillStyle = B;  ctx.fillRect(13, 16, 4, 1);
-    ctx.fillStyle = M;  ctx.fillRect(13, 21, 6, 2);
+    ctx.fillStyle = L; ctx.fillRect(13, 16, 6, 6);
+    ctx.fillStyle = H; ctx.fillRect(13, 16, 5, 3);
+    ctx.fillStyle = B; ctx.fillRect(13, 16, 4, 1);
+    ctx.fillStyle = M; ctx.fillRect(13, 21, 6, 2);
 
     // Right seat
-    ctx.fillStyle = L;  ctx.fillRect(20, 16, 6, 6);
-    ctx.fillStyle = H;  ctx.fillRect(20, 16, 5, 3);
-    ctx.fillStyle = B;  ctx.fillRect(20, 16, 4, 1);
-    ctx.fillStyle = M;  ctx.fillRect(20, 21, 6, 2);
+    ctx.fillStyle = L; ctx.fillRect(20, 16, 6, 6);
+    ctx.fillStyle = H; ctx.fillRect(20, 16, 5, 3);
+    ctx.fillStyle = B; ctx.fillRect(20, 16, 4, 1);
+    ctx.fillStyle = M; ctx.fillRect(20, 21, 6, 2);
 
     // Seat front welt
-    ctx.fillStyle = K;  ctx.fillRect(6, 22, 20, 1);
+    ctx.fillStyle = K; ctx.fillRect(6, 22, 20, 1);
 
     // LOWER RECLINER PANELS (footrest area)
     ctx.fillStyle = D;
@@ -591,9 +591,9 @@ export class BootScene extends Phaser.Scene {
     ctx.fillRect(12, 23, 1, 3);
     ctx.fillRect(19, 23, 1, 3);
     ctx.fillStyle = M;
-    ctx.fillRect(6, 23, 6, 3);  ctx.fillRect(13, 23, 6, 3);  ctx.fillRect(20, 23, 6, 3);
+    ctx.fillRect(6, 23, 6, 3); ctx.fillRect(13, 23, 6, 3); ctx.fillRect(20, 23, 6, 3);
     ctx.fillStyle = L;
-    ctx.fillRect(6, 23, 5, 2);  ctx.fillRect(13, 23, 5, 2);  ctx.fillRect(20, 23, 5, 2);
+    ctx.fillRect(6, 23, 5, 2); ctx.fillRect(13, 23, 5, 2); ctx.fillRect(20, 23, 5, 2);
 
     c.refresh();
   }
@@ -739,7 +739,7 @@ export class BootScene extends Phaser.Scene {
 
     // Horizontal wood grain lines
     ctx.fillStyle = '#9A7228';
-    ctx.fillRect(4,  9, 24, 1);
+    ctx.fillRect(4, 9, 24, 1);
     ctx.fillRect(6, 11, 20, 1);
 
     // Pine knot
@@ -873,14 +873,14 @@ export class BootScene extends Phaser.Scene {
     }
     // white pieces (on dark squares)
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(10, 9,  2, 2); // col 1, row 0
+    ctx.fillRect(10, 9, 2, 2); // col 1, row 0
     ctx.fillRect(14, 13, 2, 2); // col 3, row 2
     ctx.fillRect(18, 17, 2, 2); // col 5, row 4
     ctx.fillRect(22, 21, 2, 2); // col 7, row 6
     ctx.fillRect(10, 21, 2, 2); // col 1, row 6
     // black pieces (on light squares)
     ctx.fillStyle = '#1A1A1A';
-    ctx.fillRect(16, 9,  2, 2); // col 4, row 0
+    ctx.fillRect(16, 9, 2, 2); // col 4, row 0
     ctx.fillRect(20, 13, 2, 2); // col 6, row 2
     ctx.fillRect(12, 13, 2, 2); // col 2, row 2
     ctx.fillRect(16, 17, 2, 2); // col 4, row 4
@@ -934,7 +934,7 @@ export class BootScene extends Phaser.Scene {
     // Three pillar shadows — start right at holder bottom (y=25).
     // Heights reflect candle heights: left=4, center=6 (tallest), right=3.
     ctx.fillStyle = 'rgba(0,0,0,0.22)';
-    ctx.fillRect(9,  25, 2, 4);  // left candle shadow
+    ctx.fillRect(9, 25, 2, 4);  // left candle shadow
     ctx.fillRect(15, 25, 2, 6);  // center candle shadow (longest)
     ctx.fillRect(21, 25, 2, 3);  // right candle shadow
     // Holder plate
@@ -1132,7 +1132,7 @@ export class BootScene extends Phaser.Scene {
     ctx.fillRect(2, 3, 28, 25);
     // Horizontal wood grain
     ctx.fillStyle = '#5A3018';
-    ctx.fillRect(2,  9, 28, 1);
+    ctx.fillRect(2, 9, 28, 1);
     ctx.fillRect(2, 16, 28, 1);
     ctx.fillRect(2, 23, 28, 1);
     // Upper inset panel
@@ -1168,28 +1168,28 @@ export class BootScene extends Phaser.Scene {
 
     // Row 1  (y = 0 .. 9)  — two stones, 1 px left/right edge + 1 px seam at x=15
     ctx.fillStyle = '#8A8078';
-    ctx.fillRect(1,  0, 14, 10);  // left stone  x=1..14
+    ctx.fillRect(1, 0, 14, 10);  // left stone  x=1..14
     ctx.fillRect(16, 0, 15, 10);  // right stone x=16..30
     ctx.fillStyle = '#A09890';
-    ctx.fillRect(2,  1, 12, 8);
+    ctx.fillRect(2, 1, 12, 8);
     ctx.fillRect(17, 1, 13, 8);
     ctx.fillStyle = '#C0B8B0';
-    ctx.fillRect(2,  1, 4, 2);
+    ctx.fillRect(2, 1, 4, 2);
     ctx.fillRect(17, 1, 4, 2);
 
     // y=10 is the horizontal mortar course between rows 1 and 2.
 
     // Row 2  (y = 11 .. 20)  — offset: left-half + centre + right-half
     ctx.fillStyle = '#8A8078';
-    ctx.fillRect(1,  11, 7,  10); // left half   x=1..7
-    ctx.fillRect(9,  11, 14, 10); // centre      x=9..22
-    ctx.fillRect(24, 11, 7,  10); // right half  x=24..30
+    ctx.fillRect(1, 11, 7, 10); // left half   x=1..7
+    ctx.fillRect(9, 11, 14, 10); // centre      x=9..22
+    ctx.fillRect(24, 11, 7, 10); // right half  x=24..30
     ctx.fillStyle = '#A09890';
-    ctx.fillRect(2,  12, 5, 8);
+    ctx.fillRect(2, 12, 5, 8);
     ctx.fillRect(10, 12, 12, 8);
     ctx.fillRect(25, 12, 5, 8);
     ctx.fillStyle = '#C0B8B0';
-    ctx.fillRect(2,  12, 3, 2);
+    ctx.fillRect(2, 12, 3, 2);
     ctx.fillRect(10, 12, 4, 2);
     ctx.fillRect(25, 12, 3, 2);
 
@@ -1197,13 +1197,13 @@ export class BootScene extends Phaser.Scene {
 
     // Row 3  (y = 22 .. 31)  — same pattern as row 1
     ctx.fillStyle = '#8A8078';
-    ctx.fillRect(1,  22, 14, 10);
+    ctx.fillRect(1, 22, 14, 10);
     ctx.fillRect(16, 22, 15, 10);
     ctx.fillStyle = '#A09890';
-    ctx.fillRect(2,  23, 12, 8);
+    ctx.fillRect(2, 23, 12, 8);
     ctx.fillRect(17, 23, 13, 8);
     ctx.fillStyle = '#C0B8B0';
-    ctx.fillRect(2,  23, 4, 2);
+    ctx.fillRect(2, 23, 4, 2);
     ctx.fillRect(17, 23, 4, 2);
 
     // South-face shadow — bottom 6 px progressively darkened to give the wall
