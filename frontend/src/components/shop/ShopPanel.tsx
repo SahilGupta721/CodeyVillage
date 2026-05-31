@@ -1094,7 +1094,7 @@ const BASE_CATEGORIES: ShopCategory[] = [
     label: 'Furniture',
     emoji: '🛋️',
     items: [
-      { id: 'wooden-chair', name: 'Wooden Chair', emoji: '🪑', icon: <WoodenChairIcon />, price: 80 },
+      { id: 'wooden-chair', name: 'Oak Chair', emoji: '🪑', icon: <WoodenChairIcon />, price: 80 },
       { id: 'cozy-sofa', name: 'Cozy Sofa', emoji: '🛋️', icon: <CozySofaIcon />, price: 220 },
       { id: 'oak-dresser', name: 'Oak Dresser', emoji: '🪞', icon: <OakDresserIcon />, price: 150 },
       { id: 'feather-bed', name: 'Feather Bed', emoji: '🛏️', icon: <FeatherBedIcon />, price: 350 },
