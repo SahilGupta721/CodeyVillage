@@ -44,9 +44,15 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:800
 // Visual depth of placed shop items, y-sorted so taller props occlude correctly.
 const PLACED_ITEM_DEPTH_BASE = 60;
 // Items that emit light — world-space radius of the illuminated circle (px).
-const LIGHT_SOURCES: Record<string, { worldRadius: number; yOffset: number; tint?: number; tintAlpha?: number }> = {
-  'candle-set': { worldRadius: 96, yOffset: -10 },
-  'fairy-lantern': { worldRadius: 144, yOffset: -14 },
+// buildingFill: when placed inside a building, expand the light to cover the full interior.
+// buildingEraseAlpha: how completely the building darkness is erased (1 = fully lit, <1 = dimmer).
+// buildingTintAlpha: strength of the warm tint when filling a building interior.
+const LIGHT_SOURCES: Record<string, {
+  worldRadius: number; yOffset: number; tint?: number; tintAlpha?: number;
+  buildingFill?: boolean; buildingEraseAlpha?: number; buildingTintAlpha?: number;
+}> = {
+  'candle-set':    { worldRadius: 96,  yOffset: -10, buildingFill: true, buildingEraseAlpha: 0.82, buildingTintAlpha: 0.52 },
+  'fairy-lantern': { worldRadius: 144, yOffset: -14, buildingFill: true, buildingEraseAlpha: 1.0,  buildingTintAlpha: 0.28 },
   'arcade-machine': { worldRadius: 40, yOffset: -7, tint: 0x4488ff, tintAlpha: 0.18 },
 };
 
@@ -184,7 +190,12 @@ export class GameScene extends Phaser.Scene {
   private escKey: Phaser.Input.Keyboard.Key | null = null;
   private nightRT: Phaser.GameObjects.RenderTexture | null = null;
   private nightMaskImg: Phaser.GameObjects.Image | null = null;
-  private lightSources: Map<string, { x: number; y: number; worldRadius: number; yOffset: number; tint?: number; tintAlpha?: number }> = new Map();
+  private lightSources: Map<string, {
+    x: number; y: number; worldRadius: number; yOffset: number;
+    tint?: number; tintAlpha?: number; eraseAlpha?: number;
+    buildingRect?: { left: number; top: number; width: number; height: number };
+  }> = new Map();
+  private buildingLightGfx: Phaser.GameObjects.Graphics | null = null;
   private arcadeScreens: Map<string, { gfx: Phaser.GameObjects.Graphics; timer: number }> = new Map();
   private lastNightCheck = 0;
   private currentNightAlpha = 0;
@@ -1328,7 +1339,31 @@ export class GameScene extends Phaser.Scene {
     // Register light sources so updateNightOverlay can punch holes in the darkness.
     const lightCfg = LIGHT_SOURCES[itemId];
     if (lightCfg && id) {
-      this.lightSources.set(id, { x, y, worldRadius: lightCfg.worldRadius, yOffset: lightCfg.yOffset, tint: lightCfg.tint, tintAlpha: lightCfg.tintAlpha });
+      let eraseAlpha = 1.0;
+      let tintAlpha = lightCfg.tintAlpha;
+      let buildingRect: { left: number; top: number; width: number; height: number } | undefined;
+
+      if (lightCfg.buildingFill) {
+        const b = this.findBuildingAt(x, y);
+        if (b) {
+          // When indoors, store the building's interior rect so updateNightOverlay
+          // can erase exactly that rectangle — no circular spill through walls.
+          const WALL = 6;
+          buildingRect = {
+            left:   b.tileX * TILE_SIZE + WALL,
+            top:    b.tileY * TILE_SIZE + WALL,
+            width:  b.tileW * TILE_SIZE - WALL * 2,
+            height: b.tileH * TILE_SIZE - WALL * 2,
+          };
+          eraseAlpha = lightCfg.buildingEraseAlpha ?? 1.0;
+          tintAlpha  = lightCfg.buildingTintAlpha  ?? tintAlpha;
+        }
+      }
+
+      this.lightSources.set(id, {
+        x, y, worldRadius: lightCfg.worldRadius, yOffset: lightCfg.yOffset,
+        tint: lightCfg.tint, tintAlpha, eraseAlpha, buildingRect,
+      });
     }
     if (itemId === 'arcade-machine' && id) {
       const depth = PLACED_ITEM_DEPTH_BASE + y * 0.001 + 0.5;
@@ -1619,6 +1654,9 @@ export class GameScene extends Phaser.Scene {
       .setDepth(190);
     this.nightMaskImg = this.make.image({ key: 'light-mask', add: false })
       .setOrigin(0.5, 0.5);
+    // Reusable Graphics object for erasing/drawing sharp rectangular building interiors.
+    // Sits at (0,0) so fillRect coordinates map directly to world pixels.
+    this.buildingLightGfx = this.add.graphics().setVisible(false);
 
     this.time.addEvent({
       delay: 30_000,
@@ -1640,17 +1678,30 @@ export class GameScene extends Phaser.Scene {
     this.nightRT.fill(0x080c24, this.currentNightAlpha);
     const MASK_SIZE = 256;
     for (const light of this.lightSources.values()) {
-      const imgScale = (light.worldRadius * 2) / MASK_SIZE;
-      this.nightMaskImg
-        .setPosition(light.x, light.y + light.yOffset)
-        .setScale(imgScale)
-        .setAlpha(1)
-        .clearTint();
-      // Remove the darkness overlay within the radius.
-      this.nightRT.erase(this.nightMaskImg);
-      // Lay a warm amber tint over the revealed area so it reads as candlelight.
-      this.nightMaskImg.setTint(light.tint ?? 0xffb347).setAlpha(light.tintAlpha ?? 0.28);
-      this.nightRT.draw(this.nightMaskImg);
+      if (light.buildingRect && this.buildingLightGfx) {
+        // Indoor building-fill: erase and tint a sharp rectangle aligned to the
+        // interior walls so no light bleeds through them to the outside.
+        const { left, top, width, height } = light.buildingRect;
+        this.buildingLightGfx.clear();
+        this.buildingLightGfx.fillStyle(0xffffff, light.eraseAlpha ?? 1);
+        this.buildingLightGfx.fillRect(left, top, width, height);
+        this.nightRT.erase(this.buildingLightGfx);
+        this.buildingLightGfx.clear();
+        this.buildingLightGfx.fillStyle(light.tint ?? 0xffb347, light.tintAlpha ?? 0.28);
+        this.buildingLightGfx.fillRect(left, top, width, height);
+        this.nightRT.draw(this.buildingLightGfx);
+      } else {
+        // Outdoor / non-building-fill: standard radial gradient mask.
+        const imgScale = (light.worldRadius * 2) / MASK_SIZE;
+        this.nightMaskImg
+          .setPosition(light.x, light.y + light.yOffset)
+          .setScale(imgScale)
+          .setAlpha(light.eraseAlpha ?? 1)
+          .clearTint();
+        this.nightRT.erase(this.nightMaskImg);
+        this.nightMaskImg.setTint(light.tint ?? 0xffb347).setAlpha(light.tintAlpha ?? 0.28);
+        this.nightRT.draw(this.nightMaskImg);
+      }
     }
   }
 
