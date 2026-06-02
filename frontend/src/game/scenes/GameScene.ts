@@ -51,7 +51,7 @@ const LIGHT_SOURCES: Record<string, {
   worldRadius: number; yOffset: number; tint?: number; tintAlpha?: number;
   buildingFill?: boolean; buildingEraseAlpha?: number; buildingTintAlpha?: number;
 }> = {
-  'candle-set':    { worldRadius: 96,  yOffset: -10, buildingFill: true, buildingEraseAlpha: 0.82, buildingTintAlpha: 0.52 },
+  'candle-set':    { worldRadius: 96,  yOffset: -10, buildingFill: true, buildingEraseAlpha: 0.82, buildingTintAlpha: 0.28 },
   'fairy-lantern': { worldRadius: 144, yOffset: -14, buildingFill: true, buildingEraseAlpha: 1.0,  buildingTintAlpha: 0.28 },
   'arcade-machine': { worldRadius: 40, yOffset: -7, tint: 0x4488ff, tintAlpha: 0.18 },
 };
@@ -194,6 +194,7 @@ export class GameScene extends Phaser.Scene {
     x: number; y: number; worldRadius: number; yOffset: number;
     tint?: number; tintAlpha?: number; eraseAlpha?: number;
     buildingRect?: { left: number; top: number; width: number; height: number };
+    entranceLeak?: { x: number; y: number };
   }> = new Map();
   private buildingLightGfx: Phaser.GameObjects.Graphics | null = null;
   private arcadeScreens: Map<string, { gfx: Phaser.GameObjects.Graphics; timer: number }> = new Map();
@@ -1342,6 +1343,7 @@ export class GameScene extends Phaser.Scene {
       let eraseAlpha = 1.0;
       let tintAlpha = lightCfg.tintAlpha;
       let buildingRect: { left: number; top: number; width: number; height: number } | undefined;
+      let entranceLeak: { x: number; y: number } | undefined;
 
       if (lightCfg.buildingFill) {
         const b = this.findBuildingAt(x, y);
@@ -1357,12 +1359,20 @@ export class GameScene extends Phaser.Scene {
           };
           eraseAlpha = lightCfg.buildingEraseAlpha ?? 1.0;
           tintAlpha  = lightCfg.buildingTintAlpha  ?? tintAlpha;
+          // Leak point: centre of the 2-tile entrance, at the south wall edge.
+          // The circular gradient is centred here so it fans outward naturally —
+          // its bright core overlaps the already-lit interior (no effect there)
+          // and the fade zone spills onto the ground just outside the doorway.
+          entranceLeak = {
+            x: (b.tileX + b.doorOffset + 1) * TILE_SIZE,
+            y: (b.tileY + b.tileH) * TILE_SIZE,
+          };
         }
       }
 
       this.lightSources.set(id, {
         x, y, worldRadius: lightCfg.worldRadius, yOffset: lightCfg.yOffset,
-        tint: lightCfg.tint, tintAlpha, eraseAlpha, buildingRect,
+        tint: lightCfg.tint, tintAlpha, eraseAlpha, buildingRect, entranceLeak,
       });
     }
     if (itemId === 'arcade-machine' && id) {
@@ -1690,6 +1700,24 @@ export class GameScene extends Phaser.Scene {
         this.buildingLightGfx.fillStyle(light.tint ?? 0xffb347, light.tintAlpha ?? 0.28);
         this.buildingLightGfx.fillRect(left, top, width, height);
         this.nightRT.draw(this.buildingLightGfx);
+
+        // Entrance light leak: a soft radial gradient centred on the doorway.
+        // Radius ~1.5 tiles so it fans a natural wedge onto the ground outside.
+        // eraseAlpha and tintAlpha are scaled down to keep the leak subtle.
+        if (light.entranceLeak) {
+          const LEAK_RADIUS = 52;
+          const leakScale = (LEAK_RADIUS * 2) / MASK_SIZE;
+          this.nightMaskImg
+            .setPosition(light.entranceLeak.x, light.entranceLeak.y)
+            .setScale(leakScale)
+            .setAlpha((light.eraseAlpha ?? 1) * 0.70)
+            .clearTint();
+          this.nightRT.erase(this.nightMaskImg);
+          this.nightMaskImg
+            .setTint(light.tint ?? 0xffb347)
+            .setAlpha((light.tintAlpha ?? 0.28) * 0.75);
+          this.nightRT.draw(this.nightMaskImg);
+        }
       } else {
         // Outdoor / non-building-fill: standard radial gradient mask.
         const imgScale = (light.worldRadius * 2) / MASK_SIZE;
