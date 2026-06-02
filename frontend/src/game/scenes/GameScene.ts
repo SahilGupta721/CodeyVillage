@@ -4,6 +4,7 @@
  * Rendering layers (depth order):
  *   2  village RenderTexture  — all tiles drawn once
  *   3  pond TileSprite overlay — animated ripples on the water tiles
+ *   4  rain ripples on water   — expanding circles on pond surface during rain
  *   5  building gBase         — floor, N/E/W walls, interior, furniture, step mat
  *  20  flowers / ground deco
  *  50  bushes
@@ -13,6 +14,7 @@
  * 190  night overlay RenderTexture
  * 191  firefly glow (additive blend)
  * 192  firefly bodies
+ * 193  rain drops              — diagonal streaks, masked by building footprint indoors
  * 200  UI overlay
  */
 
@@ -101,6 +103,23 @@ const REMOTE_COLORS = [
   0xe05828, 0x30a840, 0x9030c0, 0xd4a020, 0xd02860, 0x1898c0,
 ];
 
+// ─── Rain ─────────────────────────────────────────────────────────────────────
+
+interface RainDrop {
+  x: number;     // world X
+  y: number;     // world Y
+  speed: number; // fall-speed multiplier 0.85–1.15
+}
+
+interface RainRipple {
+  x: number;
+  y: number;
+  radius: number;
+  maxRadius: number;
+  age: number;
+  maxAge: number;
+}
+
 // ─── Firefly ──────────────────────────────────────────────────────────────────
 
 interface FireflyData {
@@ -176,6 +195,17 @@ export class GameScene extends Phaser.Scene {
   private fireflies: FireflyData[] = [];
   private fireflySpawnCooldown = 0;
 
+  // ─── Rain system ───────────────────────────────────────────────────────────
+  private rainGfx: Phaser.GameObjects.Graphics | null = null;
+  private rainRippleGfx: Phaser.GameObjects.Graphics | null = null;
+  private rainActive = false;
+  private rainIntensity = 0;          // 0–1, lerped for smooth fade in/out
+  private rainDrops: RainDrop[] = [];
+  private rainRipples: RainRipple[] = [];
+  private rainRippleTimer = 0;
+  private lastRainCheck = -Infinity;
+  private cachedWaterTiles: Array<{ x: number; y: number }> = [];
+
   constructor() { super({ key: 'GameScene' }); }
 
   // ─── create ───────────────────────────────────────────────────────────────
@@ -218,6 +248,7 @@ export class GameScene extends Phaser.Scene {
     this.addLeafParticles();
     this.setupNightCycle();
     this.initFireflies();
+    this.initRain();
 
     this.cursors = this.input.keyboard!.createCursorKeys();
     this.wasd = {
@@ -297,6 +328,7 @@ export class GameScene extends Phaser.Scene {
     this.updateDoorAnimations();
     this.updateNightOverlay(time);
     this.updateFireflies(delta);
+    this.updateRain(time, delta);
     this.updateArcadeScreens(delta);
     if (this.placement && this.escKey && Phaser.Input.Keyboard.JustDown(this.escKey)) {
       this.cancelPlacement();
@@ -1798,5 +1830,181 @@ export class GameScene extends Phaser.Scene {
       const light = this.lightSources.get(id);
       if (light) light.tint = color;
     }
+  }
+
+  // ─── Rain system ─────────────────────────────────────────────────────────
+
+  private initRain(): void {
+    // Rain drops at depth 193 (above fireflies), ripples at depth 4 (above water tiles)
+    this.rainGfx = this.add.graphics().setDepth(193);
+    this.rainRippleGfx = this.add.graphics().setDepth(4);
+
+    // Pre-compute world-space centers of every water tile for ripple spawning
+    for (let y = 0; y < MAP_HEIGHT; y++) {
+      for (let x = 0; x < MAP_WIDTH; x++) {
+        if (this.island.tiles[y][x] === TileType.WATER) {
+          this.cachedWaterTiles.push({
+            x: x * TILE_SIZE + TILE_SIZE / 2,
+            y: y * TILE_SIZE + TILE_SIZE / 2,
+          });
+        }
+      }
+    }
+
+    // Seed 140 drops randomly across the world; the update loop will
+    // immediately migrate any that are outside the viewport to the top.
+    for (let i = 0; i < 140; i++) {
+      this.rainDrops.push({
+        x: Math.random() * WORLD_WIDTH,
+        y: Math.random() * WORLD_HEIGHT,
+        speed: 0.85 + Math.random() * 0.3,
+      });
+    }
+
+    this.rainActive = this.checkRainActive();
+    if (this.rainActive) this.rainIntensity = 1;
+  }
+
+  /**
+   * Returns two deterministic rain events for the given ISO week key.
+   * Both the day-of-week (0 = Sunday … 6 = Saturday) and whether the rain
+   * falls during the day or at night are derived from a seeded LCG so that
+   * every connected client sees the same schedule without a backend call.
+   */
+  private getRainWeekSchedule(weekKey: number): Array<{ day: number; isNight: boolean }> {
+    const lcg = (s: number): number => ((s * 1664525 + 1013904223) >>> 0);
+    let s = lcg(weekKey ^ 0xdeadbeef);
+
+    const day1 = s % 7;
+    s = lcg(s);
+    const night1 = (s % 2) === 0;
+    s = lcg(s);
+    // Guarantee the two rain days are different
+    let day2 = s % 7;
+    if (day2 === day1) day2 = (day1 + 3) % 7;
+    s = lcg(s);
+    const night2 = (s % 2) === 0;
+
+    return [
+      { day: day1, isNight: night1 },
+      { day: day2, isNight: night2 },
+    ];
+  }
+
+  /** Returns true when the current EST time falls in a scheduled rain period. */
+  private checkRainActive(): boolean {
+    const now = new Date();
+    const est = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+    const dayOfWeek = est.getDay();
+    const h = est.getHours() + est.getMinutes() / 60;
+    // Mirror the game's own day/night boundary: 7:30 am – 7:30 pm = daytime
+    const isDaytime = h >= 7.5 && h < 19.5;
+    const weekKey = Math.floor(Date.now() / (7 * 24 * 3_600_000));
+    return this.getRainWeekSchedule(weekKey).some(
+      s => s.day === dayOfWeek && (s.isNight ? !isDaytime : isDaytime),
+    );
+  }
+
+  private updateRain(time: number, delta: number): void {
+    if (!this.rainGfx || !this.rainRippleGfx) return;
+
+    // Re-evaluate the schedule every 30 s (cheap string formatting, not every frame)
+    if (time - this.lastRainCheck > 30_000) {
+      this.rainActive = this.checkRainActive();
+      this.lastRainCheck = time;
+    }
+
+    // Smoothly fade intensity in/out over ~2 seconds
+    const target = this.rainActive ? 1 : 0;
+    this.rainIntensity = Phaser.Math.Linear(this.rainIntensity, target, delta * 0.0005);
+
+    if (this.rainIntensity < 0.01) {
+      this.rainGfx.clear();
+      this.rainRippleGfx.clear();
+      this.rainRipples = [];
+      return;
+    }
+
+    const cam = this.cameras.main;
+    const vx = cam.scrollX;
+    const vy = cam.scrollY;
+    const vw = cam.width / cam.zoom;
+    const vh = cam.height / cam.zoom;
+    const MARGIN = 64;
+
+    // Is the player currently sheltered inside a building?
+    const building = this.findBuildingAt(this.player.x, this.player.y);
+    const bLeft   = building ? building.tileX * TILE_SIZE : -1;
+    const bRight  = building ? (building.tileX + building.tileW) * TILE_SIZE : -1;
+    const bTop    = building ? building.tileY * TILE_SIZE : -1;
+    const bBottom = building ? (building.tileY + building.tileH) * TILE_SIZE : -1;
+
+    // ── Rain drop streaks ────────────────────────────────────────────────────
+    const DROP_VX = 55;   // px / sec rightward drift
+    const DROP_VY = 310;  // px / sec downward fall
+
+    this.rainGfx.clear();
+
+    for (const drop of this.rainDrops) {
+      drop.x += DROP_VX * drop.speed * delta / 1000;
+      drop.y += DROP_VY * drop.speed * delta / 1000;
+
+      // Wrap: respawn above the viewport when a drop exits the bottom or right
+      if (drop.y > vy + vh + MARGIN || drop.x > vx + vw + MARGIN) {
+        drop.x = vx + (Math.random() * (vw + MARGIN * 2)) - MARGIN;
+        drop.y = vy - Math.random() * MARGIN;
+        continue;
+      }
+
+      // Cull drops outside the visible viewport (can happen on first frames)
+      if (drop.x < vx - MARGIN || drop.y < vy - MARGIN) continue;
+
+      // If the player is indoors, skip any drop whose tip falls within the
+      // building footprint — the player is sheltered from that rain.
+      if (building && drop.x >= bLeft && drop.x <= bRight &&
+          drop.y >= bTop && drop.y <= bBottom) continue;
+
+      // Two 1-px columns offset by (1, 3) to suggest a diagonal streak
+      const alpha = this.rainIntensity * 0.55;
+      const dx = Math.round(drop.x);
+      const dy = Math.round(drop.y);
+      this.rainGfx.fillStyle(0xaad4f0, alpha);
+      this.rainGfx.fillRect(dx, dy, 1, 7);
+      this.rainGfx.fillStyle(0xc8e8ff, alpha * 0.55);
+      this.rainGfx.fillRect(dx + 1, dy + 3, 1, 5);
+    }
+
+    // ── Water ripples on the pond ────────────────────────────────────────────
+    this.rainRippleTimer -= delta;
+    if (this.rainActive && this.rainRippleTimer <= 0 && this.cachedWaterTiles.length > 0) {
+      const count = 1 + Math.floor(Math.random() * 3);
+      for (let i = 0; i < count; i++) {
+        const wt = this.cachedWaterTiles[Math.floor(Math.random() * this.cachedWaterTiles.length)];
+        // Only spawn ripples that are actually on-screen
+        if (wt.x < vx - TILE_SIZE || wt.x > vx + vw + TILE_SIZE) continue;
+        if (wt.y < vy - TILE_SIZE || wt.y > vy + vh + TILE_SIZE) continue;
+        this.rainRipples.push({
+          x: wt.x + (Math.random() - 0.5) * TILE_SIZE * 0.5,
+          y: wt.y + (Math.random() - 0.5) * TILE_SIZE * 0.5,
+          radius: 0,
+          maxRadius: 5 + Math.random() * 4,
+          age: 0,
+          maxAge: 480 + Math.random() * 280,
+        });
+      }
+      this.rainRippleTimer = 90 + Math.random() * 110;
+    }
+
+    this.rainRippleGfx.clear();
+    this.rainRipples = this.rainRipples.filter(r => {
+      r.age += delta;
+      if (r.age >= r.maxAge) return false;
+      const t = r.age / r.maxAge;
+      r.radius = r.maxRadius * t;
+      const alpha = (1 - t) * this.rainIntensity * 0.65;
+      this.rainRippleGfx!.lineStyle(1, 0x88c4e0, alpha);
+      this.rainRippleGfx!.strokeCircle(r.x, r.y, r.radius);
+      return true;
+    });
   }
 }
