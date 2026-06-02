@@ -84,6 +84,8 @@ const SHOP_ITEM_TEXTURES: Record<string, string> = {
   'spirit-bells': 'spirit-bells',
   'arcade-machine': 'arcade-machine',
   'chess-board': 'chess-board',
+  'work-desk': 'work-desk',
+  'office-chair': 'office-chair',
 };
 
 const TILE_COLORS = new Map<TileType, number>([

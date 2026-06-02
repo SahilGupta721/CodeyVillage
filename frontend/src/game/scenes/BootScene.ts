@@ -443,6 +443,8 @@ export class BootScene extends Phaser.Scene {
 
     // Tech
     this.makeArcadeMachine();
+    this.makeWorkDesk();
+    this.makeOfficeChair();
   }
 
   // ── Furniture ────────────────────────────────────────────────────────────────
@@ -1678,6 +1680,175 @@ export class BootScene extends Phaser.Scene {
     // base
     ctx.fillStyle = '#111122';
     ctx.fillRect(7, 28, 18, 2);
+    c.refresh();
+  }
+
+  // ─── Work Desk (32 × 32) — modern office desk, top-down 3/4 view ────────────
+  //
+  // White laminate surface, slim brushed-steel frame and legs, keyboard + mouse.
+
+  private makeWorkDesk(): void {
+    const c = this.textures.createCanvas('work-desk', 32, 32)!;
+    const ctx = c.getContext();
+
+    // Drop shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.22)';
+    ctx.fillRect(3, 28, 26, 4);
+
+    // Legs — brushed dark steel, drawn before desktop so surface overlaps their tops
+    ctx.fillStyle = '#171B1F';
+    ctx.fillRect(3, 15, 5, 12);
+    ctx.fillRect(24, 15, 5, 12);
+    ctx.fillStyle = '#262E36';
+    ctx.fillRect(4, 16, 3, 10);
+    ctx.fillRect(25, 16, 3, 10);
+    ctx.fillStyle = '#36404A';
+    ctx.fillRect(4, 16, 1, 8);    // lit left face, left leg
+    ctx.fillRect(25, 16, 1, 8);   // lit left face, right leg
+
+    // Under-desk cable tray / cross-bar
+    ctx.fillStyle = '#1A1E22';
+    ctx.fillRect(8, 22, 16, 3);
+    ctx.fillStyle = '#262E36';
+    ctx.fillRect(9, 23, 14, 1);
+
+    // Front apron — slim dark-steel face visible below the surface
+    ctx.fillStyle = '#141618';
+    ctx.fillRect(2, 13, 28, 4);
+    ctx.fillStyle = '#22282E';
+    ctx.fillRect(3, 14, 26, 2);
+    ctx.fillStyle = '#323A42';
+    ctx.fillRect(3, 14, 12, 1);   // highlight strip on apron top edge
+
+    // Desktop outer border
+    ctx.fillStyle = '#141618';
+    ctx.fillRect(1, 4, 30, 10);
+
+    // Main laminate surface — clean white
+    ctx.fillStyle = '#F2F2F2';
+    ctx.fillRect(2, 5, 28, 8);
+
+    // Upper-left lit zone (overhead lighting)
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(3, 5, 18, 4);
+
+    // Front-edge shadow (depth)
+    ctx.fillStyle = '#D4D4D4';
+    ctx.fillRect(2, 11, 28, 2);
+
+    // ── Keyboard (chiclet style) ──────────────────────────────────────────────
+    ctx.fillStyle = '#B8BCC8';
+    ctx.fillRect(5, 6, 14, 4);
+    ctx.fillStyle = '#CDD0DA';
+    ctx.fillRect(6, 6, 12, 3);
+    // Keycap rows
+    ctx.fillStyle = '#A4A8B6';
+    ctx.fillRect(6, 6, 2, 1);
+    ctx.fillRect(9, 6, 2, 1);
+    ctx.fillRect(12, 6, 2, 1);
+    ctx.fillRect(15, 6, 2, 1);
+    ctx.fillRect(7, 8, 3, 1);
+    ctx.fillRect(11, 8, 3, 1);
+    ctx.fillRect(15, 8, 2, 1);
+    // Space bar
+    ctx.fillStyle = '#B4B8C4';
+    ctx.fillRect(8, 9, 8, 1);
+
+    // ── Mouse ─────────────────────────────────────────────────────────────────
+    ctx.fillStyle = '#C4C8D0';
+    ctx.fillRect(22, 6, 5, 6);
+    ctx.fillStyle = '#D8DCE4';
+    ctx.fillRect(23, 6, 3, 3);    // lit top
+    ctx.fillStyle = '#9EA2AE';
+    ctx.fillRect(23, 9, 3, 1);    // click-line separator
+
+    c.refresh();
+  }
+
+  // ─── Office Chair (32 × 32) — ergonomic mesh chair, top-down 3/4 view ───────
+  //
+  // Tall mesh backrest, padded seat, T-armrests, 5-spoke caster base.
+
+  private makeOfficeChair(): void {
+    const c = this.textures.createCanvas('office-chair', 32, 32)!;
+    const ctx = c.getContext();
+
+    // Drop shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.22)';
+    ctx.fillRect(9, 29, 14, 3);
+
+    // ── 5-spoke caster base ───────────────────────────────────────────────────
+    ctx.fillStyle = '#1C1C1C';
+    ctx.fillRect(14, 19, 4, 9);   // N–S spoke
+    ctx.fillRect(7,  22, 18, 4);  // E–W spoke (also forms hub)
+    ctx.fillRect(10, 19, 3, 4);   // NW spoke
+    ctx.fillRect(19, 19, 3, 4);   // NE spoke
+
+    // Caster wheels at spoke tips
+    ctx.fillStyle = '#2E2E2E';
+    ctx.fillRect(14, 17, 4, 2);   // N
+    ctx.fillRect(5,  22, 3, 4);   // W
+    ctx.fillRect(24, 22, 3, 4);   // E
+    ctx.fillRect(8,  17, 3, 2);   // NW
+    ctx.fillRect(21, 17, 3, 2);   // NE
+
+    // Center hub
+    ctx.fillStyle = '#282828';
+    ctx.fillRect(13, 21, 6, 5);
+    ctx.fillStyle = '#3C3C3C';
+    ctx.fillRect(14, 22, 4, 3);
+
+    // Gas-lift cylinder
+    ctx.fillStyle = '#222222';
+    ctx.fillRect(14, 16, 4, 6);
+    ctx.fillStyle = '#484848';
+    ctx.fillRect(15, 17, 2, 4);   // polished shaft highlight
+
+    // ── Armrests ──────────────────────────────────────────────────────────────
+    ctx.fillStyle = '#181818';
+    ctx.fillRect(4, 15, 5, 7);
+    ctx.fillRect(23, 15, 5, 7);
+    ctx.fillStyle = '#2C2C2C';
+    ctx.fillRect(5, 16, 3, 5);
+    ctx.fillRect(24, 16, 3, 5);
+
+    // ── Seat cushion ──────────────────────────────────────────────────────────
+    ctx.fillStyle = '#181818';
+    ctx.fillRect(8, 13, 16, 9);
+    ctx.fillStyle = '#282828';
+    ctx.fillRect(9, 14, 14, 7);
+    ctx.fillStyle = '#383838';
+    ctx.fillRect(10, 14, 8, 5);   // lit upper-left area
+    ctx.fillStyle = '#404040';
+    ctx.fillRect(10, 14, 7, 1);   // brightest top edge
+
+    // ── Backrest (tall mesh panel) ────────────────────────────────────────────
+    ctx.fillStyle = '#141414';
+    ctx.fillRect(9, 1, 14, 14);   // outer frame
+    ctx.fillStyle = '#202020';
+    ctx.fillRect(10, 2, 12, 12);  // mesh panel body
+    // Mesh grid — horizontal rails
+    ctx.fillStyle = '#141414';
+    ctx.fillRect(10, 5,  12, 1);
+    ctx.fillRect(10, 8,  12, 1);
+    ctx.fillRect(10, 11, 12, 1);
+    // Mesh grid — vertical dividers
+    ctx.fillRect(14, 2, 1, 12);
+    ctx.fillRect(18, 2, 1, 12);
+    // Lit upper-left zone (ambient overhead light)
+    ctx.fillStyle = '#303030';
+    ctx.fillRect(11, 3, 6, 4);
+    // Lumbar support bulge (lower third)
+    ctx.fillStyle = '#1C1C1C';
+    ctx.fillRect(10, 9, 12, 4);
+    ctx.fillStyle = '#2A2A2A';
+    ctx.fillRect(11, 10, 10, 2);
+    // Headrest cap
+    ctx.fillStyle = '#181818';
+    ctx.fillRect(11, 1, 10, 2);
+    ctx.fillStyle = '#363636';
+    ctx.fillRect(12, 1, 7, 1);    // cap highlight
+
     c.refresh();
   }
 }

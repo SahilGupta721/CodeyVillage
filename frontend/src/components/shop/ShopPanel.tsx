@@ -1133,6 +1133,8 @@ const BASE_CATEGORIES: ShopCategory[] = [
     emoji: '🕹️',
     items: [
       { id: 'arcade-machine', name: 'Arcade Machine', emoji: '🕹️', icon: <ArcadeMachineIcon />, price: 500 },
+      { id: 'work-desk',      name: 'Work Desk',      emoji: '🖥️', price: 500 },
+      { id: 'office-chair',   name: 'Office Chair',   emoji: '🪑', price: 500 },
     ],
   },
   {
