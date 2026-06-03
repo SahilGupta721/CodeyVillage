@@ -1221,7 +1221,7 @@ const BASE_CATEGORIES: ShopCategory[] = [
   },
   {
     id: 'beach',
-    label: 'Beach',
+    label: 'Beach & Water',
     emoji: '🏖️',
     items: [
       { id: 'sandcastle', name: 'Sandcastle', emoji: '🏰', icon: <SandcastleIcon />, price: 200 },
