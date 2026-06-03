@@ -1204,6 +1204,7 @@ export class GameScene extends Phaser.Scene {
       return;
     }
 
+    const isNatureItem = GameScene.NATURE_ITEMS.has(this.placement.itemId);
     const building = this.findBuildingAt(world.x, world.y);
     if (building) {
       // Inside a building: snap to a half-tile (16 px) grid for finer control,
@@ -1213,7 +1214,8 @@ export class GameScene extends Phaser.Scene {
       const sy = Math.round(world.y / HALF) * HALF;
       this.placement.ghost.setPosition(sx, sy);
       this.placement.ghost.setScale(1, 1);
-      const valid = this.canPlaceInsideBuilding(sx, sy, building);
+      // Nature items are never valid inside buildings.
+      const valid = !isNatureItem && this.canPlaceInsideBuilding(sx, sy, building);
       this.placement.valid = valid;
       this.placement.ghost.setTint(valid ? 0xffffff : 0xff5050);
       this.placement.ghost.setAlpha(valid ? 0.7 : 0.45);
@@ -1221,11 +1223,25 @@ export class GameScene extends Phaser.Scene {
       const snapped = this.snapToTileCentre(world.x, world.y);
       this.placement.ghost.setPosition(snapped.x, snapped.y);
       this.placement.ghost.setScale(1, 1);
-      const valid = this.col.isTileWalkable(snapped.tx, snapped.ty);
+      let valid = this.col.isTileWalkable(snapped.tx, snapped.ty);
+      if (valid && isNatureItem) {
+        // Only grass tiles are allowed — block dirt paths and gravel shores.
+        const tileType = this.island.tiles[snapped.ty]?.[snapped.tx];
+        if (tileType !== TileType.GRASS && tileType !== TileType.GRASS_DARK) valid = false;
+        // Block tiles already occupied by a placed item.
+        if (valid && this.tileOccupiedByPlacedItem(snapped.x, snapped.y)) valid = false;
+      }
       this.placement.valid = valid;
       this.placement.ghost.setTint(valid ? 0xffffff : 0xff5050);
       this.placement.ghost.setAlpha(valid ? 0.7 : 0.45);
     }
+  }
+
+  private tileOccupiedByPlacedItem(wx: number, wy: number): boolean {
+    for (const item of this.placedItems.values()) {
+      if (item.sprite.x === wx && item.sprite.y === wy) return true;
+    }
+    return false;
   }
 
   private handlePlacementClick(pointer: Phaser.Input.Pointer): void {
@@ -1939,6 +1955,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   // ─── Arcade machine screen animation ─────────────────────────────────────
+
+  // Items that must be placed on grass only (no buildings, paths, or gravel).
+  private static readonly NATURE_ITEMS = new Set(['tree', 'cherry-blossom']);
 
   // Bright arcade palette — cycles every ~130 ms per machine
   private static readonly ARCADE_COLORS = [
