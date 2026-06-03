@@ -84,6 +84,7 @@ const SHOP_ITEM_TEXTURES: Record<string, string> = {
   'arcade-machine': 'arcade-machine',
   'chess-board': 'chess-board',
   'cherry-blossom': 'cherry-blossom',
+  'sandcastle': 'sandcastle',
   'pool-table': 'pool-table',
   'work-desk': 'work-desk',
   'office-chair': 'office-chair',
@@ -1204,7 +1205,8 @@ export class GameScene extends Phaser.Scene {
       return;
     }
 
-    const isNatureItem = GameScene.NATURE_ITEMS.has(this.placement.itemId);
+    const isNatureItem   = GameScene.NATURE_ITEMS.has(this.placement.itemId);
+    const isSandOnlyItem = GameScene.SAND_ONLY_ITEMS.has(this.placement.itemId);
     const building = this.findBuildingAt(world.x, world.y);
     if (building) {
       // Inside a building: snap to a half-tile (16 px) grid for finer control,
@@ -1214,8 +1216,8 @@ export class GameScene extends Phaser.Scene {
       const sy = Math.round(world.y / HALF) * HALF;
       this.placement.ghost.setPosition(sx, sy);
       this.placement.ghost.setScale(1, 1);
-      // Nature items are never valid inside buildings.
-      const valid = !isNatureItem && this.canPlaceInsideBuilding(sx, sy, building);
+      // Nature and sand-only items are never valid inside buildings.
+      const valid = !isNatureItem && !isSandOnlyItem && this.canPlaceInsideBuilding(sx, sy, building);
       this.placement.valid = valid;
       this.placement.ghost.setTint(valid ? 0xffffff : 0xff5050);
       this.placement.ghost.setAlpha(valid ? 0.7 : 0.45);
@@ -1228,7 +1230,12 @@ export class GameScene extends Phaser.Scene {
         // Only grass tiles are allowed — block dirt paths and gravel shores.
         const tileType = this.island.tiles[snapped.ty]?.[snapped.tx];
         if (tileType !== TileType.GRASS && tileType !== TileType.GRASS_DARK) valid = false;
-        // Block tiles already occupied by a placed item.
+        if (valid && this.tileOccupiedByPlacedItem(snapped.x, snapped.y)) valid = false;
+      }
+      if (valid && isSandOnlyItem) {
+        // Only GRAVEL (sandy shore) tiles are allowed.
+        const tileType = this.island.tiles[snapped.ty]?.[snapped.tx];
+        if (tileType !== TileType.GRAVEL) valid = false;
         if (valid && this.tileOccupiedByPlacedItem(snapped.x, snapped.y)) valid = false;
       }
       this.placement.valid = valid;
@@ -1958,6 +1965,8 @@ export class GameScene extends Phaser.Scene {
 
   // Items that must be placed on grass only (no buildings, paths, or gravel).
   private static readonly NATURE_ITEMS = new Set(['tree', 'cherry-blossom']);
+  // Items that must be placed on GRAVEL (sandy shore) tiles only.
+  private static readonly SAND_ONLY_ITEMS = new Set(['sandcastle']);
 
   // Bright arcade palette — cycles every ~130 ms per machine
   private static readonly ARCADE_COLORS = [

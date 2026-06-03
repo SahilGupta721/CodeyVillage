@@ -567,6 +567,9 @@ export class BootScene extends Phaser.Scene {
     this.makeStarFragment();
     this.makeSpiritBells();
 
+    // Beach
+    this.makeSandcastle();
+
     // Tech
     this.makeArcadeMachine();
     this.makeWorkDesk();
@@ -1752,6 +1755,95 @@ export class BootScene extends Phaser.Scene {
   }
 
   // ── Tech ─────────────────────────────────────────────────────────────────────
+
+  // ── Beach ────────────────────────────────────────────────────────────────────
+
+  private makeSandcastle(): void {
+    // 32 × 32 px.  Only valid on GRAVEL (sandy shore) tiles.
+    // Origin (0.5, 0.7) → pivot at (16, 22.4).
+    const c = this.textures.createCanvas('sandcastle', 32, 32)!;
+    const ctx = c.getContext();
+
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.20)';
+    ctx.fillRect(6, 28, 20, 3);
+
+    // Sandy base mound
+    ctx.fillStyle = '#9A7220';
+    ctx.fillRect(3, 18, 26, 12);
+    ctx.fillStyle = '#C49A30';
+    ctx.fillRect(4, 19, 24, 10);
+    ctx.fillStyle = '#D8B04A';
+    ctx.fillRect(5, 20, 22, 8);
+    ctx.fillStyle = '#ECC860';
+    ctx.fillRect(8, 21, 16, 6);
+
+    // Tower outer (dark outline)
+    ctx.fillStyle = '#9A7220';
+    ctx.fillRect(10, 5, 12, 15);
+
+    // Tower main body
+    ctx.fillStyle = '#C49A30';
+    ctx.fillRect(11, 6, 10, 13);
+
+    // Tower lit front face
+    ctx.fillStyle = '#D8B04A';
+    ctx.fillRect(11, 6, 8, 10);
+
+    // Tower highlight
+    ctx.fillStyle = '#ECC860';
+    ctx.fillRect(12, 7, 5, 7);
+
+    // Battlements — three merlons across the tower top
+    ctx.fillStyle = '#9A7220';
+    ctx.fillRect(10, 1, 4, 6);   // left merlon
+    ctx.fillRect(14, 2, 4, 5);   // centre merlon (slightly lower)
+    ctx.fillRect(18, 1, 4, 6);   // right merlon
+
+    // Merlon lit faces
+    ctx.fillStyle = '#D8B04A';
+    ctx.fillRect(11, 2, 2, 5);   // left merlon lit
+    ctx.fillRect(15, 3, 2, 4);   // centre merlon lit
+    ctx.fillRect(19, 2, 2, 5);   // right merlon lit
+
+    // Gate/door arch
+    ctx.fillStyle = '#6A4810';
+    ctx.fillRect(13, 14, 6, 6);
+    ctx.fillStyle = '#8A6018';
+    ctx.fillRect(14, 15, 4, 4);
+
+    // ── Seashells scattered on the mound ──────────────────────────────────────
+
+    // Pink fan shell (left)
+    ctx.fillStyle = '#ECA090';
+    ctx.fillRect(5, 21, 3, 2);
+    ctx.fillStyle = '#D08070';
+    ctx.fillRect(5, 23, 3, 1);
+
+    // White spiral shell (right)
+    ctx.fillStyle = '#F0E8D0';
+    ctx.fillRect(22, 20, 4, 3);
+    ctx.fillStyle = '#C8B898';
+    ctx.fillRect(23, 21, 2, 1);
+
+    // Small orange conch (lower left)
+    ctx.fillStyle = '#D07840';
+    ctx.fillRect(7, 24, 3, 2);
+    ctx.fillStyle = '#E89860';
+    ctx.fillRect(8, 24, 2, 1);
+
+    // Tiny white shell (lower right)
+    ctx.fillStyle = '#F0E8D0';
+    ctx.fillRect(21, 24, 3, 2);
+
+    // Small pink shell near centre
+    ctx.fillStyle = '#F4B0A0';
+    ctx.fillRect(14, 25, 4, 2);
+    ctx.fillStyle = '#E89080';
+    ctx.fillRect(15, 26, 2, 1);
+
+    c.refresh();
+  }
 
   private makeArcadeMachine(): void {
     const c = this.textures.createCanvas('arcade-machine', 32, 32)!;

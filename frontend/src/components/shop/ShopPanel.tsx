@@ -450,6 +450,57 @@ function OakTreeIcon() {
   );
 }
 
+// ── sandcastle icon ───────────────────────────────────────────────────────────
+
+function SandcastleIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
+      {/* shadow */}
+      <rect x="6"  y="28" width="20" height="3"  fill="rgba(0,0,0,0.20)" />
+      {/* sandy base mound */}
+      <rect x="3"  y="18" width="26" height="12" fill="#9A7220" />
+      <rect x="4"  y="19" width="24" height="10" fill="#C49A30" />
+      <rect x="5"  y="20" width="22" height="8"  fill="#D8B04A" />
+      <rect x="8"  y="21" width="16" height="6"  fill="#ECC860" />
+      {/* tower outer */}
+      <rect x="10" y="5"  width="12" height="15" fill="#9A7220" />
+      {/* tower main body */}
+      <rect x="11" y="6"  width="10" height="13" fill="#C49A30" />
+      {/* tower lit face */}
+      <rect x="11" y="6"  width="8"  height="10" fill="#D8B04A" />
+      {/* tower highlight */}
+      <rect x="12" y="7"  width="5"  height="7"  fill="#ECC860" />
+      {/* battlements — left merlon */}
+      <rect x="10" y="1"  width="4"  height="6"  fill="#9A7220" />
+      <rect x="11" y="2"  width="2"  height="5"  fill="#D8B04A" />
+      {/* battlements — centre merlon (shorter) */}
+      <rect x="14" y="2"  width="4"  height="5"  fill="#9A7220" />
+      <rect x="15" y="3"  width="2"  height="4"  fill="#D8B04A" />
+      {/* battlements — right merlon */}
+      <rect x="18" y="1"  width="4"  height="6"  fill="#9A7220" />
+      <rect x="19" y="2"  width="2"  height="5"  fill="#D8B04A" />
+      {/* gate / door arch */}
+      <rect x="13" y="14" width="6"  height="6"  fill="#6A4810" />
+      <rect x="14" y="15" width="4"  height="4"  fill="#8A6018" />
+      {/* seashell — pink fan (left) */}
+      <rect x="5"  y="21" width="3"  height="2"  fill="#ECA090" />
+      <rect x="5"  y="23" width="3"  height="1"  fill="#D08070" />
+      {/* seashell — white spiral (right) */}
+      <rect x="22" y="20" width="4"  height="3"  fill="#F0E8D0" />
+      <rect x="23" y="21" width="2"  height="1"  fill="#C8B898" />
+      {/* seashell — orange conch (lower left) */}
+      <rect x="7"  y="24" width="3"  height="2"  fill="#D07840" />
+      <rect x="8"  y="24" width="2"  height="1"  fill="#E89860" />
+      {/* seashell — tiny white (lower right) */}
+      <rect x="21" y="24" width="3"  height="2"  fill="#F0E8D0" />
+      {/* seashell — pink near centre base */}
+      <rect x="14" y="25" width="4"  height="2"  fill="#F4B0A0" />
+      <rect x="15" y="26" width="2"  height="1"  fill="#E89080" />
+    </svg>
+  );
+}
+
 // ── cherry blossom icon ───────────────────────────────────────────────────────
 
 function CherryBlossomIcon() {
@@ -1166,6 +1217,14 @@ const BASE_CATEGORIES: ShopCategory[] = [
     items: [
       { id: 'tree', name: 'Oak Sapling', emoji: '🌳', icon: <OakTreeIcon />, price: 110 },
       { id: 'cherry-blossom', name: 'Cherry Blossom', emoji: '🌸', icon: <CherryBlossomIcon />, price: 300 },
+    ],
+  },
+  {
+    id: 'beach',
+    label: 'Beach',
+    emoji: '🏖️',
+    items: [
+      { id: 'sandcastle', name: 'Sandcastle', emoji: '🏰', icon: <SandcastleIcon />, price: 200 },
     ],
   },
   {
