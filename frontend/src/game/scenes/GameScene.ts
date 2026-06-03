@@ -83,6 +83,7 @@ const SHOP_ITEM_TEXTURES: Record<string, string> = {
   'spirit-bells': 'spirit-bells',
   'arcade-machine': 'arcade-machine',
   'chess-board': 'chess-board',
+  'cherry-blossom': 'cherry-blossom',
   'pool-table': 'pool-table',
   'work-desk': 'work-desk',
   'office-chair': 'office-chair',
@@ -207,6 +208,7 @@ export class GameScene extends Phaser.Scene {
     cooldown: number;
     firstBreak: boolean;
   }> = new Map();
+  private cherryBlossomEmitters: Map<string, Phaser.GameObjects.Particles.ParticleEmitter> = new Map();
   private lastNightCheck = 0;
   private currentNightAlpha = 0;
 
@@ -1390,6 +1392,25 @@ export class GameScene extends Phaser.Scene {
       const gfx = this.add.graphics().setPosition(x, y).setDepth(depth);
       this.arcadeScreens.set(id, { gfx, timer: 0 });
     }
+    if (itemId === 'cherry-blossom' && id) {
+      // Petals spawn within the canopy area (32×52 tex, origin 0.5/0.7 → pivot y=36.4).
+      // Canopy y range in world space ≈ [y−36, y−6]; x spread ≈ ±13.
+      const depth = PLACED_ITEM_DEPTH_BASE + y * 0.001 + 0.3;
+      const emitter = this.add.particles(x, y, 'blossom-petal', {
+        x: { min: -13, max: 13 },
+        y: { min: -34, max: -8 },
+        speedX: { min: -12, max: 12 },
+        speedY: { min: 12, max: 28 },
+        lifespan: { min: 2200, max: 4000 },
+        frequency: 2200,
+        quantity: 1,
+        alpha: { start: 0.88, end: 0 },
+        rotate: { min: 0, max: 360 },
+        scale: { min: 0.55, max: 1.0 },
+        tint: [0xFF9EC8, 0xFFBCD8, 0xFFD0E8, 0xFF78B4, 0xFFF0F8],
+      }).setDepth(depth);
+      this.cherryBlossomEmitters.set(id, emitter);
+    }
     if (itemId === 'pool-table' && id) {
       const depth = PLACED_ITEM_DEPTH_BASE + y * 0.001 + 0.5;
       const gfx = this.add.graphics().setPosition(x, y).setDepth(depth);
@@ -1496,6 +1517,8 @@ export class GameScene extends Phaser.Scene {
     const poolTable = this.poolTables.get(id);
     if (poolTable) { poolTable.gfx.destroy(); this.poolTables.delete(id); }
     this.col.removeRectObstacle(id);
+    const blossomEmitter = this.cherryBlossomEmitters.get(id);
+    if (blossomEmitter) { blossomEmitter.destroy(); this.cherryBlossomEmitters.delete(id); }
   }
 
   private async erasePlacedItem(id: string): Promise<void> {

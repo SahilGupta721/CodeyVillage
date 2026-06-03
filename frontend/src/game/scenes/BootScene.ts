@@ -15,11 +15,13 @@ export class BootScene extends Phaser.Scene {
   create(): void {
     this.makeWaterTile();
     this.makeTree();
+    this.makeCherryBlossom();
     this.makeBush();
     this.makeFlower('flower_r', '#e03030', '#ffcc00');
     this.makeFlower('flower_y', '#f0c010', '#ff9900');
     this.makeRock();
     this.makeLeaf();
+    this.makeBlossomPetal();
     this.makeSparkle();
     this.makeSmokePuff();
     this.makeLightMask();
@@ -299,6 +301,119 @@ export class BootScene extends Phaser.Scene {
     // Centre vein (subtle darkening)
     ctx.fillStyle = '#dddddd';
     ctx.fillRect(3, 0, 1, 6);
+    c.refresh();
+  }
+
+  // ─── Blossom petal particle texture (6 × 6) ────────────────────────────────
+  // White body so tint fully controls the colour; rounded diamond silhouette.
+
+  private makeBlossomPetal(): void {
+    const c = this.textures.createCanvas('blossom-petal', 6, 6)!;
+    const ctx = c.getContext();
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(2, 0, 2, 1);
+    ctx.fillRect(1, 1, 4, 1);
+    ctx.fillRect(0, 2, 6, 2);
+    ctx.fillRect(1, 4, 4, 1);
+    ctx.fillRect(2, 5, 2, 1);
+    // Centre crease
+    ctx.fillStyle = '#dddddd';
+    ctx.fillRect(2, 0, 2, 6);
+    c.refresh();
+  }
+
+  // ─── Cherry blossom tree (32 × 52) ─────────────────────────────────────────
+  // Same canvas proportions as the oak tree; pink canopy with distributed
+  // blossom clusters instead of a single upper-left green highlight.
+
+  private makeCherryBlossom(): void {
+    const c = this.textures.createCanvas('cherry-blossom', 32, 52)!;
+    const ctx = c.getContext();
+
+    // Ground shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.18)';
+    ctx.fillRect(8, 47, 16, 4);
+    ctx.fillRect(6, 48, 20, 3);
+    ctx.fillStyle = 'rgba(0,0,0,0.08)';
+    ctx.fillRect(4, 49, 24, 2);
+
+    // Trunk — grey-brown cherry bark
+    ctx.fillStyle = '#3A1A08';
+    ctx.fillRect(12, 28, 8, 24);
+    ctx.fillStyle = '#7A3A18';
+    ctx.fillRect(13, 29, 6, 22);
+    ctx.fillStyle = '#9A5028';
+    ctx.fillRect(13, 29, 3, 20);
+    ctx.fillStyle = '#220C04';
+    ctx.fillRect(18, 29, 2, 22);
+    ctx.fillStyle = '#541E0C';
+    ctx.fillRect(15, 34, 1, 15);
+
+    // Branch stubs visible at canopy edges
+    ctx.fillStyle = '#6A3018';
+    ctx.fillRect(11, 22, 5, 7);
+    ctx.fillRect(17, 20, 5, 9);
+
+    // Canopy — 1. deep rose outer silhouette ring
+    ctx.fillStyle = '#6A0E2C';
+    ctx.fillRect(8, 0, 16, 1);
+    ctx.fillRect(5, 1, 22, 2);
+    ctx.fillRect(3, 3, 26, 3);
+    ctx.fillRect(1, 5, 30, 22);
+    ctx.fillRect(3, 26, 26, 3);
+    ctx.fillRect(5, 28, 22, 2);
+    ctx.fillRect(8, 29, 16, 1);
+
+    // Canopy — 2. main medium-dark pink fill
+    ctx.fillStyle = '#D4507A';
+    ctx.fillRect(9, 1, 14, 1);
+    ctx.fillRect(6, 2, 20, 2);
+    ctx.fillRect(4, 4, 24, 2);
+    ctx.fillRect(2, 6, 28, 20);
+    ctx.fillRect(4, 25, 24, 2);
+    ctx.fillRect(6, 27, 20, 1);
+    ctx.fillRect(9, 28, 14, 1);
+
+    // Canopy — 3. lighter pink distributed across the canopy
+    ctx.fillStyle = '#F07898';
+    ctx.fillRect(3, 4, 18, 12);   // upper-left sweep
+    ctx.fillRect(14, 14, 12, 10); // mid-right patch
+    ctx.fillRect(5, 19, 10, 7);   // lower-left patch
+
+    // Canopy — 4. bright blossom clusters scattered throughout
+    ctx.fillStyle = '#FFC0D8';
+    ctx.fillRect(5, 3, 10, 8);    // top-left
+    ctx.fillRect(16, 5, 9, 7);    // top-right
+    ctx.fillRect(3, 16, 8, 6);    // mid-left
+    ctx.fillRect(18, 15, 8, 8);   // mid-right
+    ctx.fillRect(9, 21, 10, 5);   // bottom-centre
+
+    // Canopy — 5. near-white centres (full-bloom flower faces)
+    ctx.fillStyle = '#FFE8F4';
+    ctx.fillRect(6, 4, 6, 5);     // top-left hot spot
+    ctx.fillRect(18, 6, 5, 4);    // top-right hot spot
+    ctx.fillRect(4, 17, 5, 4);    // mid-left hot spot
+    ctx.fillRect(20, 17, 4, 5);   // mid-right hot spot
+    ctx.fillRect(11, 22, 5, 3);   // bottom hot spot
+
+    // Canopy — 6. rose-pink accent dots for depth between clusters
+    ctx.fillStyle = '#B03060';
+    ctx.fillRect(12, 3, 3, 2);
+    ctx.fillRect(23, 10, 3, 2);
+    ctx.fillRect(3, 10, 3, 2);
+    ctx.fillRect(14, 15, 3, 2);
+    ctx.fillRect(6, 24, 3, 2);
+    ctx.fillRect(22, 22, 3, 2);
+
+    // Canopy — 7. deep rose lobe-edge shadows (bumpy blossom-cluster silhouette)
+    ctx.fillStyle = '#8C1840';
+    ctx.fillRect(2, 7, 2, 4);
+    ctx.fillRect(2, 14, 2, 4);
+    ctx.fillRect(2, 20, 2, 3);
+    ctx.fillRect(28, 7, 2, 4);
+    ctx.fillRect(28, 14, 2, 4);
+    ctx.fillRect(28, 20, 2, 3);
+
     c.refresh();
   }
 

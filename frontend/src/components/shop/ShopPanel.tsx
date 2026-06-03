@@ -450,6 +450,66 @@ function OakTreeIcon() {
   );
 }
 
+// ── cherry blossom icon ───────────────────────────────────────────────────────
+
+function CherryBlossomIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
+      {/* ground shadow */}
+      <rect x="9"  y="28" width="14" height="3" fill="rgba(0,0,0,0.18)" />
+      <rect x="7"  y="29" width="18" height="2" fill="rgba(0,0,0,0.08)" />
+      {/* trunk */}
+      <rect x="13" y="19" width="6"  height="13" fill="#3A1A08" />
+      <rect x="14" y="20" width="4"  height="11" fill="#7A3A18" />
+      <rect x="14" y="20" width="2"  height="10" fill="#9A5028" />
+      <rect x="17" y="20" width="1"  height="11" fill="#220C04" />
+      <rect x="15" y="23" width="1"  height="7"  fill="#541E0C" />
+      {/* canopy — deep rose outer silhouette */}
+      <rect x="8"  y="0"  width="16" height="1"  fill="#6A0E2C" />
+      <rect x="5"  y="1"  width="22" height="2"  fill="#6A0E2C" />
+      <rect x="2"  y="3"  width="28" height="18" fill="#6A0E2C" />
+      <rect x="4"  y="20" width="24" height="2"  fill="#6A0E2C" />
+      <rect x="7"  y="22" width="18" height="1"  fill="#6A0E2C" />
+      {/* canopy — main pink fill */}
+      <rect x="9"  y="1"  width="14" height="1"  fill="#D4507A" />
+      <rect x="6"  y="2"  width="20" height="2"  fill="#D4507A" />
+      <rect x="3"  y="4"  width="26" height="16" fill="#D4507A" />
+      <rect x="5"  y="20" width="22" height="2"  fill="#D4507A" />
+      <rect x="8"  y="22" width="16" height="1"  fill="#D4507A" />
+      {/* canopy — lighter pink patches distributed across canopy */}
+      <rect x="3"  y="4"  width="18" height="10" fill="#F07898" />
+      <rect x="14" y="12" width="12" height="7"  fill="#F07898" />
+      <rect x="5"  y="17" width="9"  height="4"  fill="#F07898" />
+      {/* canopy — bright blossom clusters */}
+      <rect x="5"  y="3"  width="10" height="7"  fill="#FFC0D8" />
+      <rect x="16" y="5"  width="9"  height="6"  fill="#FFC0D8" />
+      <rect x="3"  y="14" width="8"  height="5"  fill="#FFC0D8" />
+      <rect x="18" y="13" width="8"  height="6"  fill="#FFC0D8" />
+      <rect x="9"  y="19" width="9"  height="3"  fill="#FFC0D8" />
+      {/* canopy — near-white blossom centres */}
+      <rect x="6"  y="4"  width="6"  height="5"  fill="#FFE8F4" />
+      <rect x="18" y="6"  width="5"  height="4"  fill="#FFE8F4" />
+      <rect x="4"  y="15" width="5"  height="3"  fill="#FFE8F4" />
+      <rect x="20" y="14" width="4"  height="4"  fill="#FFE8F4" />
+      <rect x="11" y="20" width="5"  height="2"  fill="#FFE8F4" />
+      {/* canopy — rose-pink depth accents */}
+      <rect x="12" y="3"  width="3"  height="2"  fill="#B03060" />
+      <rect x="23" y="10" width="3"  height="2"  fill="#B03060" />
+      <rect x="3"  y="10" width="3"  height="2"  fill="#B03060" />
+      <rect x="14" y="14" width="3"  height="2"  fill="#B03060" />
+      <rect x="6"  y="21" width="3"  height="2"  fill="#B03060" />
+      {/* canopy — deep rose lobe-edge shadows */}
+      <rect x="2"  y="5"  width="2"  height="3"  fill="#8C1840" />
+      <rect x="2"  y="11" width="2"  height="3"  fill="#8C1840" />
+      <rect x="2"  y="16" width="2"  height="2"  fill="#8C1840" />
+      <rect x="28" y="5"  width="2"  height="3"  fill="#8C1840" />
+      <rect x="28" y="11" width="2"  height="3"  fill="#8C1840" />
+      <rect x="28" y="16" width="2"  height="2"  fill="#8C1840" />
+    </svg>
+  );
+}
+
 // ── potted fern icon ─────────────────────────────────────────────────────────
 
 function PottedFernIcon() {
@@ -1105,6 +1165,7 @@ const BASE_CATEGORIES: ShopCategory[] = [
     emoji: '🌳',
     items: [
       { id: 'tree', name: 'Oak Sapling', emoji: '🌳', icon: <OakTreeIcon />, price: 110 },
+      { id: 'cherry-blossom', name: 'Cherry Blossom', emoji: '🌸', icon: <CherryBlossomIcon />, price: 300 },
     ],
   },
   {
