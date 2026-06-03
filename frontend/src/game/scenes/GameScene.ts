@@ -1725,9 +1725,8 @@ export class GameScene extends Phaser.Scene {
         this.nightRT.draw(this.buildingLightGfx);
 
         // Entrance light leak: a soft radial gradient centred on the doorway.
-        // Radius ~1.5 tiles so it fans a natural wedge onto the ground outside.
-        // eraseAlpha and tintAlpha are scaled down to keep the leak subtle.
-        if (light.entranceLeak) {
+        // Suppressed when both entrance tiles have carved doors placed on them.
+        if (light.entranceLeak && !this.entranceHasBothDoors(light.entranceLeak.x, light.entranceLeak.y)) {
           const LEAK_RADIUS = 52;
           const leakScale = (LEAK_RADIUS * 2) / MASK_SIZE;
           this.nightMaskImg
@@ -1754,6 +1753,31 @@ export class GameScene extends Phaser.Scene {
         this.nightRT.draw(this.nightMaskImg);
       }
     }
+  }
+
+  /**
+   * Returns true when both entrance tiles of the building whose doorway is
+   * centred at (leakX, leakY) each have a carved door placed on them.
+   * Used to suppress the entrance light-leak when the doorway is sealed.
+   */
+  private entranceHasBothDoors(leakX: number, leakY: number): boolean {
+    // Derive entrance tile coordinates from the leak anchor point.
+    // leakX = (tileX + doorOffset + 1) * TILE_SIZE  →  txL = that value − 1
+    // leakY = (tileY + tileH)          * TILE_SIZE  →  ty  = that value − 1
+    const ty  = Math.floor(leakY / TILE_SIZE) - 1;
+    const txL = Math.floor(leakX / TILE_SIZE) - 1;
+    const txR = Math.floor(leakX / TILE_SIZE);
+
+    let leftCovered = false, rightCovered = false;
+    for (const door of this.carvedDoors.values()) {
+      // Filter to doors that belong to this building entrance (their stored
+      // entranceTiles include the left entrance tile).
+      if (!door.entranceTiles.some(t => t.tx === txL && t.ty === ty)) continue;
+      const dtx = Math.floor(door.sprite.x / TILE_SIZE);
+      if (dtx === txL) leftCovered = true;
+      else if (dtx === txR) rightCovered = true;
+    }
+    return leftCovered && rightCovered;
   }
 
   /**
