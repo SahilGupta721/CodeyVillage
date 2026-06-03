@@ -434,7 +434,6 @@ export class BootScene extends Phaser.Scene {
     this.makePoolTable();
     this.makePottedFern();
     this.makeCandleSet();
-    this.makeHangingVine();
     this.makeWovenRug();
     this.makeFlowerBasket();
 
@@ -1047,45 +1046,6 @@ export class BootScene extends Phaser.Scene {
     ctx.fillRect(15, 8, 2, 1);
     ctx.fillRect(9, 13, 2, 1);
     ctx.fillRect(21, 15, 2, 1);
-    c.refresh();
-  }
-
-  private makeHangingVine(): void {
-    const c = this.textures.createCanvas('hanging-vine', 32, 32)!;
-    const ctx = c.getContext();
-    ctx.fillStyle = 'rgba(0,0,0,0.15)';
-    ctx.fillRect(10, 29, 12, 3);
-    // Ceiling hook
-    ctx.fillStyle = '#6A4820';
-    ctx.fillRect(14, 2, 4, 3);
-    // Main stem
-    ctx.fillStyle = '#3A7A20';
-    ctx.fillRect(15, 4, 2, 22);
-    // Branch stems
-    ctx.fillStyle = '#3A7A20';
-    ctx.fillRect(10, 9, 6, 2);
-    ctx.fillRect(17, 14, 6, 2);
-    ctx.fillRect(9, 20, 7, 2);
-    ctx.fillRect(17, 24, 6, 2);
-    // Leaf clusters
-    ctx.fillStyle = '#4AAA28';
-    ctx.fillRect(5, 8, 6, 4);
-    ctx.fillRect(21, 13, 6, 4);
-    ctx.fillRect(4, 19, 6, 4);
-    ctx.fillRect(21, 23, 6, 4);
-    ctx.fillRect(13, 25, 6, 4);
-    // Highlights
-    ctx.fillStyle = '#70CC40';
-    ctx.fillRect(6, 9, 2, 2);
-    ctx.fillRect(22, 14, 2, 2);
-    ctx.fillRect(5, 20, 2, 2);
-    ctx.fillRect(22, 24, 2, 2);
-    ctx.fillRect(14, 26, 2, 2);
-    // Node bumps on stem
-    ctx.fillStyle = '#2A6018';
-    ctx.fillRect(14, 11, 4, 2);
-    ctx.fillRect(14, 17, 4, 2);
-    ctx.fillRect(14, 23, 4, 2);
     c.refresh();
   }
 

@@ -526,42 +526,6 @@ function CandleSetIcon() {
   );
 }
 
-// ── hanging vine icon ─────────────────────────────────────────────────────────
-
-function HangingVineIcon() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
-      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
-      <rect x="10" y="29" width="12" height="3" fill="rgba(0,0,0,0.15)" />
-      {/* hook */}
-      <rect x="14" y="2" width="4" height="3" fill="#6A4820" />
-      {/* main stem */}
-      <rect x="15" y="4" width="2" height="22" fill="#3A7A20" />
-      {/* branch stems */}
-      <rect x="10" y="9" width="6" height="2" fill="#3A7A20" />
-      <rect x="17" y="14" width="6" height="2" fill="#3A7A20" />
-      <rect x="9" y="20" width="7" height="2" fill="#3A7A20" />
-      <rect x="17" y="24" width="6" height="2" fill="#3A7A20" />
-      {/* leaf clusters */}
-      <rect x="5" y="8" width="6" height="4" fill="#4AAA28" />
-      <rect x="21" y="13" width="6" height="4" fill="#4AAA28" />
-      <rect x="4" y="19" width="6" height="4" fill="#4AAA28" />
-      <rect x="21" y="23" width="6" height="4" fill="#4AAA28" />
-      <rect x="13" y="25" width="6" height="4" fill="#4AAA28" />
-      {/* highlights */}
-      <rect x="6" y="9" width="2" height="2" fill="#70CC40" />
-      <rect x="22" y="14" width="2" height="2" fill="#70CC40" />
-      <rect x="5" y="20" width="2" height="2" fill="#70CC40" />
-      <rect x="22" y="24" width="2" height="2" fill="#70CC40" />
-      <rect x="14" y="26" width="2" height="2" fill="#70CC40" />
-      {/* stem nodes */}
-      <rect x="14" y="11" width="4" height="2" fill="#2A6018" />
-      <rect x="14" y="17" width="4" height="2" fill="#2A6018" />
-      <rect x="14" y="23" width="4" height="2" fill="#2A6018" />
-    </svg>
-  );
-}
-
 // ── woven rug icon ────────────────────────────────────────────────────────────
 
 function WovenRugIcon() {
@@ -1165,7 +1129,6 @@ const BASE_CATEGORIES: ShopCategory[] = [
       { id: 'pool-table', name: 'Pool Table', emoji: '🎱', icon: <PoolTableIcon />, price: 2000 },
       { id: 'potted-fern', name: 'Potted Fern', emoji: '🌱', icon: <PottedFernIcon />, price: 40 },
       { id: 'candle-set', name: 'Candle Set', emoji: '🕯️', icon: <CandleSetIcon />, price: 60 },
-      { id: 'hanging-vine', name: 'Hanging Vine', emoji: '🪴', icon: <HangingVineIcon />, price: 90 },
       { id: 'woven-rug', name: 'Woven Rug', emoji: '🧶', icon: <WovenRugIcon />, price: 75 },
       { id: 'flower-basket', name: 'Flower Basket', emoji: '🌸', icon: <FlowerBasketIcon />, price: 55 },
     ],

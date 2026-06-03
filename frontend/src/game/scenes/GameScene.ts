@@ -68,7 +68,6 @@ const SHOP_ITEM_TEXTURES: Record<string, string> = {
   'rocking-chair': 'rocking-chair',
   'potted-fern': 'potted-fern',
   'candle-set': 'candle-set',
-  'hanging-vine': 'hanging-vine',
   'woven-rug': 'woven-rug',
   'flower-basket': 'flower-basket',
   'carved-door': 'carved-door',
