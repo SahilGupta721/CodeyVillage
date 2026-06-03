@@ -84,6 +84,7 @@ const SHOP_ITEM_TEXTURES: Record<string, string> = {
   'spirit-bells': 'spirit-bells',
   'arcade-machine': 'arcade-machine',
   'chess-board': 'chess-board',
+  'pool-table': 'pool-table',
   'work-desk': 'work-desk',
   'office-chair': 'office-chair',
 };
@@ -200,6 +201,13 @@ export class GameScene extends Phaser.Scene {
   }> = new Map();
   private buildingLightGfx: Phaser.GameObjects.Graphics | null = null;
   private arcadeScreens: Map<string, { gfx: Phaser.GameObjects.Graphics; timer: number }> = new Map();
+  private poolTables: Map<string, {
+    gfx: Phaser.GameObjects.Graphics;
+    balls: Array<{ x: number; y: number; vx: number; vy: number; color: number }>;
+    active: boolean;
+    cooldown: number;
+    firstBreak: boolean;
+  }> = new Map();
   private lastNightCheck = 0;
   private currentNightAlpha = 0;
 
@@ -344,6 +352,7 @@ export class GameScene extends Phaser.Scene {
     this.updateFireflies(delta);
     this.updateRain(time, delta);
     this.updateArcadeScreens(delta);
+    this.updatePoolTables(delta);
     if (this.placement && this.escKey && Phaser.Input.Keyboard.JustDown(this.escKey)) {
       this.cancelPlacement();
     }
@@ -1382,6 +1391,15 @@ export class GameScene extends Phaser.Scene {
       const gfx = this.add.graphics().setPosition(x, y).setDepth(depth);
       this.arcadeScreens.set(id, { gfx, timer: 0 });
     }
+    if (itemId === 'pool-table' && id) {
+      const depth = PLACED_ITEM_DEPTH_BASE + y * 0.001 + 0.5;
+      const gfx = this.add.graphics().setPosition(x, y).setDepth(depth);
+      const balls = GameScene.POOL_BALL_INIT.map(b => ({ ...b, vx: 0, vy: 0 }));
+      this.poolTables.set(id, { gfx, balls, active: false, cooldown: 0, firstBreak: true });
+      this.drawPoolBalls(id);
+      // Outer rail: texture rect(2,4,32,56) → world offsets (−16,−41)→(+16,+15)
+      this.col.addRectObstacle(id, x - 16, y - 41, x + 16, y + 15);
+    }
   }
 
   private async loadPlacedItems(): Promise<void> {
@@ -1476,6 +1494,9 @@ export class GameScene extends Phaser.Scene {
     this.lightSources.delete(id);
     const screen = this.arcadeScreens.get(id);
     if (screen) { screen.gfx.destroy(); this.arcadeScreens.delete(id); }
+    const poolTable = this.poolTables.get(id);
+    if (poolTable) { poolTable.gfx.destroy(); this.poolTables.delete(id); }
+    this.col.removeRectObstacle(id);
   }
 
   private async erasePlacedItem(id: string): Promise<void> {
@@ -1910,6 +1931,144 @@ export class GameScene extends Phaser.Scene {
       // Sync the night-overlay light pool tint to the current screen color
       const light = this.lightSources.get(id);
       if (light) light.tint = color;
+    }
+  }
+
+  // ─── Pool table physics ───────────────────────────────────────────────────
+
+  // Gfx-local ball positions at rest in the triangle rack.
+  // Texture is 36×64; origin (0.5, 0.7) → pivot = (18, 44.8 px).
+  // gfx-local = texture-pixel − (18, 44.8).
+  // Playfield inner walls (cushion edges): L=−9, R=9, T=−33.8, B=8.2.
+  // Ball radius 1.7; tight-pack row separation = 1.7 × √3 ≈ 2.94.
+  private static readonly POOL_BALL_INIT: ReadonlyArray<{ x: number; y: number; color: number }> = [
+    { x:  0,    y: -25.0, color: 0xF8D000 }, // 1  – yellow  (rack apex)
+    { x: -1.7,  y: -22.1, color: 0x0044EE }, // 2  – blue
+    { x:  1.7,  y: -22.1, color: 0xDD0000 }, // 3  – red
+    { x: -3.4,  y: -19.1, color: 0x9900CC }, // 4  – purple
+    { x:  0,    y: -19.1, color: 0x111111 }, // 8  – black (centre)
+    { x:  3.4,  y: -19.1, color: 0xFF6600 }, // 5  – orange
+    { x: -5.1,  y: -16.2, color: 0x1A8C1A }, // 6  – dark green
+    { x: -1.7,  y: -16.2, color: 0x8B0000 }, // 7  – maroon
+    { x:  1.7,  y: -16.2, color: 0xD4A017 }, // 9  – gold
+    { x:  5.1,  y: -16.2, color: 0x006B8C }, // 10 – teal
+    { x:  0,    y:   4.5, color: 0xF0F0F0 }, // cue – white
+  ];
+
+  private static readonly POOL_WALL = { L: -9, R: 9, T: -33.8, B: 8.2 };
+  private static readonly POOL_BALL_R = 1.7;
+
+  private updatePoolTables(delta: number): void {
+    if (this.poolTables.size === 0) return;
+
+    const { x: playerX, y: playerY } = this.player;
+    const triggerDistSq = (TILE_SIZE * 1.5) ** 2;
+
+    for (const [id, table] of this.poolTables) {
+      const item = this.placedItems.get(id);
+      if (!item) continue;
+      const { x: tx, y: ty } = item.sprite;
+
+      if (table.cooldown > 0) table.cooldown = Math.max(0, table.cooldown - delta);
+
+      if (!table.active && table.cooldown === 0) {
+        let near = (playerX - tx) ** 2 + (playerY - ty) ** 2 < triggerDistSq;
+        if (!near) {
+          for (const npc of this.npcs) {
+            if ((npc.x - tx) ** 2 + (npc.y - ty) ** 2 < triggerDistSq) { near = true; break; }
+          }
+        }
+        if (near) {
+          table.active = true;
+          const cue = table.balls[table.balls.length - 1];
+          if (table.firstBreak) {
+            table.firstBreak = false;
+            const apex = table.balls[0];
+            const dx = apex.x - cue.x, dy = apex.y - cue.y;
+            const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+            const speed = 95 + Math.random() * 30;
+            cue.vx = (dx / dist) * speed + (Math.random() - 0.5) * 8;
+            cue.vy = (dy / dist) * speed + (Math.random() - 0.5) * 8;
+          } else {
+            const angle = Math.random() * Math.PI * 2;
+            cue.vx = Math.cos(angle) * (65 + Math.random() * 45);
+            cue.vy = Math.sin(angle) * (65 + Math.random() * 45);
+          }
+        }
+      }
+
+      if (table.active) {
+        this.stepPoolPhysics(table.balls, delta);
+        this.drawPoolBalls(id);
+        const allStopped = table.balls.every(b => Math.abs(b.vx) < 1.0 && Math.abs(b.vy) < 1.0);
+        if (allStopped) {
+          for (const b of table.balls) { b.vx = 0; b.vy = 0; }
+          table.active = false;
+          table.cooldown = 2500;
+        }
+      }
+    }
+  }
+
+  private stepPoolPhysics(
+    balls: Array<{ x: number; y: number; vx: number; vy: number; color: number }>,
+    delta: number,
+  ): void {
+    const R = GameScene.POOL_BALL_R;
+    const { L, R: WR, T, B } = GameScene.POOL_WALL;
+    const dt = delta / 1000;
+    const friction = Math.pow(0.38, dt);
+
+    for (const b of balls) {
+      b.x += b.vx * dt;
+      b.y += b.vy * dt;
+      b.vx *= friction;
+      b.vy *= friction;
+      if (b.x - R < L)  { b.x = L + R;  b.vx =  Math.abs(b.vx) * 0.75; }
+      if (b.x + R > WR) { b.x = WR - R; b.vx = -Math.abs(b.vx) * 0.75; }
+      if (b.y - R < T)  { b.y = T + R;  b.vy =  Math.abs(b.vy) * 0.75; }
+      if (b.y + R > B)  { b.y = B - R;  b.vy = -Math.abs(b.vy) * 0.75; }
+    }
+
+    // Ball–ball elastic collisions
+    for (let i = 0; i < balls.length; i++) {
+      for (let j = i + 1; j < balls.length; j++) {
+        const a = balls[i], b = balls[j];
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const distSq = dx * dx + dy * dy;
+        const minD = R * 2;
+        if (distSq < minD * minD && distSq > 0) {
+          const dist = Math.sqrt(distSq);
+          const nx = dx / dist, ny = dy / dist;
+          const overlap = (minD - dist) * 0.5;
+          a.x -= nx * overlap; a.y -= ny * overlap;
+          b.x += nx * overlap; b.y += ny * overlap;
+          const dvx = a.vx - b.vx, dvy = a.vy - b.vy;
+          const dot = dvx * nx + dvy * ny;
+          if (dot > 0) {
+            a.vx -= dot * nx * 0.92; a.vy -= dot * ny * 0.92;
+            b.vx += dot * nx * 0.92; b.vy += dot * ny * 0.92;
+          }
+        }
+      }
+    }
+  }
+
+  private drawPoolBalls(id: string): void {
+    const table = this.poolTables.get(id);
+    if (!table) return;
+    const gfx = table.gfx;
+    gfx.clear();
+    for (const ball of table.balls) {
+      // soft drop shadow
+      gfx.fillStyle(0x000000, 0.28);
+      gfx.fillCircle(ball.x + 0.6, ball.y + 0.7, GameScene.POOL_BALL_R);
+      // ball body
+      gfx.fillStyle(ball.color, 1.0);
+      gfx.fillCircle(ball.x, ball.y, GameScene.POOL_BALL_R);
+      // specular highlight
+      gfx.fillStyle(0xFFFFFF, 0.55);
+      gfx.fillCircle(ball.x - 0.4, ball.y - 0.5, 0.45);
     }
   }
 

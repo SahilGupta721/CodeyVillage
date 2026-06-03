@@ -810,6 +810,60 @@ function ChessBoardIcon() {
   );
 }
 
+// ── pool table icon ───────────────────────────────────────────────────────────
+
+function PoolTableIcon() {
+  // viewBox matches the 36×64 game texture; SVG scales to fill 32×32 icon slot
+  // while preserving the elongated pool-table proportions.
+  return (
+    <svg width="32" height="32" viewBox="0 0 36 64"
+      preserveAspectRatio="xMidYMid meet"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
+      {/* shadow */}
+      <rect x="3" y="60" width="30" height="4" fill="rgba(0,0,0,0.22)" />
+      {/* outer wood rail */}
+      <rect x="2" y="4" width="32" height="56" fill="#5C3310" />
+      {/* inner wood rail */}
+      <rect x="3" y="5" width="30" height="54" fill="#8B5E3C" />
+      {/* rail highlight */}
+      <rect x="3" y="5" width="15" height="1" fill="#B07040" />
+      <rect x="3" y="5" width="1" height="10" fill="#B07040" />
+      {/* felt */}
+      <rect x="6" y="8" width="24" height="48" fill="#1B7A2A" />
+      <rect x="7" y="9" width="22" height="46" fill="#238C31" />
+      {/* foot spot */}
+      <rect x="17" y="19" width="2" height="2" fill="#4AAD60" />
+      {/* center spot */}
+      <rect x="17" y="31" width="2" height="1" fill="#4AAD60" />
+      {/* head string */}
+      <rect x="7" y="47" width="8" height="1" fill="#3A9A4A" />
+      <rect x="17" y="47" width="4" height="1" fill="#3A9A4A" />
+      <rect x="23" y="47" width="6" height="1" fill="#3A9A4A" />
+      {/* corner pockets */}
+      <rect x="6" y="8"  width="3" height="3" fill="#111111" />
+      <rect x="27" y="8"  width="3" height="3" fill="#111111" />
+      <rect x="6" y="53" width="3" height="3" fill="#111111" />
+      <rect x="27" y="53" width="3" height="3" fill="#111111" />
+      {/* side pockets */}
+      <rect x="6" y="29" width="3" height="4" fill="#111111" />
+      <rect x="27" y="29" width="3" height="4" fill="#111111" />
+      {/* billiard balls — 10-ball triangle rack + cue */}
+      <rect x="17" y="19" width="2" height="2" fill="#F8D000" />
+      <rect x="15" y="22" width="2" height="2" fill="#0044EE" />
+      <rect x="19" y="22" width="2" height="2" fill="#DD0000" />
+      <rect x="13" y="25" width="2" height="2" fill="#9900CC" />
+      <rect x="17" y="25" width="2" height="2" fill="#111111" />
+      <rect x="21" y="25" width="2" height="2" fill="#FF6600" />
+      <rect x="12" y="28" width="2" height="2" fill="#1A8C1A" />
+      <rect x="15" y="28" width="2" height="2" fill="#8B0000" />
+      <rect x="19" y="28" width="2" height="2" fill="#D4A017" />
+      <rect x="22" y="28" width="2" height="2" fill="#006B8C" />
+      <rect x="17" y="49" width="2" height="2" fill="#F0F0F0" />
+    </svg>
+  );
+}
+
 // ── arcade machine icon ───────────────────────────────────────────────────────
 
 function ArcadeMachineIcon() {
@@ -1108,6 +1162,7 @@ const BASE_CATEGORIES: ShopCategory[] = [
     emoji: '🌿',
     items: [
       { id: 'chess-board', name: 'Chess Board', emoji: '♟️', icon: <ChessBoardIcon />, price: 100 },
+      { id: 'pool-table', name: 'Pool Table', emoji: '🎱', icon: <PoolTableIcon />, price: 2000 },
       { id: 'potted-fern', name: 'Potted Fern', emoji: '🌱', icon: <PottedFernIcon />, price: 40 },
       { id: 'candle-set', name: 'Candle Set', emoji: '🕯️', icon: <CandleSetIcon />, price: 60 },
       { id: 'hanging-vine', name: 'Hanging Vine', emoji: '🪴', icon: <HangingVineIcon />, price: 90 },

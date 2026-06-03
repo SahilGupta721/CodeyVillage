@@ -431,6 +431,7 @@ export class BootScene extends Phaser.Scene {
 
     // Decor
     this.makeChessBoard();
+    this.makePoolTable();
     this.makePottedFern();
     this.makeCandleSet();
     this.makeHangingVine();
@@ -898,6 +899,64 @@ export class BootScene extends Phaser.Scene {
     ctx.fillRect(12, 13, 2, 2); // col 2, row 2
     ctx.fillRect(16, 17, 2, 2); // col 4, row 4
     ctx.fillRect(20, 21, 2, 2); // col 6, row 6
+    c.refresh();
+  }
+
+  private makePoolTable(): void {
+    // 36 × 64 px — slightly wider, 2 × longer than a standard 32 × 32 item.
+    // Origin will be (0.5, 0.7) → pivot at (18, 44.8).
+    // Felt surface: x:6–30 (24 px wide), y:8–56 (48 px tall) → 1 : 2 ratio.
+    const c = this.textures.createCanvas('pool-table', 36, 64)!;
+    const ctx = c.getContext();
+    // shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.22)';
+    ctx.fillRect(3, 60, 30, 4);
+    // outer wood rail
+    ctx.fillStyle = '#5C3310';
+    ctx.fillRect(2, 4, 32, 56);
+    // inner wood rail
+    ctx.fillStyle = '#8B5E3C';
+    ctx.fillRect(3, 5, 30, 54);
+    // rail highlight (top-left corner shine)
+    ctx.fillStyle = '#B07040';
+    ctx.fillRect(3, 5, 15, 1);
+    ctx.fillRect(3, 5, 1, 10);
+    // felt surface
+    ctx.fillStyle = '#1B7A2A';
+    ctx.fillRect(6, 8, 24, 48);
+    // felt highlight (slightly lighter centre band)
+    ctx.fillStyle = '#238C31';
+    ctx.fillRect(7, 9, 22, 46);
+    // foot spot (where rack apex sits — 1/4 from foot end)
+    ctx.fillStyle = '#4AAD60';
+    ctx.fillRect(17, 19, 2, 2);
+    // center spot
+    ctx.fillStyle = '#4AAD60';
+    ctx.fillRect(17, 31, 2, 1);
+    // head string line (1/4 from head end) — dashed look via two segments
+    ctx.fillStyle = '#3A9A4A';
+    ctx.fillRect(7, 47, 8, 1);
+    ctx.fillRect(17, 47, 4, 1);
+    ctx.fillRect(23, 47, 6, 1);
+    // corner pockets (3 × 3)
+    ctx.fillStyle = '#111111';
+    ctx.fillRect(6, 8, 3, 3);    // TL
+    ctx.fillRect(27, 8, 3, 3);   // TR
+    ctx.fillRect(6, 53, 3, 3);   // BL
+    ctx.fillRect(27, 53, 3, 3);  // BR
+    // side pockets (3 × 4, centred on felt midpoint y=32)
+    ctx.fillRect(6, 29, 3, 4);   // L
+    ctx.fillRect(27, 29, 3, 4);  // R
+    // cushion dots — bright green just inside each pocket opening
+    ctx.fillStyle = '#3A8A3A';
+    ctx.fillRect(9, 8, 1, 1);    // TL inner
+    ctx.fillRect(26, 8, 1, 1);   // TR inner
+    ctx.fillRect(9, 55, 1, 1);   // BL inner
+    ctx.fillRect(26, 55, 1, 1);  // BR inner
+    ctx.fillRect(9, 29, 1, 1);   // L inner top
+    ctx.fillRect(9, 32, 1, 1);   // L inner bot
+    ctx.fillRect(26, 29, 1, 1);  // R inner top
+    ctx.fillRect(26, 32, 1, 1);  // R inner bot
     c.refresh();
   }
 

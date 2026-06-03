@@ -20,6 +20,7 @@ export class CollisionSystem {
   private entranceTiles: Set<number> = new Set(); // encoded as ty * MAP_WIDTH + tx
   private buildings: BuildingData[];
   private rockObstacles: Array<{ cx: number; cy: number; r2: number }> = [];
+  private rectObstacles: Map<string, { left: number; top: number; right: number; bottom: number }> = new Map();
 
   constructor(tiles: TileType[][], buildings: BuildingData[]) {
     this.buildings = buildings;
@@ -70,6 +71,14 @@ export class CollisionSystem {
     this.rockObstacles.push({ cx, cy, r2: r * r });
   }
 
+  addRectObstacle(id: string, left: number, top: number, right: number, bottom: number): void {
+    this.rectObstacles.set(id, { left, top, right, bottom });
+  }
+
+  removeRectObstacle(id: string): void {
+    this.rectObstacles.delete(id);
+  }
+
   isTileWalkable(tx: number, ty: number): boolean {
     if (tx < 0 || ty < 0 || tx >= MAP_WIDTH || ty >= MAP_HEIGHT) return false;
     return this.grid[ty * MAP_WIDTH + tx] === 1;
@@ -102,6 +111,9 @@ export class CollisionSystem {
     for (const rock of this.rockObstacles) {
       const dx = cx - rock.cx, dy = cy - rock.cy;
       if (dx * dx + dy * dy <= rock.r2) return false;
+    }
+    for (const rect of this.rectObstacles.values()) {
+      if (cx >= rect.left && cx < rect.right && cy >= rect.top && cy < rect.bottom) return false;
     }
     const b = this.findBuildingContaining(cx, cy);
     return b ? this.isCornerAllowedInBuilding(cx, cy, b) : this.isWorldWalkable(cx, cy);
