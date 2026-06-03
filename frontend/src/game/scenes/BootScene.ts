@@ -329,23 +329,34 @@ export class BootScene extends Phaser.Scene {
   // ─── Sparkle particle texture (5 × 5) ──────────────────────────────────────
 
   private makeSparkle(): void {
-    const c = this.textures.createCanvas('sparkle', 5, 5)!;
+    const c = this.textures.createCanvas('sparkle', 14, 14)!;
     const ctx = c.getContext();
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(2, 0, 1, 5); // vertical arm
-    ctx.fillRect(0, 2, 5, 1); // horizontal arm
+    ctx.fillRect(6, 0, 2, 14); // vertical arm
+    ctx.fillRect(0, 6, 14, 2); // horizontal arm
+    ctx.fillRect(4, 4, 2, 2);  // diagonal NW nub
+    ctx.fillRect(8, 4, 2, 2);  // diagonal NE nub
+    ctx.fillRect(4, 8, 2, 2);  // diagonal SW nub
+    ctx.fillRect(8, 8, 2, 2);  // diagonal SE nub
     c.refresh();
   }
 
   // ─── Smoke-puff particle texture (6 × 6) ────────────────────────────────────
 
   private makeSmokePuff(): void {
-    const c = this.textures.createCanvas('smoke-puff', 6, 6)!;
+    const c = this.textures.createCanvas('smoke-puff', 16, 16)!;
     const ctx = c.getContext();
+    // soft circular puff: dark outer ring, mid layer, bright center
+    ctx.fillStyle = '#A0A0B8';
+    ctx.fillRect(3, 0, 10, 16);
+    ctx.fillRect(0, 3, 16, 10);
     ctx.fillStyle = '#C8C8D8';
-    ctx.fillRect(0, 0, 6, 6);
-    ctx.fillStyle = '#E0E0EC';
-    ctx.fillRect(1, 1, 4, 4);
+    ctx.fillRect(2, 1, 12, 14);
+    ctx.fillRect(1, 2, 14, 12);
+    ctx.fillStyle = '#E8E8F4';
+    ctx.fillRect(4, 4, 8, 8);
+    ctx.fillStyle = '#F4F4FC';
+    ctx.fillRect(6, 6, 4, 4);
     c.refresh();
   }
 

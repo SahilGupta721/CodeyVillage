@@ -1258,30 +1258,30 @@ export class GameScene extends Phaser.Scene {
 
     const sparkle = this.add.particles(x, y, 'sparkle', {
       emitting: false,
-      quantity: 8,
-      speed: { min: 30, max: 75 },
+      quantity: 20,
+      speed: { min: 80, max: 200 },
       angle: { min: 0, max: 360 },
-      scale: { start: 1.1, end: 0 },
+      scale: { start: 2.2, end: 0 },
       alpha: { start: 1.0, end: 0 },
-      lifespan: 400,
-      tint: [0xFFFFFF, 0xFFEE88, 0xFFDDFF, 0xAAEEFF],
+      lifespan: 650,
+      tint: [0xFFFFFF, 0xFFEE88, 0xFFDDFF, 0xAAEEFF, 0xFFCC44],
       blendMode: Phaser.BlendModes.ADD,
     }).setDepth(depth);
-    sparkle.explode(8);
-    this.time.delayedCall(480, () => sparkle.destroy());
+    sparkle.explode(20);
+    this.time.delayedCall(730, () => sparkle.destroy());
 
     const smoke = this.add.particles(x, y + 8, 'smoke-puff', {
       emitting: false,
-      quantity: 5,
-      speedX: { min: -14, max: 14 },
-      speedY: { min: -32, max: -12 },
-      scale: { start: 0.5, end: 1.5 },
-      alpha: { start: 0.50, end: 0 },
-      lifespan: 580,
-      tint: [0xC8C8D8, 0xB8B8D0, 0xE0E0EC],
+      quantity: 12,
+      speedX: { min: -28, max: 28 },
+      speedY: { min: -60, max: -20 },
+      scale: { start: 0.8, end: 3.2 },
+      alpha: { start: 0.80, end: 0 },
+      lifespan: 950,
+      tint: [0xC8C8D8, 0xB8B8D0, 0xE0E0EC, 0xD8D8E8],
     }).setDepth(depth - 0.5);
-    smoke.explode(5);
-    this.time.delayedCall(660, () => smoke.destroy());
+    smoke.explode(12);
+    this.time.delayedCall(1040, () => smoke.destroy());
   }
 
   /** Spawn a placed item sprite. Idempotent — duplicate ids are ignored. */
