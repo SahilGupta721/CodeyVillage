@@ -1242,36 +1242,6 @@ function EnchantedBonsaiIcon() {
   );
 }
 
-function StarFragmentIcon() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
-      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
-      <rect x="10" y="30" width="12" height="2" fill="rgba(0,0,0,0.22)" />
-      {/* outer glow */}
-      <rect x="6" y="6" width="20" height="20" fill="#FFD020" opacity="0.10" />
-      {/* side facets */}
-      <rect x="7" y="12" width="5" height="8" fill="#9A7400" />
-      <rect x="20" y="12" width="5" height="8" fill="#705400" />
-      {/* center mass */}
-      <rect x="11" y="9" width="10" height="14" fill="#A88200" />
-      {/* top spike */}
-      <rect x="13" y="3" width="6" height="7" fill="#B89000" />
-      <rect x="14" y="2" width="4" height="2" fill="#FFE840" />
-      <rect x="15" y="1" width="2" height="2" fill="#FFFFFF" />
-      {/* bottom point */}
-      <rect x="13" y="22" width="6" height="5" fill="#806200" />
-      <rect x="14" y="26" width="4" height="2" fill="#604800" />
-      {/* bright face */}
-      <rect x="12" y="10" width="6" height="8" fill="#EEB818" />
-      <rect x="12" y="10" width="4" height="5" fill="#FFD850" />
-      <rect x="12" y="10" width="2" height="3" fill="#FFF4A8" />
-      {/* side rays */}
-      <rect x="3" y="15" width="5" height="2" fill="#FFD020" opacity="0.45" />
-      <rect x="24" y="15" width="5" height="2" fill="#FFD020" opacity="0.45" />
-    </svg>
-  );
-}
-
 function SpiritBellsIcon() {
   return (
     <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
@@ -1391,7 +1361,7 @@ const BASE_CATEGORIES: ShopCategory[] = [
       { id: 'moon-crystal', name: 'Moon Crystal', emoji: '🌙', icon: <MoonCrystalIcon />, price: 750 },
       { id: 'mystic-orb', name: 'Mystic Orb', emoji: '🔮', icon: <MysticOrbIcon />, price: 1000 },
       { id: 'enchanted-bonsai', name: 'Enchanted Bonsai', emoji: '🎋', icon: <EnchantedBonsaiIcon />, price: 650 },
-      { id: 'star-fragment', name: 'Star Fragment', emoji: '⭐', icon: <StarFragmentIcon />, price: 850 },
+
       { id: 'spirit-bells', name: 'Spirit Bells', emoji: '🔔', icon: <SpiritBellsIcon />, price: 420 },
     ],
   },

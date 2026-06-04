@@ -564,7 +564,7 @@ export class BootScene extends Phaser.Scene {
     this.makeMoonCrystal();
     this.makeMysticOrb();
     this.makeEnchantedBonsai();
-    this.makeStarFragment();
+
     this.makeSpiritBells();
 
     // Beach
@@ -1653,49 +1653,6 @@ export class BootScene extends Phaser.Scene {
     ctx.fillRect(8, 7, 1, 1);
     ctx.fillRect(20, 6, 1, 1);
     ctx.fillRect(14, 4, 1, 1);
-    c.refresh();
-  }
-
-  private makeStarFragment(): void {
-    const c = this.textures.createCanvas('star-fragment', 32, 32)!;
-    const ctx = c.getContext();
-    // Glow aura
-    ctx.fillStyle = 'rgba(255,220,80,0.22)';
-    ctx.fillRect(6, 6, 20, 20);
-    ctx.fillStyle = 'rgba(255,220,80,0.15)';
-    ctx.fillRect(4, 8, 24, 16);
-    // Star body (4-pointed cross shape)
-    ctx.fillStyle = '#D0A020';
-    ctx.fillRect(13, 4, 6, 24);
-    ctx.fillRect(4, 13, 24, 6);
-    ctx.fillRect(9, 9, 14, 14);
-    // Bright face
-    ctx.fillStyle = '#F0CC40';
-    ctx.fillRect(14, 5, 4, 22);
-    ctx.fillRect(5, 14, 22, 4);
-    ctx.fillRect(10, 10, 12, 12);
-    // Highlights
-    ctx.fillStyle = '#FFEE90';
-    ctx.fillRect(14, 6, 3, 10);
-    ctx.fillRect(14, 14, 3, 10);
-    ctx.fillRect(6, 14, 10, 3);
-    ctx.fillRect(16, 14, 10, 3);
-    // White center
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(14, 13, 4, 6);
-    ctx.fillRect(13, 14, 6, 4);
-    ctx.fillRect(15, 15, 2, 2);
-    // Pointed tips
-    ctx.fillStyle = '#FFE060';
-    ctx.fillRect(14, 4, 4, 2);
-    ctx.fillRect(14, 26, 4, 2);
-    ctx.fillRect(4, 14, 2, 4);
-    ctx.fillRect(26, 14, 2, 4);
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(15, 4, 2, 1);
-    ctx.fillRect(15, 27, 2, 1);
-    ctx.fillRect(4, 15, 1, 2);
-    ctx.fillRect(27, 15, 1, 2);
     c.refresh();
   }
 
