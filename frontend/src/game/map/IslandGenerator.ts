@@ -17,8 +17,8 @@ import {
   BuildingData, IslandData, WALKABLE_TILES,
 } from './TileTypes';
 
-const CX     = MAP_WIDTH  / 2; // 24
-const CY     = MAP_HEIGHT / 2; // 24
+const CX     = MAP_WIDTH  / 2; // 18
+const CY     = MAP_HEIGHT / 2; // 18
 const BORDER = 2;              // rock border thickness in tiles
 
 // ─── tiny deterministic PRNG (linear congruential) ─────────────────────────

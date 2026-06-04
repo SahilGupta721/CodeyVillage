@@ -989,6 +989,113 @@ function ArcadeMachineIcon() {
   );
 }
 
+// ── tech item icons ───────────────────────────────────────────────────────────
+
+function WorkDeskIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
+      {/* drop shadow */}
+      <rect x="3" y="28" width="26" height="4" fill="rgba(0,0,0,0.22)" />
+      {/* legs */}
+      <rect x="3" y="15" width="5" height="12" fill="#171B1F" />
+      <rect x="24" y="15" width="5" height="12" fill="#171B1F" />
+      <rect x="4" y="16" width="3" height="10" fill="#262E36" />
+      <rect x="25" y="16" width="3" height="10" fill="#262E36" />
+      <rect x="4" y="16" width="1" height="8" fill="#36404A" />
+      <rect x="25" y="16" width="1" height="8" fill="#36404A" />
+      {/* cable tray */}
+      <rect x="8" y="22" width="16" height="3" fill="#1A1E22" />
+      <rect x="9" y="23" width="14" height="1" fill="#262E36" />
+      {/* front apron */}
+      <rect x="2" y="13" width="28" height="4" fill="#141618" />
+      <rect x="3" y="14" width="26" height="2" fill="#22282E" />
+      <rect x="3" y="14" width="12" height="1" fill="#323A42" />
+      {/* desktop border */}
+      <rect x="1" y="4" width="30" height="10" fill="#141618" />
+      {/* laminate surface */}
+      <rect x="2" y="5" width="28" height="8" fill="#F2F2F2" />
+      {/* lit zone */}
+      <rect x="3" y="5" width="18" height="4" fill="#FFFFFF" />
+      {/* front-edge shadow */}
+      <rect x="2" y="11" width="28" height="2" fill="#D4D4D4" />
+      {/* keyboard body */}
+      <rect x="5" y="6" width="14" height="4" fill="#B8BCC8" />
+      <rect x="6" y="6" width="12" height="3" fill="#CDD0DA" />
+      {/* keycaps */}
+      <rect x="6" y="6" width="2" height="1" fill="#A4A8B6" />
+      <rect x="9" y="6" width="2" height="1" fill="#A4A8B6" />
+      <rect x="12" y="6" width="2" height="1" fill="#A4A8B6" />
+      <rect x="15" y="6" width="2" height="1" fill="#A4A8B6" />
+      <rect x="7" y="8" width="3" height="1" fill="#A4A8B6" />
+      <rect x="11" y="8" width="3" height="1" fill="#A4A8B6" />
+      <rect x="15" y="8" width="2" height="1" fill="#A4A8B6" />
+      {/* space bar */}
+      <rect x="8" y="9" width="8" height="1" fill="#B4B8C4" />
+      {/* mouse */}
+      <rect x="22" y="6" width="5" height="6" fill="#C4C8D0" />
+      <rect x="23" y="6" width="3" height="3" fill="#D8DCE4" />
+      <rect x="23" y="9" width="3" height="1" fill="#9EA2AE" />
+    </svg>
+  );
+}
+
+function OfficeChairIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
+      {/* drop shadow */}
+      <rect x="9" y="29" width="14" height="3" fill="rgba(0,0,0,0.22)" />
+      {/* 5-spoke caster base */}
+      <rect x="14" y="19" width="4" height="9" fill="#1C1C1C" />
+      <rect x="7" y="22" width="18" height="4" fill="#1C1C1C" />
+      <rect x="10" y="19" width="3" height="4" fill="#1C1C1C" />
+      <rect x="19" y="19" width="3" height="4" fill="#1C1C1C" />
+      {/* caster wheels */}
+      <rect x="14" y="17" width="4" height="2" fill="#2E2E2E" />
+      <rect x="5" y="22" width="3" height="4" fill="#2E2E2E" />
+      <rect x="24" y="22" width="3" height="4" fill="#2E2E2E" />
+      <rect x="8" y="17" width="3" height="2" fill="#2E2E2E" />
+      <rect x="21" y="17" width="3" height="2" fill="#2E2E2E" />
+      {/* center hub */}
+      <rect x="13" y="21" width="6" height="5" fill="#282828" />
+      <rect x="14" y="22" width="4" height="3" fill="#3C3C3C" />
+      {/* gas-lift cylinder */}
+      <rect x="14" y="16" width="4" height="6" fill="#222222" />
+      <rect x="15" y="17" width="2" height="4" fill="#484848" />
+      {/* armrests */}
+      <rect x="4" y="15" width="5" height="7" fill="#181818" />
+      <rect x="23" y="15" width="5" height="7" fill="#181818" />
+      <rect x="5" y="16" width="3" height="5" fill="#2C2C2C" />
+      <rect x="24" y="16" width="3" height="5" fill="#2C2C2C" />
+      {/* seat cushion */}
+      <rect x="8" y="13" width="16" height="9" fill="#181818" />
+      <rect x="9" y="14" width="14" height="7" fill="#282828" />
+      <rect x="10" y="14" width="8" height="5" fill="#383838" />
+      <rect x="10" y="14" width="7" height="1" fill="#404040" />
+      {/* backrest outer frame */}
+      <rect x="9" y="1" width="14" height="14" fill="#141414" />
+      {/* mesh panel */}
+      <rect x="10" y="2" width="12" height="12" fill="#202020" />
+      {/* mesh horizontal rails */}
+      <rect x="10" y="5" width="12" height="1" fill="#141414" />
+      <rect x="10" y="8" width="12" height="1" fill="#141414" />
+      <rect x="10" y="11" width="12" height="1" fill="#141414" />
+      {/* mesh vertical dividers */}
+      <rect x="14" y="2" width="1" height="12" fill="#141414" />
+      <rect x="18" y="2" width="1" height="12" fill="#141414" />
+      {/* lit upper-left zone */}
+      <rect x="11" y="3" width="6" height="4" fill="#303030" />
+      {/* lumbar support */}
+      <rect x="10" y="9" width="12" height="4" fill="#1C1C1C" />
+      <rect x="11" y="10" width="10" height="2" fill="#2A2A2A" />
+      {/* headrest cap */}
+      <rect x="11" y="1" width="10" height="2" fill="#181818" />
+      <rect x="12" y="1" width="7" height="1" fill="#363636" />
+    </svg>
+  );
+}
+
 // ── special item icons ────────────────────────────────────────────────────────
 
 function FairyLanternIcon() {
@@ -1271,8 +1378,8 @@ const BASE_CATEGORIES: ShopCategory[] = [
     emoji: '🕹️',
     items: [
       { id: 'arcade-machine', name: 'Arcade Machine', emoji: '🕹️', icon: <ArcadeMachineIcon />, price: 500 },
-      { id: 'work-desk',      name: 'Work Desk',      emoji: '🖥️', price: 500 },
-      { id: 'office-chair',   name: 'Office Chair',   emoji: '🪑', price: 500 },
+      { id: 'work-desk',      name: 'Work Desk',      emoji: '🖥️', icon: <WorkDeskIcon />,    price: 500 },
+      { id: 'office-chair',   name: 'Office Chair',   emoji: '🪑', icon: <OfficeChairIcon />, price: 500 },
     ],
   },
   {
