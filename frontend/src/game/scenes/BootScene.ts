@@ -574,6 +574,9 @@ export class BootScene extends Phaser.Scene {
     this.makeArcadeMachine();
     this.makeWorkDesk();
     this.makeOfficeChair();
+
+    // Pets
+    this.makePetCat();
   }
 
   // ── Furniture ────────────────────────────────────────────────────────────────
@@ -2042,6 +2045,89 @@ export class BootScene extends Phaser.Scene {
     ctx.fillRect(11, 1, 10, 2);
     ctx.fillStyle = '#363636';
     ctx.fillRect(12, 1, 7, 1);    // cap highlight
+
+    c.refresh();
+  }
+
+  // ─── Pet: cat ghost preview texture (32 × 32) ────────────────────────────────
+  //
+  // Shown as the semi-transparent placement ghost when the player is about to
+  // drop a cat. Matches the sitting pose drawn by CatNPC.drawSitting().
+
+  private makePetCat(): void {
+    const c = this.textures.createCanvas('pet-cat', 32, 32)!;
+    const ctx = c.getContext();
+
+    // Coordinates are world-space (origin at top-left of the 32×32 tile).
+    // The NPC's Graphics origin is at the centre of its feet, so we offset
+    // everything by (16, 22) to centre the sitting cat within the tile.
+    const ox = 16, oy = 22;
+
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.22)';
+    ctx.fillRect(ox - 5, oy + 7, 10, 3);
+
+    // Tail
+    ctx.fillStyle = '#C86020';
+    ctx.fillRect(ox - 7, oy + 0, 3, 8);
+    ctx.fillStyle = '#E07830';
+    ctx.fillRect(ox - 6, oy + 1, 2, 6);
+    ctx.fillStyle = '#F8E8D0';
+    ctx.fillRect(ox - 6, oy + 5, 2, 2);
+
+    // Body
+    ctx.fillStyle = '#C86020';
+    ctx.fillRect(ox - 5, oy - 2, 10, 10);
+    ctx.fillStyle = '#E07830';
+    ctx.fillRect(ox - 4, oy - 1, 8, 8);
+    ctx.fillStyle = '#F09040';
+    ctx.fillRect(ox - 4, oy - 1, 5, 3);
+    ctx.fillStyle = '#F8E8D0';
+    ctx.fillRect(ox - 3, oy + 2, 6, 5);
+
+    // Head
+    ctx.fillStyle = '#C86020';
+    ctx.fillRect(ox - 5, oy - 11, 10, 10);
+    ctx.fillStyle = '#E07830';
+    ctx.fillRect(ox - 4, oy - 10, 8, 8);
+    ctx.fillStyle = '#F09040';
+    ctx.fillRect(ox - 4, oy - 10, 5, 4);
+
+    // Ears
+    ctx.fillStyle = '#C86020';
+    ctx.fillRect(ox - 5, oy - 14, 3, 4);
+    ctx.fillRect(ox + 3, oy - 14, 3, 4);
+    ctx.fillStyle = '#FF9090';
+    ctx.fillRect(ox - 4, oy - 13, 1, 2);
+    ctx.fillRect(ox + 4, oy - 13, 1, 2);
+
+    // Eyes
+    ctx.fillStyle = '#205810';
+    ctx.fillRect(ox - 3, oy - 8, 2, 2);
+    ctx.fillRect(ox + 2, oy - 8, 2, 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ctx.fillRect(ox - 2, oy - 8, 1, 1);
+    ctx.fillRect(ox + 3, oy - 8, 1, 1);
+    ctx.fillStyle = '#0A1A08';
+    ctx.fillRect(ox - 2, oy - 7, 1, 1);
+    ctx.fillRect(ox + 3, oy - 7, 1, 1);
+
+    // Nose
+    ctx.fillStyle = '#FF6080';
+    ctx.fillRect(ox - 1, oy - 5, 2, 1);
+
+    // Whiskers
+    ctx.fillStyle = 'rgba(138,96,64,0.35)';
+    ctx.fillRect(ox - 5, oy - 5, 4, 1);
+    ctx.fillRect(ox + 2, oy - 5, 4, 1);
+
+    // Front paws
+    ctx.fillStyle = '#E07830';
+    ctx.fillRect(ox - 4, oy + 7, 3, 3);
+    ctx.fillRect(ox + 2, oy + 7, 3, 3);
+    ctx.fillStyle = '#F8E8D0';
+    ctx.fillRect(ox - 4, oy + 8, 2, 2);
+    ctx.fillRect(ox + 2, oy + 8, 2, 2);
 
     c.refresh();
   }

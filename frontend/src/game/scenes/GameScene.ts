@@ -30,6 +30,7 @@ import {
 import { CollisionSystem } from '../systems/CollisionSystem';
 import { Player } from '../entities/Player';
 import { NPC } from '../entities/NPC';
+import { CatNPC } from '../entities/CatNPC';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -87,6 +88,7 @@ const SHOP_ITEM_TEXTURES: Record<string, string> = {
   'pool-table': 'pool-table',
   'work-desk': 'work-desk',
   'office-chair': 'office-chair',
+  'pet-cat': 'pet-cat',
 };
 
 const TILE_COLORS = new Map<TileType, number>([
@@ -152,6 +154,7 @@ export class GameScene extends Phaser.Scene {
   private col!: CollisionSystem;
   private player!: Player;
   private npcs: NPC[] = [];
+  private catNPCs: Map<string, CatNPC> = new Map();
   private pondAnims: Phaser.GameObjects.TileSprite[] = [];
   private redFlowers: Phaser.GameObjects.Image[] = [];
   private leafEmitter: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
@@ -323,6 +326,7 @@ export class GameScene extends Phaser.Scene {
 
     this.player.update(delta, this.cursors, this.wasd, this.col);
     for (const npc of this.npcs) npc.update(delta, this.col);
+    for (const cat of this.catNPCs.values()) cat.update(delta, this.col);
 
     if (this.leafEmitter) {
       const cam = this.cameras.main;
@@ -1319,6 +1323,17 @@ export class GameScene extends Phaser.Scene {
   /** Spawn a placed item sprite. Idempotent — duplicate ids are ignored. */
   private spawnPlacedItem(id: string | undefined, itemId: string, x: number, y: number, pricePaid: number, showEffect = false): void {
     if (id && this.placedItemIds.has(id)) return;
+
+    if (itemId === 'pet-cat') {
+      const cat = new CatNPC(this, x, y);
+      if (id) {
+        this.placedItemIds.add(id);
+        this.catNPCs.set(id, cat);
+      }
+      if (showEffect) this.playPlacementEffects(x, y);
+      return;
+    }
+
     const tex = SHOP_ITEM_TEXTURES[itemId];
     if (!tex) return;
 
@@ -1527,6 +1542,14 @@ export class GameScene extends Phaser.Scene {
   }
 
   private removePlacedItemVisual(id: string): void {
+    const cat = this.catNPCs.get(id);
+    if (cat) {
+      cat.getContainer().destroy();
+      this.catNPCs.delete(id);
+      this.placedItemIds.delete(id);
+      return;
+    }
+
     const item = this.placedItems.get(id);
     if (!item) return;
     item.sprite.destroy();

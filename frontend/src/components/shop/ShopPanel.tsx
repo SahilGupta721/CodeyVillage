@@ -1435,9 +1435,9 @@ const BASE_CATEGORIES: ShopCategory[] = [
     label: 'Pets',
     emoji: '🐾',
     items: [
-      { id: 'pet-cat',   name: 'Cat',   emoji: '🐱', icon: <CatIcon />,   price: 300 },
-      { id: 'pet-bunny', name: 'Bunny', emoji: '🐰', icon: <BunnyIcon />, price: 200 },
-      { id: 'pet-dog',   name: 'Dog',   emoji: '🐶', icon: <DogIcon />,   price: 350 },
+      { id: 'pet-cat',   name: 'Cat',   emoji: '🐱', icon: <CatIcon />,   price: 20000 },
+      { id: 'pet-bunny', name: 'Bunny', emoji: '🐰', icon: <BunnyIcon />, price: 20000 },
+      { id: 'pet-dog',   name: 'Dog',   emoji: '🐶', icon: <DogIcon />,   price: 20000 },
     ],
   },
   {
