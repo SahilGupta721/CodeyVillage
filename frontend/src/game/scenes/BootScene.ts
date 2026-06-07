@@ -577,6 +577,8 @@ export class BootScene extends Phaser.Scene {
 
     // Pets
     this.makePetCat();
+    this.makePetDog();
+    this.makePetBunny();
   }
 
   // ── Furniture ────────────────────────────────────────────────────────────────
@@ -2045,6 +2047,147 @@ export class BootScene extends Phaser.Scene {
     ctx.fillRect(11, 1, 10, 2);
     ctx.fillStyle = '#363636';
     ctx.fillRect(12, 1, 7, 1);    // cap highlight
+
+    c.refresh();
+  }
+
+  // ─── Pet ghost preview textures (32 × 32 each) ──────────────────────────────
+  //
+  // Each mirrors the NPC's sitting pose; used as the semi-transparent ghost
+  // sprite while the player is deciding where to place the pet.
+
+  private makePetDog(): void {
+    const c = this.textures.createCanvas('pet-dog', 32, 32)!;
+    const ctx = c.getContext();
+    const ox = 16, oy = 20;  // container origin offset (foot point)
+
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.22)';
+    ctx.fillRect(ox - 6, oy + 7, 12, 3);
+
+    // Tail
+    ctx.fillStyle = '#A86820';
+    ctx.fillRect(ox + 5, oy - 1, 4, 8);
+    ctx.fillStyle = '#C88838';
+    ctx.fillRect(ox + 6, oy + 0, 3, 6);
+
+    // Floppy left ear
+    ctx.fillStyle = '#A86820';
+    ctx.fillRect(ox - 8, oy - 7, 5, 9);
+    ctx.fillStyle = '#C88838';
+    ctx.fillRect(ox - 7, oy - 6, 3, 7);
+
+    // Floppy right ear
+    ctx.fillStyle = '#A86820';
+    ctx.fillRect(ox + 4, oy - 7, 5, 9);
+    ctx.fillStyle = '#C88838';
+    ctx.fillRect(ox + 5, oy - 6, 3, 7);
+
+    // Body
+    ctx.fillStyle = '#A86820';
+    ctx.fillRect(ox - 6, oy - 2, 12, 10);
+    ctx.fillStyle = '#C88838';
+    ctx.fillRect(ox - 5, oy - 1, 10, 8);
+    ctx.fillStyle = '#D8A048';
+    ctx.fillRect(ox - 5, oy - 1, 6, 4);
+
+    // Head
+    ctx.fillStyle = '#A86820';
+    ctx.fillRect(ox - 6, oy - 12, 12, 11);
+    ctx.fillStyle = '#C88838';
+    ctx.fillRect(ox - 5, oy - 11, 10, 9);
+    ctx.fillStyle = '#D8A048';
+    ctx.fillRect(ox - 5, oy - 11, 6, 4);
+
+    // Snout
+    ctx.fillStyle = '#E0B060';
+    ctx.fillRect(ox - 4, oy - 6, 8, 5);
+    ctx.fillStyle = '#ECDBA8';
+    ctx.fillRect(ox - 3, oy - 5, 6, 3);
+
+    // Nose
+    ctx.fillStyle = '#1A1A1A';
+    ctx.fillRect(ox - 2, oy - 6, 4, 2);
+
+    // Eyes
+    ctx.fillStyle = '#2A1408';
+    ctx.fillRect(ox - 4, oy - 9, 3, 3);
+    ctx.fillRect(ox + 2, oy - 9, 3, 3);
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.fillRect(ox - 3, oy - 9, 1, 1);
+    ctx.fillRect(ox + 3, oy - 9, 1, 1);
+
+    // Eyebrows
+    ctx.fillStyle = '#8A5018';
+    ctx.fillRect(ox - 4, oy - 10, 3, 1);
+    ctx.fillRect(ox + 2, oy - 10, 3, 1);
+
+    // Front paws
+    ctx.fillStyle = '#A86820';
+    ctx.fillRect(ox - 5, oy + 7, 4, 3);
+    ctx.fillRect(ox + 2, oy + 7, 4, 3);
+    ctx.fillStyle = '#C88838';
+    ctx.fillRect(ox - 4, oy + 8, 3, 2);
+    ctx.fillRect(ox + 3, oy + 8, 3, 2);
+
+    c.refresh();
+  }
+
+  private makePetBunny(): void {
+    const c = this.textures.createCanvas('pet-bunny', 32, 32)!;
+    const ctx = c.getContext();
+    const ox = 16, oy = 22;  // lower origin to fit long ears
+
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.22)';
+    ctx.fillRect(ox - 5, oy + 8, 10, 3);
+
+    // Long ears (upright)
+    ctx.fillStyle = '#D0CCCA';
+    ctx.fillRect(ox - 4, oy - 19, 3, 12);
+    ctx.fillRect(ox + 2, oy - 19, 3, 12);
+    ctx.fillStyle = '#F4A0A0';
+    ctx.fillRect(ox - 3, oy - 18, 1, 9);
+    ctx.fillRect(ox + 3, oy - 18, 1, 9);
+
+    // Body
+    ctx.fillStyle = '#D0CCCA';
+    ctx.fillRect(ox - 5, oy - 3, 10, 11);
+    ctx.fillStyle = '#EEEAE8';
+    ctx.fillRect(ox - 4, oy - 2, 8, 9);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(ox - 4, oy - 2, 5, 5);
+
+    // Fluffy tail
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(ox + 4, oy + 1, 4, 4);
+    ctx.fillStyle = '#F0EEEC';
+    ctx.fillRect(ox + 5, oy + 2, 3, 3);
+
+    // Head
+    ctx.fillStyle = '#D0CCCA';
+    ctx.fillRect(ox - 5, oy - 12, 10, 10);
+    ctx.fillStyle = '#EEEAE8';
+    ctx.fillRect(ox - 4, oy - 11, 8, 8);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(ox - 4, oy - 11, 5, 5);
+
+    // Eyes (pink)
+    ctx.fillStyle = '#E02080';
+    ctx.fillRect(ox - 3, oy - 8, 2, 2);
+    ctx.fillRect(ox + 2, oy - 8, 2, 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ctx.fillRect(ox - 2, oy - 8, 1, 1);
+    ctx.fillRect(ox + 3, oy - 8, 1, 1);
+
+    // Nose
+    ctx.fillStyle = '#FF80B0';
+    ctx.fillRect(ox - 1, oy - 5, 2, 1);
+
+    // Front paws
+    ctx.fillStyle = '#EEEAE8';
+    ctx.fillRect(ox - 4, oy + 7, 3, 3);
+    ctx.fillRect(ox + 2, oy + 7, 3, 3);
 
     c.refresh();
   }

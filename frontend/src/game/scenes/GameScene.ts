@@ -31,6 +31,8 @@ import { CollisionSystem } from '../systems/CollisionSystem';
 import { Player } from '../entities/Player';
 import { NPC } from '../entities/NPC';
 import { CatNPC } from '../entities/CatNPC';
+import { DogNPC } from '../entities/DogNPC';
+import { BunnyNPC } from '../entities/BunnyNPC';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -88,7 +90,9 @@ const SHOP_ITEM_TEXTURES: Record<string, string> = {
   'pool-table': 'pool-table',
   'work-desk': 'work-desk',
   'office-chair': 'office-chair',
-  'pet-cat': 'pet-cat',
+  'pet-cat':   'pet-cat',
+  'pet-dog':   'pet-dog',
+  'pet-bunny': 'pet-bunny',
 };
 
 const TILE_COLORS = new Map<TileType, number>([
@@ -154,7 +158,7 @@ export class GameScene extends Phaser.Scene {
   private col!: CollisionSystem;
   private player!: Player;
   private npcs: NPC[] = [];
-  private catNPCs: Map<string, CatNPC> = new Map();
+  private petNPCs: Map<string, CatNPC | DogNPC | BunnyNPC> = new Map();
   private pondAnims: Phaser.GameObjects.TileSprite[] = [];
   private redFlowers: Phaser.GameObjects.Image[] = [];
   private leafEmitter: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
@@ -326,7 +330,7 @@ export class GameScene extends Phaser.Scene {
 
     this.player.update(delta, this.cursors, this.wasd, this.col);
     for (const npc of this.npcs) npc.update(delta, this.col);
-    for (const cat of this.catNPCs.values()) cat.update(delta, this.col);
+    for (const pet of this.petNPCs.values()) pet.update(delta, this.col);
 
     if (this.leafEmitter) {
       const cam = this.cameras.main;
@@ -1324,11 +1328,14 @@ export class GameScene extends Phaser.Scene {
   private spawnPlacedItem(id: string | undefined, itemId: string, x: number, y: number, pricePaid: number, showEffect = false): void {
     if (id && this.placedItemIds.has(id)) return;
 
-    if (itemId === 'pet-cat') {
-      const cat = new CatNPC(this, x, y);
+    if (itemId === 'pet-cat' || itemId === 'pet-dog' || itemId === 'pet-bunny') {
+      let pet: CatNPC | DogNPC | BunnyNPC;
+      if (itemId === 'pet-dog')        pet = new DogNPC(this, x, y);
+      else if (itemId === 'pet-bunny') pet = new BunnyNPC(this, x, y);
+      else                             pet = new CatNPC(this, x, y);
       if (id) {
         this.placedItemIds.add(id);
-        this.catNPCs.set(id, cat);
+        this.petNPCs.set(id, pet);
       }
       if (showEffect) this.playPlacementEffects(x, y);
       return;
@@ -1542,10 +1549,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   private removePlacedItemVisual(id: string): void {
-    const cat = this.catNPCs.get(id);
-    if (cat) {
-      cat.getContainer().destroy();
-      this.catNPCs.delete(id);
+    const pet = this.petNPCs.get(id);
+    if (pet) {
+      pet.getContainer().destroy();
+      this.petNPCs.delete(id);
       this.placedItemIds.delete(id);
       return;
     }
