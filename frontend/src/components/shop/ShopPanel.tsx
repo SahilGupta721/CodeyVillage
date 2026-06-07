@@ -1418,100 +1418,6 @@ function DogIcon() {
   );
 }
 
-function ParrotIcon() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
-      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
-      <rect x="8" y="30" width="16" height="2" fill="rgba(0,0,0,0.22)" />
-      {/* perch */}
-      <rect x="5" y="23" width="22" height="3" fill="#7A4A22" />
-      <rect x="6" y="24" width="20" height="2" fill="#C08040" />
-      <rect x="11" y="26" width="3" height="4" fill="#7A4A22" />
-      <rect x="18" y="26" width="3" height="4" fill="#7A4A22" />
-      {/* tail feathers */}
-      <rect x="12" y="20" width="2" height="6" fill="#D4B020" />
-      <rect x="15" y="21" width="2" height="5" fill="#28A028" />
-      <rect x="18" y="20" width="2" height="6" fill="#2040CC" />
-      {/* body */}
-      <rect x="10" y="10" width="13" height="13" fill="#186818" />
-      <rect x="11" y="11" width="11" height="11" fill="#28A028" />
-      <rect x="11" y="11" width="7" height="7" fill="#40C040" />
-      {/* red wing patch */}
-      <rect x="10" y="13" width="4" height="7" fill="#CC2020" />
-      <rect x="10" y="14" width="3" height="5" fill="#E03030" />
-      {/* blue wing accent */}
-      <rect x="19" y="11" width="3" height="6" fill="#2040CC" />
-      {/* head */}
-      <rect x="10" y="3" width="13" height="9" fill="#186818" />
-      <rect x="11" y="4" width="11" height="7" fill="#28A028" />
-      <rect x="11" y="4" width="7" height="4" fill="#40C040" />
-      {/* yellow forehead crest */}
-      <rect x="14" y="1" width="5" height="4" fill="#D4B020" />
-      <rect x="15" y="2" width="3" height="3" fill="#F0D040" />
-      {/* beak */}
-      <rect x="22" y="7" width="5" height="4" fill="#B89010" />
-      <rect x="22" y="7" width="5" height="2" fill="#D4A820" />
-      <rect x="22" y="9" width="4" height="2" fill="#907010" />
-      {/* eye */}
-      <rect x="19" y="5" width="4" height="4" fill="#1A1A1A" />
-      <rect x="20" y="5" width="2" height="2" fill="#C8A010" />
-      <rect x="21" y="6" width="1" height="1" fill="#FFFFFF" />
-      {/* feet on perch */}
-      <rect x="12" y="23" width="3" height="2" fill="#B89010" />
-      <rect x="17" y="23" width="3" height="2" fill="#B89010" />
-    </svg>
-  );
-}
-
-function FoxIcon() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
-      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
-      <rect x="8" y="30" width="16" height="2" fill="rgba(0,0,0,0.22)" />
-      {/* large bushy tail */}
-      <rect x="19" y="16" width="9" height="13" fill="#C04810" />
-      <rect x="20" y="17" width="7" height="11" fill="#E06020" />
-      <rect x="21" y="17" width="5" height="8" fill="#F08030" />
-      {/* tail white tip */}
-      <rect x="20" y="25" width="7" height="4" fill="#F8F0E8" />
-      <rect x="21" y="26" width="5" height="3" fill="#FFFFFF" />
-      {/* body */}
-      <rect x="7" y="17" width="14" height="13" fill="#C04810" />
-      <rect x="8" y="18" width="12" height="11" fill="#E06020" />
-      <rect x="9" y="19" width="7" height="7" fill="#F08030" />
-      {/* white chest */}
-      <rect x="10" y="22" width="8" height="7" fill="#F8F0E8" />
-      {/* pointed left ear */}
-      <rect x="7" y="1" width="5" height="8" fill="#C04810" />
-      <rect x="8" y="2" width="3" height="6" fill="#E06020" />
-      <rect x="8" y="3" width="2" height="4" fill="#FF9090" />
-      {/* pointed right ear */}
-      <rect x="20" y="1" width="5" height="8" fill="#C04810" />
-      <rect x="21" y="2" width="3" height="6" fill="#E06020" />
-      <rect x="22" y="3" width="2" height="4" fill="#FF9090" />
-      {/* head */}
-      <rect x="7" y="5" width="18" height="14" fill="#C04810" />
-      <rect x="8" y="6" width="16" height="12" fill="#E06020" />
-      <rect x="9" y="7" width="9" height="8" fill="#F08030" />
-      {/* white cheeks/muzzle */}
-      <rect x="9" y="12" width="14" height="7" fill="#F8F0E8" />
-      <rect x="10" y="13" width="12" height="5" fill="#FFFFFF" />
-      {/* nose */}
-      <rect x="15" y="13" width="2" height="2" fill="#1A1A1A" />
-      {/* eyes */}
-      <rect x="10" y="8" width="4" height="4" fill="#1A1A1A" />
-      <rect x="11" y="8" width="2" height="2" fill="#D46820" />
-      <rect x="12" y="8" width="1" height="1" fill="#FFFFFF" />
-      <rect x="18" y="8" width="4" height="4" fill="#1A1A1A" />
-      <rect x="19" y="8" width="2" height="2" fill="#D46820" />
-      <rect x="20" y="8" width="1" height="1" fill="#FFFFFF" />
-      {/* front paws */}
-      <rect x="9" y="27" width="4" height="3" fill="#E06020" />
-      <rect x="15" y="27" width="4" height="3" fill="#E06020" />
-    </svg>
-  );
-}
-
 // ── shop catalogue ───────────────────────────────────────────────────────────
 
 const BASE_CATEGORIES: ShopCategory[] = [
@@ -1529,11 +1435,9 @@ const BASE_CATEGORIES: ShopCategory[] = [
     label: 'Pets',
     emoji: '🐾',
     items: [
-      { id: 'pet-cat',    name: 'Cat',    emoji: '🐱', icon: <CatIcon />,    price: 300 },
-      { id: 'pet-bunny',  name: 'Bunny',  emoji: '🐰', icon: <BunnyIcon />,  price: 200 },
-      { id: 'pet-dog',    name: 'Dog',    emoji: '🐶', icon: <DogIcon />,    price: 350 },
-      { id: 'pet-parrot', name: 'Parrot', emoji: '🦜', icon: <ParrotIcon />, price: 500 },
-      { id: 'pet-fox',    name: 'Fox',    emoji: '🦊', icon: <FoxIcon />,    price: 450 },
+      { id: 'pet-cat',   name: 'Cat',   emoji: '🐱', icon: <CatIcon />,   price: 300 },
+      { id: 'pet-bunny', name: 'Bunny', emoji: '🐰', icon: <BunnyIcon />, price: 200 },
+      { id: 'pet-dog',   name: 'Dog',   emoji: '🐶', icon: <DogIcon />,   price: 350 },
     ],
   },
   {
