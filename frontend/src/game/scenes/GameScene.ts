@@ -82,7 +82,6 @@ const SHOP_ITEM_TEXTURES: Record<string, string> = {
   'moon-crystal': 'moon-crystal',
   'mystic-orb': 'mystic-orb',
   'enchanted-bonsai': 'enchanted-bonsai',
-  'spirit-bells': 'spirit-bells',
   'arcade-machine': 'arcade-machine',
   'chess-board': 'chess-board',
   'cherry-blossom': 'cherry-blossom',

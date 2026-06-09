@@ -1242,48 +1242,6 @@ function EnchantedBonsaiIcon() {
   );
 }
 
-function SpiritBellsIcon() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
-      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
-      <rect x="6" y="30" width="20" height="2" fill="rgba(0,0,0,0.22)" />
-      {/* crossbar */}
-      <rect x="3" y="4" width="26" height="4" fill="#3D2010" />
-      <rect x="4" y="5" width="24" height="2" fill="#8B5E3C" />
-      <rect x="5" y="5" width="11" height="1" fill="#B07040" />
-      {/* left rope */}
-      <rect x="9" y="8" width="2" height="5" fill="#8B5E3C" />
-      {/* right rope */}
-      <rect x="21" y="8" width="2" height="5" fill="#8B5E3C" />
-      {/* left bell */}
-      <rect x="6" y="13" width="8" height="10" fill="#604000" />
-      <rect x="7" y="13" width="6" height="8" fill="#C08020" />
-      <rect x="7" y="13" width="4" height="5" fill="#DCA030" />
-      <rect x="7" y="13" width="3" height="3" fill="#F8C050" />
-      {/* left bell rim */}
-      <rect x="6" y="22" width="8" height="3" fill="#482E00" />
-      <rect x="7" y="22" width="6" height="2" fill="#986018" />
-      {/* left clapper */}
-      <rect x="9" y="25" width="2" height="4" fill="#3A2008" />
-      <rect x="9" y="28" width="2" height="2" fill="#5A3010" />
-      {/* right bell */}
-      <rect x="18" y="13" width="8" height="10" fill="#604000" />
-      <rect x="19" y="13" width="6" height="8" fill="#C08020" />
-      <rect x="19" y="13" width="4" height="5" fill="#DCA030" />
-      <rect x="19" y="13" width="3" height="3" fill="#F8C050" />
-      {/* right bell rim */}
-      <rect x="18" y="22" width="8" height="3" fill="#482E00" />
-      <rect x="19" y="22" width="6" height="2" fill="#986018" />
-      {/* right clapper */}
-      <rect x="21" y="25" width="2" height="4" fill="#3A2008" />
-      <rect x="21" y="28" width="2" height="2" fill="#5A3010" />
-      {/* shimmer highlights */}
-      <rect x="8" y="14" width="2" height="2" fill="#FFFAC8" opacity="0.70" />
-      <rect x="20" y="14" width="2" height="2" fill="#FFFAC8" opacity="0.70" />
-    </svg>
-  );
-}
-
 // ── pet icons ────────────────────────────────────────────────────────────────
 
 function CatIcon() {
@@ -1505,8 +1463,6 @@ const BASE_CATEGORIES: ShopCategory[] = [
       { id: 'moon-crystal', name: 'Moon Crystal', emoji: '🌙', icon: <MoonCrystalIcon />, price: 750 },
       { id: 'mystic-orb', name: 'Mystic Orb', emoji: '🔮', icon: <MysticOrbIcon />, price: 1000 },
       { id: 'enchanted-bonsai', name: 'Enchanted Bonsai', emoji: '🎋', icon: <EnchantedBonsaiIcon />, price: 650 },
-
-      { id: 'spirit-bells', name: 'Spirit Bells', emoji: '🔔', icon: <SpiritBellsIcon />, price: 420 },
     ],
   },
 ];

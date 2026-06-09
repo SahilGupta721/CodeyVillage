@@ -565,8 +565,6 @@ export class BootScene extends Phaser.Scene {
     this.makeMysticOrb();
     this.makeEnchantedBonsai();
 
-    this.makeSpiritBells();
-
     // Beach
     this.makeSandcastle();
 
@@ -1658,61 +1656,6 @@ export class BootScene extends Phaser.Scene {
     ctx.fillRect(8, 7, 1, 1);
     ctx.fillRect(20, 6, 1, 1);
     ctx.fillRect(14, 4, 1, 1);
-    c.refresh();
-  }
-
-  private makeSpiritBells(): void {
-    const c = this.textures.createCanvas('spirit-bells', 32, 32)!;
-    const ctx = c.getContext();
-    ctx.fillStyle = 'rgba(0,0,0,0.20)';
-    ctx.fillRect(6, 28, 20, 3);
-    // Hanging cord
-    ctx.fillStyle = '#7A5A2A';
-    ctx.fillRect(15, 2, 2, 5);
-    ctx.fillRect(10, 5, 12, 2);
-    ctx.fillRect(10, 5, 2, 4);
-    ctx.fillRect(20, 5, 2, 4);
-    // Left bell
-    ctx.fillStyle = '#8A6020';
-    ctx.fillRect(7, 9, 8, 10);
-    ctx.fillStyle = '#D8A030';
-    ctx.fillRect(8, 10, 6, 8);
-    ctx.fillStyle = '#F0C050';
-    ctx.fillRect(9, 10, 3, 4);
-    ctx.fillStyle = '#8A6020';
-    ctx.fillRect(8, 18, 6, 2);
-    ctx.fillRect(10, 8, 2, 2);
-    ctx.fillStyle = '#6A4818';
-    ctx.fillRect(10, 20, 2, 3);
-    // Center bell (taller)
-    ctx.fillStyle = '#8A6020';
-    ctx.fillRect(12, 6, 8, 12);
-    ctx.fillStyle = '#D8A030';
-    ctx.fillRect(13, 7, 6, 10);
-    ctx.fillStyle = '#F0C050';
-    ctx.fillRect(14, 7, 3, 5);
-    ctx.fillStyle = '#8A6020';
-    ctx.fillRect(13, 17, 6, 2);
-    ctx.fillRect(15, 5, 2, 2);
-    ctx.fillStyle = '#6A4818';
-    ctx.fillRect(15, 19, 2, 4);
-    // Right bell
-    ctx.fillStyle = '#8A6020';
-    ctx.fillRect(17, 9, 8, 10);
-    ctx.fillStyle = '#D8A030';
-    ctx.fillRect(18, 10, 6, 8);
-    ctx.fillStyle = '#F0C050';
-    ctx.fillRect(19, 10, 3, 4);
-    ctx.fillStyle = '#8A6020';
-    ctx.fillRect(18, 18, 6, 2);
-    ctx.fillRect(20, 8, 2, 2);
-    ctx.fillStyle = '#6A4818';
-    ctx.fillRect(20, 20, 2, 3);
-    // Decorative rings
-    ctx.fillStyle = '#F0C050';
-    ctx.fillRect(8, 14, 6, 1);
-    ctx.fillRect(13, 13, 6, 1);
-    ctx.fillRect(18, 14, 6, 1);
     c.refresh();
   }
 
