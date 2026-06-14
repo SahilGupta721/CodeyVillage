@@ -551,6 +551,7 @@ export class BootScene extends Phaser.Scene {
     this.makeCandleSet();
     this.makeWovenRug();
     this.makeFlowerBasket();
+    this.makeBasketball();
 
     // Structures
     this.makeCarvedDoor();
@@ -1257,6 +1258,52 @@ export class BootScene extends Phaser.Scene {
     ctx.fillRect(21, 15, 2, 3);
     ctx.fillRect(8, 13, 4, 2);
     ctx.fillRect(22, 14, 5, 2);
+    c.refresh();
+  }
+
+  private makeBasketball(): void {
+    const c = this.textures.createCanvas('basketball', 32, 32)!;
+    const ctx = c.getContext();
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.22)';
+    ctx.fillRect(9, 27, 14, 3);
+    // Orange body (circle approximation)
+    ctx.fillStyle = '#E8600A';
+    ctx.fillRect(13, 5, 6, 2);
+    ctx.fillRect(11, 7, 10, 2);
+    ctx.fillRect(9, 9, 14, 2);
+    ctx.fillRect(8, 11, 16, 12);
+    ctx.fillRect(9, 23, 14, 2);
+    ctx.fillRect(11, 25, 10, 1);
+    ctx.fillRect(13, 26, 6, 1);
+    // Highlight (top-left)
+    ctx.fillStyle = '#F07A20';
+    ctx.fillRect(11, 8, 3, 2);
+    ctx.fillRect(9, 10, 5, 3);
+    ctx.fillRect(9, 11, 4, 4);
+    // Dark shading (bottom-right)
+    ctx.fillStyle = '#C04808';
+    ctx.fillRect(19, 19, 5, 5);
+    ctx.fillRect(17, 23, 6, 2);
+    ctx.fillRect(14, 25, 5, 1);
+    // Black seams
+    ctx.fillStyle = '#1A1A1A';
+    ctx.fillRect(15, 5, 2, 22);    // vertical
+    ctx.fillRect(8, 15, 16, 2);    // horizontal
+    // Left arc seam
+    ctx.fillRect(11, 7, 1, 1);
+    ctx.fillRect(10, 8, 1, 3);
+    ctx.fillRect(9, 11, 1, 6);
+    ctx.fillRect(10, 17, 1, 3);
+    ctx.fillRect(11, 20, 1, 2);
+    ctx.fillRect(12, 22, 1, 1);
+    // Right arc seam (mirror)
+    ctx.fillRect(20, 7, 1, 1);
+    ctx.fillRect(21, 8, 1, 3);
+    ctx.fillRect(22, 11, 1, 6);
+    ctx.fillRect(21, 17, 1, 3);
+    ctx.fillRect(20, 20, 1, 2);
+    ctx.fillRect(19, 22, 1, 1);
     c.refresh();
   }
 

@@ -73,6 +73,7 @@ const SHOP_ITEM_TEXTURES: Record<string, string> = {
   'candle-set': 'candle-set',
   'woven-rug': 'woven-rug',
   'flower-basket': 'flower-basket',
+  'basketball': 'basketball',
   'carved-door': 'carved-door',
   'cobble-wall': 'cobble-wall',
   'wooden-arch': 'wooden-arch',

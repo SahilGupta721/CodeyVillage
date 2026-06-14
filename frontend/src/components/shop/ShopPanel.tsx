@@ -939,6 +939,47 @@ function PoolTableIcon() {
   );
 }
 
+function BasketballIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
+      {/* shadow */}
+      <rect x="9" y="27" width="14" height="3" fill="rgba(0,0,0,0.22)" />
+      {/* orange body */}
+      <rect x="13" y="5" width="6" height="2" fill="#E8600A" />
+      <rect x="11" y="7" width="10" height="2" fill="#E8600A" />
+      <rect x="9" y="9" width="14" height="2" fill="#E8600A" />
+      <rect x="8" y="11" width="16" height="12" fill="#E8600A" />
+      <rect x="9" y="23" width="14" height="2" fill="#E8600A" />
+      <rect x="11" y="25" width="10" height="1" fill="#E8600A" />
+      <rect x="13" y="26" width="6" height="1" fill="#E8600A" />
+      {/* highlight */}
+      <rect x="11" y="8" width="3" height="2" fill="#F07A20" />
+      <rect x="9" y="10" width="5" height="3" fill="#F07A20" />
+      <rect x="9" y="11" width="4" height="4" fill="#F07A20" />
+      {/* dark shading */}
+      <rect x="19" y="19" width="5" height="5" fill="#C04808" />
+      <rect x="17" y="23" width="6" height="2" fill="#C04808" />
+      <rect x="14" y="25" width="5" height="1" fill="#C04808" />
+      {/* seams */}
+      <rect x="15" y="5" width="2" height="22" fill="#1A1A1A" />
+      <rect x="8" y="15" width="16" height="2" fill="#1A1A1A" />
+      <rect x="11" y="7" width="1" height="1" fill="#1A1A1A" />
+      <rect x="10" y="8" width="1" height="3" fill="#1A1A1A" />
+      <rect x="9" y="11" width="1" height="6" fill="#1A1A1A" />
+      <rect x="10" y="17" width="1" height="3" fill="#1A1A1A" />
+      <rect x="11" y="20" width="1" height="2" fill="#1A1A1A" />
+      <rect x="12" y="22" width="1" height="1" fill="#1A1A1A" />
+      <rect x="20" y="7" width="1" height="1" fill="#1A1A1A" />
+      <rect x="21" y="8" width="1" height="3" fill="#1A1A1A" />
+      <rect x="22" y="11" width="1" height="6" fill="#1A1A1A" />
+      <rect x="21" y="17" width="1" height="3" fill="#1A1A1A" />
+      <rect x="20" y="20" width="1" height="2" fill="#1A1A1A" />
+      <rect x="19" y="22" width="1" height="1" fill="#1A1A1A" />
+    </svg>
+  );
+}
+
 // ── arcade machine icon ───────────────────────────────────────────────────────
 
 function ArcadeMachineIcon() {
@@ -1430,6 +1471,7 @@ const BASE_CATEGORIES: ShopCategory[] = [
       { id: 'candle-set', name: 'Candle Set', emoji: '🕯️', icon: <CandleSetIcon />, price: 60 },
       { id: 'woven-rug', name: 'Woven Rug', emoji: '🧶', icon: <WovenRugIcon />, price: 75 },
       { id: 'flower-basket', name: 'Flower Basket', emoji: '🌸', icon: <FlowerBasketIcon />, price: 55 },
+      { id: 'basketball', name: 'Basketball', emoji: '🏀', icon: <BasketballIcon />, price: 150 },
     ],
   },
   {
