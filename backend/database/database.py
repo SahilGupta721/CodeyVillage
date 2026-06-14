@@ -15,7 +15,7 @@ rooms_collection = db["rooms"]
 interactions_collection = db["interactions"]
 island_state_collection = db["island_state"]
 shop_items_collection = db["shop_items"]
-
+feedback_collection = db["feedback"] 
 def get_db():
     return db
 

@@ -1,8 +1,6 @@
-from database import db
 from models.feedback import FeedbackModel
 from datetime import datetime
-
-feedback_collection = db["feedback"]
+from database.database import feedback_collection
 
 async def submit_feedback(feedback: FeedbackModel):
     doc = {
