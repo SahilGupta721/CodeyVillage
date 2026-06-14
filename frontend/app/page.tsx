@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../lib/firebase";
+import FeedbackModal from "./components/FeedbackModal";
 
 interface S {
   bg: string; border: string; hi: string; lo: string;
@@ -70,6 +71,7 @@ function PixelStep({ n, s, title, children }: { n: string; s: S; title: string; 
 export default function Home() {
   const router = useRouter();
   const [checking, setChecking] = useState(true);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
@@ -106,6 +108,12 @@ export default function Home() {
           style={{ fontFamily: 'var(--font-pixel),monospace', fontSize: 7, color: '#A8B8FF', background: 'transparent', border: 'none', cursor: 'pointer', letterSpacing: '0.05em', textShadow: '1px 1px 0 #0D1020' }}
         >
           SIGN IN  ▶
+        </button>
+        <button
+          onClick={() => setFeedbackOpen(true)}
+          style={{ fontFamily: 'var(--font-pixel),monospace', fontSize: 7, color: '#7A8AAA', background: 'transparent', border: 'none', cursor: 'pointer', letterSpacing: '0.05em' }}
+        >
+          FEEDBACK
         </button>
       </header>
 
@@ -202,7 +210,9 @@ export default function Home() {
           </PixelCard>
 
         </div>
+        <FeedbackModal isOpen={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
       </main>
+
     </div>
   );
 }
