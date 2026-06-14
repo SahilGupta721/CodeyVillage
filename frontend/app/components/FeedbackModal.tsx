@@ -45,10 +45,15 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
         display: 'block' as const,
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!name || !email || !message) return;
-        // TODO: wire up to your backend/API
-        console.log({ name, email, message });
+
+        await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/feedback`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email, message })
+        });
+
         setSubmitted(true);
     };
 
