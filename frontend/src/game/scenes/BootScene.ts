@@ -1264,46 +1264,115 @@ export class BootScene extends Phaser.Scene {
   private makeBasketball(): void {
     const c = this.textures.createCanvas('basketball', 32, 32)!;
     const ctx = c.getContext();
-    // Shadow
-    ctx.fillStyle = 'rgba(0,0,0,0.22)';
-    ctx.fillRect(9, 27, 14, 3);
-    // Orange body (circle approximation)
-    ctx.fillStyle = '#E8600A';
-    ctx.fillRect(13, 5, 6, 2);
-    ctx.fillRect(11, 7, 10, 2);
-    ctx.fillRect(9, 9, 14, 2);
-    ctx.fillRect(8, 11, 16, 12);
-    ctx.fillRect(9, 23, 14, 2);
-    ctx.fillRect(11, 25, 10, 1);
-    ctx.fillRect(13, 26, 6, 1);
-    // Highlight (top-left)
-    ctx.fillStyle = '#F07A20';
-    ctx.fillRect(11, 8, 3, 2);
-    ctx.fillRect(9, 10, 5, 3);
-    ctx.fillRect(9, 11, 4, 4);
-    // Dark shading (bottom-right)
-    ctx.fillStyle = '#C04808';
-    ctx.fillRect(19, 19, 5, 5);
-    ctx.fillRect(17, 23, 6, 2);
-    ctx.fillRect(14, 25, 5, 1);
-    // Black seams
-    ctx.fillStyle = '#1A1A1A';
-    ctx.fillRect(15, 5, 2, 22);    // vertical
-    ctx.fillRect(8, 15, 16, 2);    // horizontal
-    // Left arc seam
-    ctx.fillRect(11, 7, 1, 1);
-    ctx.fillRect(10, 8, 1, 3);
-    ctx.fillRect(9, 11, 1, 6);
-    ctx.fillRect(10, 17, 1, 3);
-    ctx.fillRect(11, 20, 1, 2);
+
+    // Oval contact shadow (ball sitting on ground)
+    ctx.fillStyle = 'rgba(0,0,0,0.40)';
+    ctx.fillRect(13, 26, 6,  1);
+    ctx.fillRect(11, 27, 10, 1);
+    ctx.fillRect(12, 28, 8,  1);
+    ctx.fillRect(13, 29, 6,  1);
+
+    // ── Ball body: circle r=9, center (16,16), drawn row-by-row ──────────────
+    // [y, xStart, width]
+    const rows: [number, number, number][] = [
+      [ 7, 16,  1],
+      [ 8, 12,  9],
+      [ 9, 10, 13],
+      [10,  9, 15],
+      [11,  8, 17],
+      [12,  8, 17],
+      [13,  7, 19],
+      [14,  7, 19],
+      [15,  7, 19],
+      [16,  7, 19],
+      [17,  7, 19],
+      [18,  7, 19],
+      [19,  7, 19],
+      [20,  8, 17],
+      [21,  8, 17],
+      [22,  9, 15],
+      [23, 10, 13],
+      [24, 12,  9],
+      [25, 16,  1],
+    ];
+
+    // Base mid-orange
+    ctx.fillStyle = '#E06010';
+    for (const [y, x, w] of rows) ctx.fillRect(x, y, w, 1);
+
+    // Lit zone: upper-left
+    ctx.fillStyle = '#F07A28';
+    ctx.fillRect(12,  8,  6, 1);
+    ctx.fillRect(10,  9,  9, 1);
+    ctx.fillRect( 9, 10,  9, 1);
+    ctx.fillRect( 8, 11,  9, 1);
+    ctx.fillRect( 8, 12,  8, 1);
+    ctx.fillRect( 7, 13,  8, 1);
+    ctx.fillRect( 7, 14,  7, 1);
+    ctx.fillRect( 7, 15,  6, 1);
+    ctx.fillRect( 7, 16,  5, 1);
+
+    // Specular highlight
+    ctx.fillStyle = '#FFC878';
+    ctx.fillRect(12,  8,  3, 1);
+    ctx.fillRect(10,  9,  4, 1);
+    ctx.fillRect( 9, 10,  4, 1);
+    ctx.fillRect( 9, 11,  3, 1);
+
+    // Shadow zone: lower-right
+    ctx.fillStyle = '#B03A08';
+    ctx.fillRect(17, 17,  8, 1);
+    ctx.fillRect(17, 18,  8, 1);
+    ctx.fillRect(17, 19,  8, 1);
+    ctx.fillRect(18, 20,  7, 1);
+    ctx.fillRect(18, 21,  7, 1);
+    ctx.fillRect(19, 22,  5, 1);
+    ctx.fillRect(20, 23,  3, 1);
+
+    // Deep shadow: bottom rim (grounded look)
+    ctx.fillStyle = '#7A2800';
+    ctx.fillRect(21, 22,  2, 1);
+    ctx.fillRect(20, 23,  2, 1);
+    ctx.fillRect(16, 24,  4, 1);
+
+    // ── Seams ─────────────────────────────────────────────────────────────────
+    ctx.fillStyle = '#2A1400';
+
+    // Vertical centre seam (x=15–16, y=8–24)
+    ctx.fillRect(15, 8, 2, 17);
+
+    // Horizontal equator seam (y=15–16, full ball width)
+    ctx.fillRect( 7, 15, 19, 1);
+    ctx.fillRect( 7, 16, 19, 1);
+
+    // Left curved seam: arcs from top-centre → leftmost bulge at y=14–18 → bottom-centre
+    ctx.fillRect(13,  8, 1, 1);
+    ctx.fillRect(12,  9, 1, 1);
+    ctx.fillRect(11, 10, 1, 1);
+    ctx.fillRect(10, 11, 1, 1);
+    ctx.fillRect( 9, 12, 1, 2);
+    ctx.fillRect( 8, 14, 1, 5);  // leftmost — y=14–18
+    ctx.fillRect( 9, 19, 1, 1);
+    ctx.fillRect(10, 20, 1, 1);
+    ctx.fillRect(11, 21, 1, 1);
     ctx.fillRect(12, 22, 1, 1);
-    // Right arc seam (mirror)
-    ctx.fillRect(20, 7, 1, 1);
-    ctx.fillRect(21, 8, 1, 3);
-    ctx.fillRect(22, 11, 1, 6);
-    ctx.fillRect(21, 17, 1, 3);
-    ctx.fillRect(20, 20, 1, 2);
-    ctx.fillRect(19, 22, 1, 1);
+    ctx.fillRect(13, 23, 1, 1);
+    ctx.fillRect(14, 24, 1, 1);
+
+    // Right curved seam (mirror)
+    ctx.fillRect(19,  8, 1, 1);
+    ctx.fillRect(20,  9, 1, 1);
+    ctx.fillRect(21, 10, 1, 1);
+    ctx.fillRect(22, 11, 1, 1);
+    ctx.fillRect(23, 12, 1, 2);
+    ctx.fillRect(24, 14, 1, 5);  // rightmost — y=14–18
+    ctx.fillRect(23, 19, 1, 1);
+    ctx.fillRect(22, 20, 1, 1);
+    ctx.fillRect(21, 21, 1, 1);
+    ctx.fillRect(20, 22, 1, 1);
+    ctx.fillRect(19, 23, 1, 1);
+    ctx.fillRect(18, 24, 1, 1);
+
     c.refresh();
   }
 
