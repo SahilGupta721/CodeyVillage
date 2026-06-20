@@ -6,6 +6,19 @@ Built as a full-stack web app with a Phaser 3 multiplayer game at its core, a Py
 
 ---
 
+## 🏆 Awards
+
+- **Best Gamification Hack** — [GDG Hacks 3](https://gdg-hacks-3.devpost.com/)
+
+---
+
+## 🔗 Links
+
+- **Devpost:** https://devpost.com/software/cozyvillage
+- **Demo Video:** https://www.youtube.com/watch?v=_GpzlR9-mik
+
+---
+
 ## Screenshots
 
 ### Landing Page
