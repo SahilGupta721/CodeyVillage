@@ -29,12 +29,13 @@ const CAT_RADIUS    = 7;    // collision radius (px) — smaller than human NPCs
 const BOB_AMPLITUDE = 1.2;
 const BOB_SPEED     = 0.008;
 
-const enum CatState { Sitting = 0, Walking = 1 }
+const enum CatState { Sitting = 0, Walking = 1, Sleeping = 2 }
 
 export class CatNPC {
   private root:  Phaser.GameObjects.Container;
   private gSit:  Phaser.GameObjects.Graphics;
   private gWalk: Phaser.GameObjects.Graphics;
+  private gSleep: Phaser.GameObjects.Graphics;
 
   private state:     CatState = CatState.Sitting;
   private timer:     number;          // ms remaining in SITTING idle
@@ -55,16 +56,42 @@ export class CatNPC {
     this.timer    = 1000 + Math.random() * 2000;    // stagger first sit
     this.bobPhase = Math.random() * Math.PI * 2;    // stagger bob phase
 
-    this.gSit  = scene.add.graphics();
-    this.gWalk = scene.add.graphics();
+    this.gSit   = scene.add.graphics();
+    this.gWalk  = scene.add.graphics();
+    this.gSleep = scene.add.graphics();
     this.drawSitting();
     this.drawWalking();
+    this.drawSleeping();
     this.gWalk.setVisible(false);
+    this.gSleep.setVisible(false);
 
-    this.root = scene.add.container(x, y, [this.gSit, this.gWalk]);
+    this.root = scene.add.container(x, y, [this.gSit, this.gWalk, this.gSleep]);
   }
 
+  /** Move the cat to the bed position and switch to the sleeping pose. */
+  sleepInBed(bedX: number, bedY: number): void {
+    this.state      = CatState.Sleeping;
+    this.root.x     = bedX;
+    this.root.y     = bedY;
+    this.gSit.setVisible(false);
+    this.gWalk.setVisible(false);
+    this.gSleep.setVisible(true);
+  }
+
+  /** Return to normal idle behaviour after sleeping. */
+  wakeUp(): void {
+    if (this.state !== CatState.Sleeping) return;
+    this.gSleep.setVisible(false);
+    this.sit();
+  }
+
+  isSleeping(): boolean { return this.state === CatState.Sleeping; }
+
   update(delta: number, col: CollisionSystem): void {
+    if (this.state === CatState.Sleeping) {
+      this.root.setDepth(100 + this.root.y * 0.01);
+      return;
+    }
     if (this.state === CatState.Sitting) {
       this.timer -= delta;
       if (this.timer <= 0) this.pickTarget(col);
@@ -135,6 +162,61 @@ export class CatNPC {
   }
 
   // ── Pixel-art sprite drawing ─────────────────────────────────────────────────
+
+  /**
+   * Sleeping pose: cat curled in a ball on the bed, head tucked to one side,
+   * tail wrapped around the body, eyes closed.
+   */
+  private drawSleeping(): void {
+    const g = this.gSleep;
+
+    // Shadow (wide oval — cat lying flat)
+    g.fillStyle(0x000000, 0.26);
+    g.fillRect(-7, 6, 14, 3);
+
+    // Tail wrapping around the left side
+    g.fillStyle(C_DARK);
+    g.fillRect(-8, -1, 3, 7);
+    g.fillStyle(C_MID);
+    g.fillRect(-7, 0, 2, 5);
+    g.fillStyle(C_BELLY);
+    g.fillRect(-7, 4, 2, 2);
+
+    // Main body (curled, wider than sitting)
+    g.fillStyle(C_DARK);
+    g.fillRect(-6, -2, 12, 8);
+    g.fillStyle(C_MID);
+    g.fillRect(-5, -1, 10, 6);
+    g.fillStyle(C_LIGHT);
+    g.fillRect(-5, -1, 6, 3);
+    g.fillStyle(C_BELLY);
+    g.fillRect(-3, 2, 7, 3);
+
+    // Head peeking out to the upper-right
+    g.fillStyle(C_DARK);
+    g.fillRect(2, -7, 8, 7);
+    g.fillStyle(C_MID);
+    g.fillRect(3, -6, 6, 5);
+    g.fillStyle(C_LIGHT);
+    g.fillRect(3, -6, 4, 2);
+
+    // Small ears (folded slightly)
+    g.fillStyle(C_DARK);
+    g.fillRect(2, -9, 3, 3);
+    g.fillRect(6, -9, 3, 3);
+    g.fillStyle(C_EAR);
+    g.fillRect(3, -8, 1, 1);
+    g.fillRect(7, -8, 1, 1);
+
+    // Closed eyes — thin horizontal slits
+    g.fillStyle(C_DARK);
+    g.fillRect(3, -3, 2, 1);
+    g.fillRect(7, -3, 2, 1);
+
+    // Nose
+    g.fillStyle(C_NOSE);
+    g.fillRect(7, -1, 1, 1);
+  }
 
   /** Sitting pose: upright oval body, curled tail, front paws tucked. */
   private drawSitting(): void {

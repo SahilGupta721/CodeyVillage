@@ -1456,6 +1456,36 @@ function DogIcon() {
   );
 }
 
+function PetBedIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
+      style={{ imageRendering: 'pixelated', shapeRendering: 'crispEdges', flexShrink: 0 } as React.CSSProperties}>
+      {/* shadow */}
+      <rect x="5" y="25" width="22" height="4" fill="rgba(0,0,0,0.22)" />
+      {/* wicker rim outer */}
+      <rect x="6" y="11" width="20" height="15" fill="#7A5020" />
+      {/* wicker rim inner */}
+      <rect x="7" y="12" width="18" height="13" fill="#A87030" />
+      {/* rim highlight */}
+      <rect x="8" y="12" width="10" height="2" fill="#C89040" />
+      {/* weave lines */}
+      <rect x="7" y="16" width="18" height="1" fill="rgba(0,0,0,0.14)" />
+      <rect x="7" y="19" width="18" height="1" fill="rgba(0,0,0,0.14)" />
+      <rect x="7" y="22" width="18" height="1" fill="rgba(0,0,0,0.14)" />
+      {/* cushion */}
+      <rect x="9" y="14" width="14" height="10" fill="#E8B080" />
+      <rect x="10" y="15" width="12" height="8" fill="#F4C898" />
+      <rect x="11" y="16" width="7" height="4" fill="#FEE0C0" />
+      {/* pillow at head end */}
+      <rect x="9" y="11" width="14" height="5" fill="#F0C0A8" />
+      <rect x="10" y="12" width="12" height="3" fill="#FAD8C8" />
+      {/* front low rim edge */}
+      <rect x="6" y="24" width="20" height="2" fill="#5A3810" />
+      <rect x="7" y="25" width="18" height="1" fill="#8A6028" />
+    </svg>
+  );
+}
+
 // ── shop catalogue ───────────────────────────────────────────────────────────
 
 const BASE_CATEGORIES: ShopCategory[] = [
@@ -1473,9 +1503,10 @@ const BASE_CATEGORIES: ShopCategory[] = [
     label: 'Pets',
     emoji: '🐾',
     items: [
-      { id: 'pet-cat',   name: 'Cat',   emoji: '🐱', icon: <CatIcon />,   price: 20000 },
-      { id: 'pet-bunny', name: 'Bunny', emoji: '🐰', icon: <BunnyIcon />, price: 20000 },
-      { id: 'pet-dog',   name: 'Dog',   emoji: '🐶', icon: <DogIcon />,   price: 20000 },
+      { id: 'pet-cat',   name: 'Cat',      emoji: '🐱', icon: <CatIcon />,     price: 20000 },
+      { id: 'pet-bunny', name: 'Bunny',    emoji: '🐰', icon: <BunnyIcon />,   price: 20000 },
+      { id: 'pet-dog',   name: 'Dog',      emoji: '🐶', icon: <DogIcon />,     price: 20000 },
+      { id: 'pet-bed',   name: 'Pet Bed',  emoji: '🛏️', icon: <PetBedIcon />, price: 500   },
     ],
   },
   {

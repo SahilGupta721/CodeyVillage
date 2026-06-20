@@ -578,6 +578,7 @@ export class BootScene extends Phaser.Scene {
     this.makePetCat();
     this.makePetDog();
     this.makePetBunny();
+    this.makePetBed();
   }
 
   // ── Furniture ────────────────────────────────────────────────────────────────
@@ -2247,6 +2248,66 @@ export class BootScene extends Phaser.Scene {
     ctx.fillStyle = '#EEEAE8';
     ctx.fillRect(ox - 4, oy + 7, 3, 3);
     ctx.fillRect(ox + 2, oy + 7, 3, 3);
+
+    c.refresh();
+  }
+
+  // ─── Pet: cat ghost preview texture (32 × 32) ────────────────────────────────
+  //
+  // Shown as the semi-transparent placement ghost when the player is about to
+  // drop a cat. Matches the sitting pose drawn by CatNPC.drawSitting().
+
+  // ─── Pet bed (32 × 32) ───────────────────────────────────────────────────────
+  //
+  // Small wicker basket with a soft cushion inside — placed on the island as a
+  // resting spot for pet NPCs.  The headboard (pillow end) is drawn at the top
+  // of the canvas so the perspective reads correctly with origin (0.5, 0.7).
+
+  private makePetBed(): void {
+    const c = this.textures.createCanvas('pet-bed', 32, 32)!;
+    const ctx = c.getContext();
+
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.22)';
+    ctx.fillRect(5, 25, 22, 4);
+
+    // Wicker basket outer ring — dark
+    ctx.fillStyle = '#7A5020';
+    ctx.fillRect(6, 11, 20, 15);
+
+    // Basket inner — warm mid-brown
+    ctx.fillStyle = '#A87030';
+    ctx.fillRect(7, 12, 18, 13);
+
+    // Top-left highlight on rim
+    ctx.fillStyle = '#C89040';
+    ctx.fillRect(8, 12, 10, 2);
+
+    // Woven texture lines across the rim
+    ctx.fillStyle = 'rgba(0,0,0,0.14)';
+    ctx.fillRect(7, 16, 18, 1);
+    ctx.fillRect(7, 19, 18, 1);
+    ctx.fillRect(7, 22, 18, 1);
+
+    // Cushion inside basket
+    ctx.fillStyle = '#E8B080';
+    ctx.fillRect(9, 14, 14, 10);
+    ctx.fillStyle = '#F4C898';
+    ctx.fillRect(10, 15, 12, 8);
+    ctx.fillStyle = '#FEE0C0';
+    ctx.fillRect(11, 16, 7, 4);
+
+    // Pillow at the head end (top of basket)
+    ctx.fillStyle = '#F0C0A8';
+    ctx.fillRect(9, 11, 14, 5);
+    ctx.fillStyle = '#FAD8C8';
+    ctx.fillRect(10, 12, 12, 3);
+
+    // Front low rim edge for depth
+    ctx.fillStyle = '#5A3810';
+    ctx.fillRect(6, 24, 20, 2);
+    ctx.fillStyle = '#8A6028';
+    ctx.fillRect(7, 25, 18, 1);
 
     c.refresh();
   }

@@ -33,13 +33,14 @@ const HOP_PAUSE     = 85;    // ms between hops (on the ground)
 const HOP_DISTANCE  = 13;    // world-px per hop
 const HOP_HEIGHT    = 10;    // max px off ground at arc peak
 
-const enum BunnyState { Sitting = 0, Hopping = 1 }
+const enum BunnyState { Sitting = 0, Hopping = 1, Sleeping = 2 }
 
 export class BunnyNPC {
   private root:        Phaser.GameObjects.Container;
   private gSit:        Phaser.GameObjects.Graphics;
   private gHopShadow:  Phaser.GameObjects.Graphics;
   private gHopBody:    Phaser.GameObjects.Graphics;
+  private gSleep:      Phaser.GameObjects.Graphics;
 
   private state:     BunnyState = BunnyState.Sitting;
   private timer:     number;           // ms remaining in sit
@@ -68,19 +69,46 @@ export class BunnyNPC {
     this.gSit       = scene.add.graphics();
     this.gHopShadow = scene.add.graphics();
     this.gHopBody   = scene.add.graphics();
+    this.gSleep     = scene.add.graphics();
 
     this.drawSitting();
     this.drawHopShadow();
     this.drawHopBody();
+    this.drawSleeping();
 
     this.gHopShadow.setVisible(false);
     this.gHopBody.setVisible(false);
+    this.gSleep.setVisible(false);
 
     // Shadow behind body in draw order
-    this.root = scene.add.container(x, y, [this.gHopShadow, this.gSit, this.gHopBody]);
+    this.root = scene.add.container(x, y, [this.gHopShadow, this.gSit, this.gHopBody, this.gSleep]);
   }
 
+  sleepInBed(bedX: number, bedY: number): void {
+    this.state      = BunnyState.Sleeping;
+    this.isAirborne = false;
+    this.gHopBody.y = 0;
+    this.root.x     = bedX;
+    this.root.y     = bedY;
+    this.gSit.setVisible(false);
+    this.gHopShadow.setVisible(false);
+    this.gHopBody.setVisible(false);
+    this.gSleep.setVisible(true);
+  }
+
+  wakeUp(): void {
+    if (this.state !== BunnyState.Sleeping) return;
+    this.gSleep.setVisible(false);
+    this.sit();
+  }
+
+  isSleeping(): boolean { return this.state === BunnyState.Sleeping; }
+
   update(delta: number, col: CollisionSystem): void {
+    if (this.state === BunnyState.Sleeping) {
+      this.root.setDepth(100 + this.root.y * 0.01);
+      return;
+    }
     if (this.state === BunnyState.Sitting) {
       this.timer -= delta;
       if (this.timer <= 0) this.pickTarget(col);
@@ -186,6 +214,65 @@ export class BunnyNPC {
   }
 
   // ── Pixel-art drawing ─────────────────────────────────────────────────────────
+
+  /**
+   * Sleeping pose: bunny curled up with ears drooped flat to the sides,
+   * body compact, eyes closed.
+   */
+  private drawSleeping(): void {
+    const g = this.gSleep;
+
+    // Shadow
+    g.fillStyle(0x000000, 0.26);
+    g.fillRect(-7, 8, 14, 3);
+
+    // Ears drooped flat to the sides (not upright)
+    g.fillStyle(C_OUTER);
+    g.fillRect(-9, -11, 3, 9);
+    g.fillStyle(C_EAR);
+    g.fillRect(-8, -10, 1, 7);
+
+    g.fillStyle(C_OUTER);
+    g.fillRect(6, -11, 3, 9);
+    g.fillStyle(C_EAR);
+    g.fillRect(7, -10, 1, 7);
+
+    // Body (curled, compact)
+    g.fillStyle(C_OUTER);
+    g.fillRect(-6, -1, 12, 9);
+    g.fillStyle(C_MID);
+    g.fillRect(-5, 0, 10, 7);
+    g.fillStyle(C_BRIGHT);
+    g.fillRect(-5, 0, 6, 4);
+
+    // Fluffy tail
+    g.fillStyle(C_BRIGHT);
+    g.fillRect(5, 1, 4, 4);
+    g.fillStyle(C_TAIL);
+    g.fillRect(6, 2, 3, 3);
+
+    // Head (slightly tucked forward)
+    g.fillStyle(C_OUTER);
+    g.fillRect(-6, -9, 10, 9);
+    g.fillStyle(C_MID);
+    g.fillRect(-5, -8, 8, 7);
+    g.fillStyle(C_BRIGHT);
+    g.fillRect(-5, -8, 5, 4);
+
+    // Closed eyes — small squinting lines
+    g.fillStyle(C_EYE);
+    g.fillRect(-4, -4, 2, 1);
+    g.fillRect(1, -4, 2, 1);
+
+    // Nose
+    g.fillStyle(C_NOSE);
+    g.fillRect(-1, -2, 2, 1);
+
+    // Front paws tucked under
+    g.fillStyle(C_MID);
+    g.fillRect(-5, 7, 3, 2);
+    g.fillRect(-1, 7, 3, 2);
+  }
 
   /** Sitting pose — long upright ears, round body, front paws visible. */
   private drawSitting(): void {

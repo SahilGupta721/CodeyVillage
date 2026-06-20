@@ -23,12 +23,13 @@ const DOG_RADIUS    = 9;    // slightly bigger than cats
 const BOB_AMPLITUDE = 1.4;
 const BOB_SPEED     = 0.010;
 
-const enum DogState { Sitting = 0, Walking = 1 }
+const enum DogState { Sitting = 0, Walking = 1, Sleeping = 2 }
 
 export class DogNPC {
   private root:  Phaser.GameObjects.Container;
   private gSit:  Phaser.GameObjects.Graphics;
   private gWalk: Phaser.GameObjects.Graphics;
+  private gSleep: Phaser.GameObjects.Graphics;
 
   private state:     DogState = DogState.Sitting;
   private timer:     number;
@@ -49,16 +50,40 @@ export class DogNPC {
     this.timer    = 500 + Math.random() * 1500;      // short initial sit
     this.bobPhase = Math.random() * Math.PI * 2;
 
-    this.gSit  = scene.add.graphics();
-    this.gWalk = scene.add.graphics();
+    this.gSit   = scene.add.graphics();
+    this.gWalk  = scene.add.graphics();
+    this.gSleep = scene.add.graphics();
     this.drawSitting();
     this.drawWalking();
+    this.drawSleeping();
     this.gWalk.setVisible(false);
+    this.gSleep.setVisible(false);
 
-    this.root = scene.add.container(x, y, [this.gSit, this.gWalk]);
+    this.root = scene.add.container(x, y, [this.gSit, this.gWalk, this.gSleep]);
   }
 
+  sleepInBed(bedX: number, bedY: number): void {
+    this.state      = DogState.Sleeping;
+    this.root.x     = bedX;
+    this.root.y     = bedY;
+    this.gSit.setVisible(false);
+    this.gWalk.setVisible(false);
+    this.gSleep.setVisible(true);
+  }
+
+  wakeUp(): void {
+    if (this.state !== DogState.Sleeping) return;
+    this.gSleep.setVisible(false);
+    this.sit();
+  }
+
+  isSleeping(): boolean { return this.state === DogState.Sleeping; }
+
   update(delta: number, col: CollisionSystem): void {
+    if (this.state === DogState.Sleeping) {
+      this.root.setDepth(100 + this.root.y * 0.01);
+      return;
+    }
     if (this.state === DogState.Sitting) {
       this.timer -= delta;
       if (this.timer <= 0) this.pickTarget(col);
@@ -122,6 +147,74 @@ export class DogNPC {
   }
 
   // ── Pixel-art drawing ─────────────────────────────────────────────────────────
+
+  /**
+   * Sleeping pose: dog lying on its side, head resting down, floppy ear draped,
+   * tail curled at the back, paws tucked forward. Eyes are closed.
+   */
+  private drawSleeping(): void {
+    const g = this.gSleep;
+
+    // Shadow (elongated oval — dog lying flat)
+    g.fillStyle(0x000000, 0.26);
+    g.fillRect(-9, 5, 18, 3);
+
+    // Tail curled at the back-right
+    g.fillStyle(C_DARK);
+    g.fillRect(6, -5, 4, 8);
+    g.fillStyle(C_MID);
+    g.fillRect(7, -4, 3, 6);
+    g.fillStyle(C_LIGHT);
+    g.fillRect(7, -4, 2, 3);
+
+    // Floppy ear draped to the left
+    g.fillStyle(C_DARK);
+    g.fillRect(-12, -6, 5, 8);
+    g.fillStyle(C_MID);
+    g.fillRect(-11, -5, 3, 6);
+
+    // Body (elongated horizontal)
+    g.fillStyle(C_DARK);
+    g.fillRect(-8, -2, 15, 8);
+    g.fillStyle(C_MID);
+    g.fillRect(-7, -1, 13, 6);
+    g.fillStyle(C_LIGHT);
+    g.fillRect(-7, -1, 8, 3);
+
+    // Head resting on the front-left
+    g.fillStyle(C_DARK);
+    g.fillRect(-11, -8, 11, 8);
+    g.fillStyle(C_MID);
+    g.fillRect(-10, -7, 9, 6);
+    g.fillStyle(C_LIGHT);
+    g.fillRect(-10, -7, 5, 3);
+
+    // Snout resting on the ground
+    g.fillStyle(C_SNOUT);
+    g.fillRect(-9, -4, 7, 5);
+    g.fillStyle(C_SNOUT_L);
+    g.fillRect(-8, -3, 5, 3);
+
+    // Nose
+    g.fillStyle(C_NOSE);
+    g.fillRect(-7, -4, 3, 2);
+
+    // Closed eye — a thin dark slit
+    g.fillStyle(0x000000, 0.65);
+    g.fillRect(-9, -6, 4, 1);
+
+    // Front paws tucked forward
+    g.fillStyle(C_DARK);
+    g.fillRect(-8, 5, 5, 3);
+    g.fillStyle(C_MID);
+    g.fillRect(-7, 6, 4, 2);
+
+    // Hind paws visible at the back
+    g.fillStyle(C_DARK);
+    g.fillRect(3, 5, 5, 3);
+    g.fillStyle(C_MID);
+    g.fillRect(4, 6, 4, 2);
+  }
 
   /** Sitting dog: upright, floppy ears flanking the head, tail to the side. */
   private drawSitting(): void {

@@ -93,6 +93,7 @@ const SHOP_ITEM_TEXTURES: Record<string, string> = {
   'pet-cat':   'pet-cat',
   'pet-dog':   'pet-dog',
   'pet-bunny': 'pet-bunny',
+  'pet-bed':   'pet-bed',
 };
 
 const TILE_COLORS = new Map<TileType, number>([
@@ -159,6 +160,11 @@ export class GameScene extends Phaser.Scene {
   private player!: Player;
   private npcs: NPC[] = [];
   private petNPCs: Map<string, CatNPC | DogNPC | BunnyNPC> = new Map();
+  private petBeds: Map<string, { x: number; y: number }> = new Map();
+  private sleepingPetId: string | null = null;
+  private occupiedBedId: string | null = null;
+  private petBedNightTimer: number = 0;
+  private petSleepingForNight: boolean = false;
   private pondAnims: Phaser.GameObjects.TileSprite[] = [];
   private redFlowers: Phaser.GameObjects.Image[] = [];
   private leafEmitter: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
@@ -362,9 +368,55 @@ export class GameScene extends Phaser.Scene {
     this.updateRain(time, delta);
     this.updateArcadeScreens(delta);
     this.updatePoolTables(delta);
+    this.updatePetBedSleep(delta);
     if (this.placement && this.escKey && Phaser.Input.Keyboard.JustDown(this.escKey)) {
       this.cancelPlacement();
     }
+  }
+
+  // ─── Pet bed sleep system ─────────────────────────────────────────────────
+
+  /**
+   * Occasionally sends one pet NPC to sleep in a placed pet bed for the entire
+   * night, and wakes it at dawn.  Only one pet sleeps at a time; the choice is
+   * random each night with ~40 % probability per 90-second window of darkness.
+   */
+  private updatePetBedSleep(delta: number): void {
+    const isNight = this.currentNightAlpha > 0.5;
+
+    // Wake sleeping pet at dawn
+    if (this.petSleepingForNight && !isNight && this.sleepingPetId) {
+      this.petNPCs.get(this.sleepingPetId)?.wakeUp();
+      this.sleepingPetId       = null;
+      this.occupiedBedId       = null;
+      this.petSleepingForNight = false;
+      this.petBedNightTimer    = 0;
+      return;
+    }
+
+    // Nothing to do without night, beds, or pets
+    if (!isNight || this.petBeds.size === 0 || this.petNPCs.size === 0) return;
+    // Only one pet sleeps per night
+    if (this.sleepingPetId) return;
+
+    // Accumulate time; check every 90 s with 40 % probability
+    this.petBedNightTimer += delta;
+    if (this.petBedNightTimer < 90_000) return;
+    this.petBedNightTimer = 0;
+
+    if (Math.random() > 0.4) return;
+
+    // Pick a random awake pet and a random bed
+    const petIds = [...this.petNPCs.keys()];
+    const bedIds = [...this.petBeds.keys()];
+    const petId  = petIds[Math.floor(Math.random() * petIds.length)];
+    const bedId  = bedIds[Math.floor(Math.random() * bedIds.length)];
+    const bed    = this.petBeds.get(bedId)!;
+
+    this.petNPCs.get(petId)!.sleepInBed(bed.x, bed.y);
+    this.sleepingPetId       = petId;
+    this.occupiedBedId       = bedId;
+    this.petSleepingForNight = true;
   }
 
   // ─── Multiplayer ──────────────────────────────────────────────────────────
@@ -1464,6 +1516,9 @@ export class GameScene extends Phaser.Scene {
       // Outer rail: texture rect(2,4,32,56) → world offsets (−16,−41)→(+16,+15)
       this.col.addRectObstacle(id, x - 16, y - 41, x + 16, y + 15);
     }
+    if (itemId === 'pet-bed' && id) {
+      this.petBeds.set(id, { x, y });
+    }
   }
 
   private async loadPlacedItems(): Promise<void> {
@@ -1529,6 +1584,12 @@ export class GameScene extends Phaser.Scene {
             this.arcadeScreens.delete(tempId);
             this.arcadeScreens.set(serverId, screen);
           }
+          const petBed = this.petBeds.get(tempId);
+          if (petBed) {
+            this.petBeds.delete(tempId);
+            this.petBeds.set(serverId, petBed);
+            if (this.occupiedBedId === tempId) this.occupiedBedId = serverId;
+          }
         }
       }
     } catch (e) {
@@ -1571,6 +1632,15 @@ export class GameScene extends Phaser.Scene {
     this.col.removeRectObstacle(id);
     const blossomEmitter = this.cherryBlossomEmitters.get(id);
     if (blossomEmitter) { blossomEmitter.destroy(); this.cherryBlossomEmitters.delete(id); }
+    if (this.petBeds.has(id)) {
+      this.petBeds.delete(id);
+      if (this.occupiedBedId === id && this.sleepingPetId) {
+        this.petNPCs.get(this.sleepingPetId)?.wakeUp();
+        this.sleepingPetId      = null;
+        this.occupiedBedId      = null;
+        this.petSleepingForNight = false;
+      }
+    }
   }
 
   private async erasePlacedItem(id: string): Promise<void> {
